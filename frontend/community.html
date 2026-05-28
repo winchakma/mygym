@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Community | East Blue Gym</title>
+  <link rel="stylesheet" href="css/style.css?v=2026" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --ig-bg: #000000;
+      --ig-border: #262626;
+      --ig-text: #ffffff;
+      --ig-secondary: #a8a8a8;
+      --ig-accent: #facc15;
+    }
+    body {
+      background-color: var(--ig-bg);
+      color: var(--ig-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      display: flex;
+      height: 100vh;
+    }
+    
+    /* SIDEBAR */
+    .sidebar {
+      width: 250px;
+      border-right: 1px solid var(--ig-border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      background: var(--ig-bg);
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .nav-item:hover, .nav-item.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--ig-accent);
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    .tab-section {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+    }
+    .tab-section.active {
+      display: flex;
+    }
+
+    /* CHAT UI */
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .chat-message {
+      display: flex;
+      flex-direction: column;
+      max-width: 70%;
+    }
+    .chat-message.incoming {
+      align-self: flex-start;
+    }
+    .chat-message.outgoing {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+    .chat-bubble {
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      word-wrap: break-word;
+    }
+    .incoming .chat-bubble {
+      background: #262626;
+      border-bottom-left-radius: 4px;
+    }
+    .outgoing .chat-bubble {
+      background: var(--ig-accent);
+      color: #000;
+      border-bottom-right-radius: 4px;
+      font-weight: 500;
+    }
+    .chat-meta {
+      font-size: 11px;
+      color: var(--ig-secondary);
+      margin-bottom: 4px;
+    }
+    .chat-media-attachment {
+      max-width: 250px;
+      border-radius: 12px;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    /* CHAT INPUT */
+    .chat-input-area {
+      padding: 16px 24px;
+      border-top: 1px solid var(--ig-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--ig-bg);
+    }
+    .chat-input {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 24px;
+      outline: none;
+    }
+    .chat-input:focus {
+      border-color: var(--ig-accent);
+    }
+    .btn-send {
+      background: var(--ig-accent);
+      color: #000;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn-send:hover {
+      transform: scale(1.05);
+    }
+
+    /* MEDIA GALLERY */
+    .gallery-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      align-content: start;
+    }
+    .gallery-item {
+      position: relative;
+      aspect-ratio: 1;
+      background: #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .gallery-media {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .gallery-item:hover .gallery-media {
+      transform: scale(1.05);
+    }
+    .gallery-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .gallery-item:hover .gallery-delete {
+      opacity: 1;
+    }
+    .gallery-delete:hover {
+      background: red;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        padding: 12px;
+        border-right: none;
+        border-bottom: 1px solid var(--ig-border);
+        justify-content: space-around;
+      }
+      .nav-item {
+        margin: 0;
+        padding: 8px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR NAVIGATION -->
+  <div class="sidebar">
+    <div class="text-2xl font-black italic tracking-widest text-yellow-400 mb-8 hidden md:block" style="cursor: pointer" onclick="window.location.href='dashboard.html'">EAST BLUE</div>
+    
+    <div class="nav-item active" onclick="switchTab('chat')" id="nav-chat">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span class="hidden md:inline">Global Lounge</span>
+    </div>
+    
+    <div class="nav-item" onclick="switchTab('gallery')" id="nav-gallery">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+        <circle cx="9" cy="9" r="2"/>
+        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+      </svg>
+      <span class="hidden md:inline">Media Gallery</span>
+    </div>
+
+    <div class="mt-auto hidden md:block">
+      <button onclick="window.location.href='dashboard.html'" class="text-sm font-bold text-gray-500 hover:text-white transition">
+        &larr; Back to Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    
+    <!-- GLOBAL LOUNGE (CHAT) -->
+    <div id="tab-chat" class="tab-section active">
+      <!-- HEADER -->
+      <div class="px-6 py-4 border-b border-[#262626] flex justify-between items-center bg-[#0a0a0a]">
+        <div>
+          <h2 class="text-xl font-bold italic tracking-wide">Global <span class="text-yellow-400">Lounge</span></h2>
+          <div class="text-[10px] text-green-400 font-bold uppercase tracking-widest flex items-center gap-2">
+            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            Live connection established
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT MESSAGES -->
+      <div id="chat-messages" class="chat-container">
+        <div class="text-center text-[#555] text-xs font-bold uppercase tracking-widest my-4">
+          Welcome to the Elite Lounge. Keep it respectful.
+        </div>
+        <!-- Messages populate here -->
+      </div>
+
+      <!-- CHAT INPUT -->
+      <div class="chat-input-area">
+        <input type="file" id="chat-media-input" class="hidden" accept="image/*,video/*" onchange="previewChatMedia(this)">
+        <button onclick="document.getElementById('chat-media-input').click()" class="text-[#888] hover:text-white transition p-2">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+        </button>
+        <div id="chat-media-preview" class="hidden relative h-10 w-10 bg-gray-800 rounded">
+           <img id="chat-media-thumb" class="w-full h-full object-cover rounded opacity-50" />
+           <button onclick="clearChatMedia()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">x</button>
+        </div>
+        <input type="text" id="chat-text-input" class="chat-input" placeholder="Message the global lounge..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+        <button onclick="sendChatMessage()" class="btn-send">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" x2="11" y1="2" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+
+    <!-- MEDIA GALLERY -->
+    <div id="tab-gallery" class="tab-section">
+      <!-- HEADER -->
+      <div class="px-6 py-4 border-b border-[#262626] flex justify-between items-center bg-[#0a0a0a]">
+        <div>
+          <h2 class="text-xl font-bold italic tracking-wide">Elite <span class="text-yellow-400">Gallery</span></h2>
+          <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+            Community progress & moments
+          </div>
+        </div>
+        <button onclick="document.getElementById('gallery-upload-input').click()" class="bg-yellow-400 text-black px-4 py-2 rounded font-bold text-sm hover:bg-yellow-500 transition">
+          + Upload Media
+        </button>
+        <input type="file" id="gallery-upload-input" class="hidden" accept="image/*,video/*" onchange="uploadGalleryMedia(this)">
+      </div>
+
+      <!-- GALLERY GRID -->
+      <div id="gallery-grid" class="gallery-container">
+        <!-- Gallery items populate here -->
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'index.html';
+    
+    const CONFIG = { API_URL: (window.ELITE_API_URL || '') + '/api' };
+
+    let currentUserEmail = "";
+    let chatSocket = null;
+
+    // UI State
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      document.getElementById(`nav-${tabId}`).classList.add('active');
+
+      if (tabId === 'chat') {
+        setTimeout(scrollToBottom, 100);
+      } else if (tabId === 'gallery') {
+        loadGallery();
+      }
+    }
+
+    async function initUser() {
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/profile?token=${token}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          currentUserEmail = data.email.toLowerCase();
+          initChat();
+          loadGallery();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // ==========================================
+    // GLOBAL CHAT LOGIC
+    // ==========================================
+    let chatMediaFile = null;
+
+    function previewChatMedia(input) {
+      if (input.files && input.files[0]) {
+        chatMediaFile = input.files[0];
+        document.getElementById('chat-media-preview').classList.remove('hidden');
+        if (chatMediaFile.type.startsWith('image/')) {
+          document.getElementById('chat-media-thumb').src = URL.createObjectURL(chatMediaFile);
+        } else {
+          document.getElementById('chat-media-thumb').src = 'https://cdn-icons-png.flaticon.com/512/3172/3172579.png'; // video icon
+        }
+      }
+    }
+
+    function clearChatMedia() {
+      chatMediaFile = null;
+      document.getElementById('chat-media-input').value = '';
+      document.getElementById('chat-media-preview').classList.add('hidden');
+    }
+
+    async function initChat() {
+      // Fetch History
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/chat`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const history = await res.json();
+        const container = document.getElementById('chat-messages');
+        
+        // Don't clear completely, preserve the welcome message
+        const welcomeMsg = container.innerHTML;
+        container.innerHTML = welcomeMsg;
+
+        history.forEach(msg => {
+          appendMessage(msg);
+        });
+        scrollToBottom();
+      } catch (e) {
+        console.error("History fetch error", e);
+      }
+
+      // Connect WebSocket
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const domain = CONFIG.API_URL.replace(/^https?:\/\//, '');
+      const wsUrl = `${wsProtocol}//${domain}/community/ws?token=${token}`;
+      
+      chatSocket = new WebSocket(wsUrl);
+      chatSocket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'wall-message') {
+          appendMessage(data.message);
+          scrollToBottom();
+        }
+      };
+      
+      chatSocket.onclose = () => {
+        console.log("Chat WS closed. Reconnecting...");
+        setTimeout(initChat, 3000);
+      };
+    }
+
+    function appendMessage(msg) {
+      const container = document.getElementById('chat-messages');
+      const isMine = msg.userEmail.toLowerCase() === currentUserEmail;
+      
+      const el = document.createElement('div');
+      el.className = `chat-message ${isMine ? 'outgoing' : 'incoming'}`;
+      
+      let mediaHtml = '';
+      if (msg.mediaUrl) {
+        if (msg.mediaType === 'video') {
+          mediaHtml = `<video src="${msg.mediaUrl}" controls class="chat-media-attachment"></video>`;
+        } else {
+          mediaHtml = `<img src="${msg.mediaUrl}" class="chat-media-attachment" onclick="window.open('${msg.mediaUrl}', '_blank')" />`;
+        }
+      }
+
+      el.innerHTML = `
+        ${!isMine ? `<div class="chat-meta">${msg.userName}</div>` : ''}
+        <div class="chat-bubble">
+          ${msg.message ? `<div>${msg.message}</div>` : ''}
+          ${mediaHtml}
+        </div>
+      `;
+      container.appendChild(el);
+    }
+
+    function scrollToBottom() {
+      const container = document.getElementById('chat-messages');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('chat-text-input');
+      const text = input.value.trim();
+      
+      if (!text && !chatMediaFile) return;
+      
+      input.value = '';
+      const fd = new FormData();
+      fd.append('token', token);
+      fd.append('message', text);
+      if (chatMediaFile) {
+        fd.append('mediaFile', chatMediaFile);
+        clearChatMedia();
+      }
+
+      try {
+        await fetch(`${CONFIG.API_URL}/community/chat/send`, {
+          method: 'POST',
+          body: fd
+        });
+        // WS will broadcast it back to us, so we don't append manually
+      } catch (e) {
+        console.error("Send error", e);
+      }
+    }
+
+
+    // ==========================================
+    // MEDIA GALLERY LOGIC
+    // ==========================================
+    async function loadGallery() {
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/posts?token=${token}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const posts = await res.json();
+        
+        const grid = document.getElementById('gallery-grid');
+        grid.innerHTML = '';
+
+        posts.forEach(post => {
+          if (!post.mediaUrl) return; // Only show media posts in gallery
+
+          const isMine = post.userEmail.toLowerCase() === currentUserEmail;
+          const el = document.createElement('div');
+          el.className = 'gallery-item';
+          
+          let mediaHtml = '';
+          if (post.mediaType === 'video') {
+            mediaHtml = `<video src="${post.mediaUrl}" class="gallery-media" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>`;
+          } else {
+            mediaHtml = `<img src="${post.mediaUrl}" class="gallery-media" />`;
+          }
+
+          let deleteBtnHtml = isMine ? `<div class="gallery-delete" onclick="deleteMedia('${post.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></div>` : '';
+
+          el.innerHTML = `
+            ${mediaHtml}
+            ${deleteBtnHtml}
+            <div class="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
+               <div class="text-[10px] font-bold truncate">${post.userName}</div>
+            </div>
+          `;
+          grid.appendChild(el);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function uploadGalleryMedia(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      
+      const fd = new FormData();
+      fd.append('token', token);
+      fd.append('content', ''); // No text content needed for gallery
+      fd.append('mediaFile', file);
+
+      try {
+        // Show loading state could go here
+        const res = await fetch(`${CONFIG.API_URL}/community/posts/create`, {
+          method: 'POST',
+          body: fd
+        });
+        if (res.ok) {
+          loadGallery(); // Reload grid
+        } else {
+          alert("Upload failed. Max size is 10MB.");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      input.value = '';
+    }
+
+    async function deleteMedia(id) {
+      if (!confirm("Delete this media permanently?")) return;
+      
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/posts/${id}?token=${token}`, {
+          method: 'DELETE'
+        });
+        if (res.ok) {
+          loadGallery(); // Reload grid
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Init on load
+    initUser();
+
+  </script>
+</body>
+</html>
