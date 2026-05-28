@@ -3,405 +3,813 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Community | East Blue Gym</title>
-  <link rel="stylesheet" href="css/style.css?v=2026" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Community Hub | East Blue Gym</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,900;1,900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ig-bg: #000000;
-      --ig-border: #262626;
-      --ig-text: #ffffff;
-      --ig-secondary: #a8a8a8;
-      --ig-accent: #facc15;
+      --accent: #f5e642;
+      --accent-dim: rgba(245,230,66,0.12);
+      --accent-glow: rgba(245,230,66,0.25);
+      --bg: #050505;
+      --surface: rgba(255,255,255,0.03);
+      --surface-hover: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.07);
+      --border-accent: rgba(245,230,66,0.3);
+      --text: #ffffff;
+      --text-muted: #555;
+      --text-secondary: #888;
+      --green: #22c55e;
+      --sidebar-w: 260px;
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      background-color: var(--ig-bg);
-      color: var(--ig-text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
       display: flex;
       height: 100vh;
+      overflow: hidden;
     }
-    
-    /* SIDEBAR */
+
+    /* ── AMBIENT BG ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 10% 20%, rgba(245,230,66,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 90% 80%, rgba(245,230,66,0.03) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── SIDEBAR ── */
     .sidebar {
-      width: 250px;
-      border-right: 1px solid var(--ig-border);
+      width: var(--sidebar-w);
+      background: rgba(8,8,8,0.95);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      padding: 24px;
-      background: var(--ig-bg);
+      padding: 28px 16px;
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+      backdrop-filter: blur(20px);
     }
+
+    .sidebar-logo {
+      font-family: 'Barlow', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      padding: 0 12px 28px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .sidebar-logo span { color: white; }
+
+    .sidebar-section-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding: 0 12px;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 16px;
-      margin-bottom: 8px;
-      border-radius: 12px;
+      gap: 14px;
+      padding: 12px 16px;
+      margin-bottom: 2px;
+      border-radius: 14px;
       cursor: pointer;
-      font-weight: bold;
-      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      position: relative;
+      border: 1px solid transparent;
     }
-    .nav-item:hover, .nav-item.active {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--ig-accent);
+    .nav-item:hover {
+      background: var(--surface-hover);
+      color: var(--text);
     }
+    .nav-item.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: var(--border-accent);
+    }
+    .nav-item.active .nav-icon { color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg { opacity: 1; }
 
-    /* MAIN CONTENT */
+    .sidebar-back {
+      margin-top: auto;
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+    .sidebar-back:hover { color: var(--text); }
+
+    /* ── MAIN CONTENT ── */
     .main-content {
       flex: 1;
       position: relative;
       overflow: hidden;
+      z-index: 1;
     }
+
     .tab-section {
       display: none;
       height: 100%;
       flex-direction: column;
+      animation: fadeIn 0.25s ease;
     }
-    .tab-section.active {
-      display: flex;
-    }
+    .tab-section.active { display: flex; }
 
-    /* CHAT UI */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      padding: 24px 32px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(5,5,5,0.8);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-family: 'Barlow', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: 1px;
+    }
+    .section-title span { color: var(--accent); }
+    .section-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--green);
+      text-transform: uppercase;
+    }
+    .live-dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .btn-primary:hover { background: #ffe000; transform: translateY(-1px); box-shadow: 0 8px 24px var(--accent-glow); }
+
+    /* ── CHAT ── */
     .chat-container {
       flex: 1;
       overflow-y: auto;
-      padding: 24px;
+      padding: 24px 32px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: #222 transparent;
     }
+
+    .chat-date-divider {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin: 8px 0;
+    }
+
     .chat-message {
       display: flex;
-      flex-direction: column;
-      max-width: 70%;
+      gap: 10px;
+      max-width: 72%;
+      animation: msgIn 0.2s ease;
     }
-    .chat-message.incoming {
-      align-self: flex-start;
-    }
-    .chat-message.outgoing {
+    @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .chat-message.incoming { align-self: flex-start; }
+    .chat-message.outgoing { align-self: flex-end; flex-direction: row-reverse; }
+
+    .chat-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
       align-self: flex-end;
-      align-items: flex-end;
     }
+
+    .chat-body { display: flex; flex-direction: column; gap: 4px; }
+    .outgoing .chat-body { align-items: flex-end; }
+
+    .chat-meta {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      padding: 0 4px;
+    }
+
     .chat-bubble {
-      padding: 12px 16px;
-      border-radius: 20px;
-      font-size: 15px;
-      word-wrap: break-word;
+      padding: 11px 16px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
     }
     .incoming .chat-bubble {
-      background: #262626;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
       border-bottom-left-radius: 4px;
     }
     .outgoing .chat-bubble {
-      background: var(--ig-accent);
+      background: var(--accent);
       color: #000;
-      border-bottom-right-radius: 4px;
       font-weight: 500;
-    }
-    .chat-meta {
-      font-size: 11px;
-      color: var(--ig-secondary);
-      margin-bottom: 4px;
-    }
-    .chat-media-attachment {
-      max-width: 250px;
-      border-radius: 12px;
-      margin-top: 8px;
-      cursor: pointer;
+      border-bottom-right-radius: 4px;
     }
 
-    /* CHAT INPUT */
-    .chat-input-area {
-      padding: 16px 24px;
-      border-top: 1px solid var(--ig-border);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--ig-bg);
-    }
-    .chat-input {
-      flex: 1;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      color: white;
-      padding: 12px 16px;
-      border-radius: 24px;
-      outline: none;
-    }
-    .chat-input:focus {
-      border-color: var(--ig-accent);
-    }
-    .btn-send {
-      background: var(--ig-accent);
-      color: #000;
-      font-weight: bold;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    .chat-media-attachment {
+      max-width: 220px;
+      border-radius: 12px;
+      margin-top: 6px;
       cursor: pointer;
       transition: transform 0.2s;
     }
-    .btn-send:hover {
-      transform: scale(1.05);
-    }
+    .chat-media-attachment:hover { transform: scale(1.02); }
 
-    /* MEDIA GALLERY */
+    .chat-input-area {
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(5,5,5,0.9);
+      backdrop-filter: blur(20px);
+      flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 13px 20px;
+      border-radius: 100px;
+      outline: none;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s;
+    }
+    .chat-input:focus { border-color: var(--border-accent); background: rgba(255,255,255,0.07); }
+    .chat-input::placeholder { color: var(--text-muted); }
+
+    .btn-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-icon:hover { border-color: var(--border-accent); color: var(--accent); }
+
+    .btn-send {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #000;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      border: none;
+    }
+    .btn-send:hover { transform: scale(1.08); box-shadow: 0 6px 20px var(--accent-glow); }
+
+    /* ── GALLERY ── */
     .gallery-container {
       flex: 1;
       overflow-y: auto;
-      padding: 24px;
+      padding: 24px 32px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
       align-content: start;
+      scrollbar-width: thin;
+      scrollbar-color: #222 transparent;
     }
     .gallery-item {
       position: relative;
       aspect-ratio: 1;
-      background: #1a1a1a;
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
+      border: 1px solid var(--border);
+      background: #111;
+      transition: transform 0.25s, box-shadow 0.25s;
+      cursor: pointer;
     }
-    .gallery-media {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s;
+    .gallery-item:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+    .gallery-media { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+    .gallery-item:hover .gallery-media { transform: scale(1.05); }
+
+    .gallery-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.25s;
     }
-    .gallery-item:hover .gallery-media {
-      transform: scale(1.05);
-    }
-    .gallery-delete {
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+
+    .gallery-info {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      bottom: 0; left: 0; right: 0;
+      padding: 12px;
+      transform: translateY(4px);
+      transition: transform 0.25s;
+    }
+    .gallery-item:hover .gallery-info { transform: none; }
+
+    .gallery-delete {
+      position: absolute; top: 10px; right: 10px;
       background: rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.1);
       color: white;
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       opacity: 0;
-      transition: opacity 0.2s;
+      transition: all 0.2s;
     }
-    .gallery-item:hover .gallery-delete {
-      opacity: 1;
-    }
-    .gallery-delete:hover {
-      background: red;
+    .gallery-item:hover .gallery-delete { opacity: 1; }
+    .gallery-delete:hover { background: #ef4444; border-color: #ef4444; }
+
+    /* ── FORUMS ── */
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px;
+      scrollbar-width: thin;
+      scrollbar-color: #222 transparent;
     }
 
+    .forum-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 12px;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+    .forum-card:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .forum-category-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 100px;
+      margin-bottom: 10px;
+    }
+    .badge-tips { background: rgba(245,230,66,0.12); color: var(--accent); border: 1px solid var(--border-accent); }
+    .badge-success { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+    .badge-qa { background: rgba(139,92,246,0.1); color: #a78bfa; border: 1px solid rgba(139,92,246,0.25); }
+
+    .forum-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .forum-content { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+    .forum-meta { display: flex; justify-content: space-between; align-items: center; }
+    .forum-author { display: flex; align-items: center; gap: 8px; }
+    .forum-author-dot { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #ff6b00); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #000; }
+    .forum-author-name { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .forum-replies { font-size: 11px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+
+    /* ── LEADERBOARD ── */
+    .leaderboard-podium {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .podium-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px 16px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s;
+    }
+    .podium-card:hover { transform: translateY(-3px); }
+    .podium-card.rank-1 {
+      border-color: var(--border-accent);
+      background: var(--accent-dim);
+      order: -1;
+    }
+    .podium-rank-icon { font-size: 28px; margin-bottom: 8px; }
+    .podium-avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px; border: 2px solid var(--border); }
+    .podium-card.rank-1 .podium-avatar { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+    .podium-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .podium-pts { font-size: 11px; font-weight: 800; letter-spacing: 1px; color: var(--accent); }
+
+    .leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: all 0.2s;
+    }
+    .lb-row:hover { background: var(--surface-hover); border-color: var(--border-accent); }
+    .lb-rank { width: 28px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-align: center; }
+    .lb-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
+    .lb-name { flex: 1; font-size: 14px; font-weight: 600; }
+    .lb-pts { font-size: 13px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+    /* ── EVENTS ── */
+    .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .event-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s;
+    }
+    .event-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .event-card:hover { border-color: var(--border-accent); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+    .event-card:hover::before { opacity: 1; }
+
+    .event-type-badge {
+      font-size: 9px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid var(--border-accent);
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+    .event-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+    .event-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 18px; }
+    .event-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); }
+    .event-meta { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+    .btn-rsvp {
+      font-size: 11px; font-weight: 800; letter-spacing: 1px;
+      padding: 8px 18px; border-radius: 100px;
+      border: none; cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .btn-rsvp.attending { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .btn-rsvp.not-attending { background: var(--surface-hover); color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-rsvp.not-attending:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--border-accent); }
+
+    /* ── SPOTLIGHT ── */
+    .spotlight-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 400px;
+      margin-bottom: 24px;
+    }
+    .spotlight-image-side { position: relative; overflow: hidden; }
+    .spotlight-image-side img { width: 100%; height: 100%; object-fit: cover; }
+    .spotlight-image-side::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, transparent 60%, rgba(5,5,5,0.9));
+    }
+    .spotlight-info-side { padding: 48px 40px; display: flex; flex-direction: column; justify-content: center; }
+    .spotlight-crown { font-size: 36px; margin-bottom: 12px; }
+    .spotlight-label { font-size: 9px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    .spotlight-name { font-family: 'Barlow', sans-serif; font-size: 36px; font-weight: 900; font-style: italic; line-height: 1.1; margin-bottom: 10px; }
+    .spotlight-achievement { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 20px; padding: 8px 16px; background: var(--accent-dim); border: 1px solid var(--border-accent); border-radius: 100px; display: inline-block; }
+    .spotlight-bio { font-size: 15px; color: var(--text-secondary); line-height: 1.7; font-style: italic; }
+
+    /* ── MODAL ── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 100;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-backdrop.hidden { display: none; }
+    .modal-box {
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+    }
+    .modal-title { font-family: 'Barlow', sans-serif; font-size: 22px; font-weight: 900; font-style: italic; margin-bottom: 24px; }
+    .modal-title span { color: var(--accent); }
+    .modal-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      outline: none;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s;
+    }
+    .modal-input:focus { border-color: var(--border-accent); }
+    .modal-input::placeholder { color: var(--text-muted); }
+    textarea.modal-input { height: 100px; resize: none; line-height: 1.5; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-cancel {
+      padding: 10px 20px; border-radius: 12px; font-size: 13px; font-weight: 600;
+      background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: var(--surface-hover); color: var(--text); }
+
+    /* ── EMPTY STATES ── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 60px 24px; text-align: center; opacity: 0.6;
+    }
+    .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state-text { font-size: 14px; color: var(--text-muted); }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+
+    /* ── MOBILE ── */
     @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
+      body { flex-direction: column; }
       .sidebar {
-        width: 100%;
-        height: auto;
+        width: 100%; height: auto;
         flex-direction: row;
-        padding: 12px;
+        padding: 10px 16px;
         border-right: none;
-        border-bottom: 1px solid var(--ig-border);
-        justify-content: space-around;
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto;
+        gap: 4px;
       }
-      .nav-item {
-        margin: 0;
-        padding: 8px 16px;
-      }
+      .sidebar-logo, .sidebar-section-label, .sidebar-back { display: none; }
+      .nav-item { padding: 10px 14px; margin-bottom: 0; flex-direction: column; gap: 4px; font-size: 10px; white-space: nowrap; }
+      .spotlight-hero { grid-template-columns: 1fr; }
+      .spotlight-image-side { height: 220px; }
+      .leaderboard-podium { grid-template-columns: 1fr; }
+      .section-header { padding: 16px 20px; }
+      .chat-container, .content-scroll { padding: 16px 20px; }
+      .gallery-container { padding: 16px 20px; }
+      .events-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <!-- SIDEBAR NAVIGATION -->
+  <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="text-2xl font-black italic tracking-widest text-yellow-400 mb-8 hidden md:block" style="cursor: pointer" onclick="window.location.href='dashboard.html'">EAST BLUE</div>
-    
+    <div class="sidebar-logo" onclick="window.location.href='dashboard.html'">EAST <span>BLUE</span></div>
+
+    <div class="sidebar-section-label">Community</div>
+
     <div class="nav-item active" onclick="switchTab('chat')" id="nav-chat">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-      <span class="hidden md:inline">Global Lounge</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Global Lounge
     </div>
-    
     <div class="nav-item" onclick="switchTab('gallery')" id="nav-gallery">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-        <circle cx="9" cy="9" r="2"/>
-        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-      </svg>
-      <span class="hidden md:inline">Media Gallery</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+      Media Gallery
     </div>
-
     <div class="nav-item" onclick="switchTab('forums')" id="nav-forums">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-      <span class="hidden md:inline">Forums</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      Forums
     </div>
-    
     <div class="nav-item" onclick="switchTab('leaderboard')" id="nav-leaderboard">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      <span class="hidden md:inline">Leaderboard</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Leaderboard
     </div>
-    
     <div class="nav-item" onclick="switchTab('events')" id="nav-events">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <span class="hidden md:inline">Events</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Events
     </div>
-    
     <div class="nav-item" onclick="switchTab('spotlight')" id="nav-spotlight">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      <span class="hidden md:inline">Spotlight</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Spotlight
     </div>
 
-    <div class="mt-auto hidden md:block">
-      <button onclick="window.location.href='dashboard.html'" class="text-sm font-bold text-gray-500 hover:text-white transition">
-        &larr; Back to Dashboard
-      </button>
+    <div class="sidebar-back" onclick="window.location.href='dashboard.html'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      Back to Dashboard
     </div>
   </div>
 
   <!-- MAIN CONTENT -->
   <div class="main-content">
-    
-    <!-- GLOBAL LOUNGE (CHAT) -->
+
+    <!-- ── GLOBAL LOUNGE (CHAT) ── -->
     <div id="tab-chat" class="tab-section active">
-      <!-- HEADER -->
-      <div class="px-6 py-4 border-b border-[#262626] flex justify-between items-center bg-[#0a0a0a]">
+      <div class="section-header">
         <div>
-          <h2 class="text-xl font-bold italic tracking-wide">Global <span class="text-yellow-400">Lounge</span></h2>
-          <div class="text-[10px] text-green-400 font-bold uppercase tracking-widest flex items-center gap-2">
-            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+          <div class="section-title">Global <span>Lounge</span></div>
+          <div class="live-badge" style="margin-top:4px;">
+            <div class="live-dot"></div>
             Live connection established
           </div>
         </div>
       </div>
 
-      <!-- CHAT MESSAGES -->
       <div id="chat-messages" class="chat-container">
-        <div class="text-center text-[#555] text-xs font-bold uppercase tracking-widest my-4">
-          Welcome to the Elite Lounge. Keep it respectful.
-        </div>
-        <!-- Messages populate here -->
+        <div class="chat-date-divider">Welcome to the Elite Lounge — Keep it respectful</div>
       </div>
 
-      <!-- CHAT INPUT -->
       <div class="chat-input-area">
-        <input type="file" id="chat-media-input" class="hidden" accept="image/*,video/*" onchange="previewChatMedia(this)">
-        <button onclick="document.getElementById('chat-media-input').click()" class="text-[#888] hover:text-white transition p-2">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-          </svg>
+        <input type="file" id="chat-media-input" style="display:none;" accept="image/*,video/*" onchange="previewChatMedia(this)">
+        <button class="btn-icon" onclick="document.getElementById('chat-media-input').click()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
         </button>
-        <div id="chat-media-preview" class="hidden relative h-10 w-10 bg-gray-800 rounded">
-           <img id="chat-media-thumb" class="w-full h-full object-cover rounded opacity-50" />
-           <button onclick="clearChatMedia()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">x</button>
+        <div id="chat-media-preview" style="display:none; position:relative; width:40px; height:40px; background:#1a1a1a; border-radius:8px; overflow:hidden; flex-shrink:0;">
+          <img id="chat-media-thumb" style="width:100%;height:100%;object-fit:cover;opacity:0.6;">
+          <button onclick="clearChatMedia()" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;">×</button>
         </div>
-        <input type="text" id="chat-text-input" class="chat-input" placeholder="Message the global lounge..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
-        <button onclick="sendChatMessage()" class="btn-send">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" x2="11" y1="2" y2="13"/>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
+        <input type="text" id="chat-text-input" class="chat-input" placeholder="Message the global lounge..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+        <button class="btn-send" onclick="sendChatMessage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
       </div>
     </div>
 
-
-    <!-- MEDIA GALLERY -->
+    <!-- ── MEDIA GALLERY ── -->
     <div id="tab-gallery" class="tab-section">
-      <!-- HEADER -->
-      <div class="px-6 py-4 border-b border-[#262626] flex justify-between items-center bg-[#0a0a0a]">
+      <div class="section-header">
         <div>
-          <h2 class="text-xl font-bold italic tracking-wide">Elite <span class="text-yellow-400">Gallery</span></h2>
-          <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-            Community progress & moments
+          <div class="section-title">Elite <span>Gallery</span></div>
+          <div class="section-subtitle">Community progress &amp; moments</div>
+        </div>
+        <button class="btn-primary" onclick="document.getElementById('gallery-upload-input').click()">+ Upload</button>
+        <input type="file" id="gallery-upload-input" style="display:none;" accept="image/*,video/*" onchange="uploadGalleryMedia(this)">
+      </div>
+      <div id="gallery-grid" class="gallery-container"></div>
+    </div>
+
+    <!-- ── FORUMS ── -->
+    <div id="tab-forums" class="tab-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Discussion <span>Forums</span></div>
+          <div class="section-subtitle">Tips · Success Stories · Q&amp;A</div>
+        </div>
+        <button class="btn-primary" onclick="document.getElementById('forum-modal').classList.remove('hidden')">+ New Topic</button>
+      </div>
+      <div class="content-scroll">
+        <div id="forums-list"></div>
+      </div>
+    </div>
+
+    <!-- ── LEADERBOARD ── -->
+    <div id="tab-leaderboard" class="tab-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Elite <span>Leaderboard</span></div>
+          <div class="section-subtitle">Top performers this month</div>
+        </div>
+      </div>
+      <div class="content-scroll">
+        <div class="leaderboard-podium" id="leaderboard-podium"></div>
+        <div class="leaderboard-list" id="leaderboard-list"></div>
+      </div>
+    </div>
+
+    <!-- ── EVENTS ── -->
+    <div id="tab-events" class="tab-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Upcoming <span>Events</span></div>
+          <div class="section-subtitle">Classes · Workshops · Social</div>
+        </div>
+      </div>
+      <div class="content-scroll">
+        <div class="events-grid" id="events-list"></div>
+      </div>
+    </div>
+
+    <!-- ── SPOTLIGHT ── -->
+    <div id="tab-spotlight" class="tab-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Member <span>Spotlight</span></div>
+          <div class="section-subtitle">Celebrating our elite athletes</div>
+        </div>
+      </div>
+      <div class="content-scroll">
+        <div id="spotlight-content">
+          <div class="empty-state">
+            <div class="empty-state-icon">⚡</div>
+            <div class="empty-state-text">No spotlight active at this time.<br>Check back soon!</div>
           </div>
         </div>
-        <button onclick="document.getElementById('gallery-upload-input').click()" class="bg-yellow-400 text-black px-4 py-2 rounded font-bold text-sm hover:bg-yellow-500 transition">
-          + Upload Media
-        </button>
-        <input type="file" id="gallery-upload-input" class="hidden" accept="image/*,video/*" onchange="uploadGalleryMedia(this)">
-      </div>
-
-      <!-- GALLERY GRID -->
-      <div id="gallery-grid" class="gallery-container">
-        <!-- Gallery items populate here -->
-      </div>
-    </div>
-
-    <!-- FORUMS TAB -->
-    <div id="tab-forums" class="tab-section" style="padding: 24px; overflow-y: auto;">
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h2 class="text-xl font-bold italic tracking-wide">Discussion <span class="text-yellow-400">Forums</span></h2>
-          <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Tips, Success, & Q&A</div>
-        </div>
-        <button onclick="document.getElementById('forum-modal').classList.remove('hidden')" class="bg-yellow-400 text-black px-4 py-2 rounded font-bold text-sm hover:bg-yellow-500 transition">
-          + New Topic
-        </button>
-      </div>
-      <div id="forums-list" class="flex flex-col gap-4"></div>
-    </div>
-
-    <!-- LEADERBOARD TAB -->
-    <div id="tab-leaderboard" class="tab-section" style="padding: 24px; overflow-y: auto;">
-      <h2 class="text-xl font-bold italic tracking-wide mb-6">Elite <span class="text-yellow-400">Leaderboard</span></h2>
-      <div class="bg-[#111] rounded-xl overflow-hidden border border-[#222]">
-        <table class="w-full text-left">
-          <thead class="bg-[#1a1a1a] text-gray-400 text-xs uppercase tracking-wider">
-            <tr>
-              <th class="px-6 py-4">Rank</th>
-              <th class="px-6 py-4">Member</th>
-              <th class="px-6 py-4 text-right">Points</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboard-list" class="divide-y divide-[#222]"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- EVENTS TAB -->
-    <div id="tab-events" class="tab-section" style="padding: 24px; overflow-y: auto;">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold italic tracking-wide">Upcoming <span class="text-yellow-400">Events</span></h2>
-      </div>
-      <div id="events-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-    </div>
-
-    <!-- SPOTLIGHT TAB -->
-    <div id="tab-spotlight" class="tab-section" style="padding: 24px; overflow-y: auto;">
-      <h2 class="text-xl font-bold italic tracking-wide mb-6">Member <span class="text-yellow-400">Spotlight</span></h2>
-      <div id="spotlight-content" class="bg-[#111] rounded-xl border border-[#222] p-8 text-center flex flex-col items-center">
-         <div class="text-gray-500">No spotlight active currently.</div>
       </div>
     </div>
 
   </div>
 
-  <!-- FORUM MODAL -->
-  <div id="forum-modal" class="hidden fixed inset-0 bg-black/80 flex justify-center items-center z-50">
-    <div class="bg-[#111] border border-[#333] p-6 rounded-xl w-full max-w-md">
-      <h3 class="text-lg font-bold mb-4">Create Topic</h3>
-      <select id="forum-category" class="w-full bg-[#222] text-white p-2 rounded mb-4 border border-[#333]">
-        <option value="Tips">Training Tips</option>
-        <option value="Success Stories">Success Stories</option>
-        <option value="Q&A">Q&A</option>
+  <!-- FORUM CREATE MODAL -->
+  <div id="forum-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-title">New <span>Topic</span></div>
+      <select id="forum-category" class="modal-input">
+        <option value="Tips">💪 Training Tips</option>
+        <option value="Success Stories">🏆 Success Stories</option>
+        <option value="Q&A">💬 Q&A</option>
       </select>
-      <input type="text" id="forum-title" class="w-full bg-[#222] text-white p-2 rounded mb-4 border border-[#333]" placeholder="Topic Title">
-      <textarea id="forum-content" class="w-full bg-[#222] text-white p-2 rounded mb-4 border border-[#333] h-24" placeholder="What's on your mind?"></textarea>
-      <div class="flex justify-end gap-2">
-        <button onclick="document.getElementById('forum-modal').classList.add('hidden')" class="px-4 py-2 bg-[#222] rounded text-white hover:bg-[#333]">Cancel</button>
-        <button onclick="createForumTopic()" class="px-4 py-2 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500">Post</button>
+      <input type="text" id="forum-title" class="modal-input" placeholder="Give your topic a catchy title...">
+      <textarea id="forum-content" class="modal-input" placeholder="Share your thoughts with the community..."></textarea>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="document.getElementById('forum-modal').classList.add('hidden')">Cancel</button>
+        <button class="btn-primary" onclick="createForumTopic()">Post Topic</button>
       </div>
     </div>
   </div>
@@ -410,33 +818,23 @@
   <script>
     const token = localStorage.getItem('token');
     if (!token) window.location.href = 'index.html';
-    
+
     const CONFIG = { API_URL: (window.ELITE_API_URL || '') + '/api' };
 
     let currentUserEmail = "";
     let chatSocket = null;
 
-    // UI State
     function switchTab(tabId) {
       document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      
       document.getElementById(`tab-${tabId}`).classList.add('active');
       document.getElementById(`nav-${tabId}`).classList.add('active');
-
-      if (tabId === 'chat') {
-        setTimeout(scrollToBottom, 100);
-      } else if (tabId === 'gallery') {
-        loadGallery();
-      } else if (tabId === 'forums') {
-        loadForums();
-      } else if (tabId === 'leaderboard') {
-        loadLeaderboard();
-      } else if (tabId === 'events') {
-        loadEvents();
-      } else if (tabId === 'spotlight') {
-        loadSpotlight();
-      }
+      if (tabId === 'chat') setTimeout(scrollToBottom, 100);
+      else if (tabId === 'gallery') loadGallery();
+      else if (tabId === 'forums') loadForums();
+      else if (tabId === 'leaderboard') loadLeaderboard();
+      else if (tabId === 'events') loadEvents();
+      else if (tabId === 'spotlight') loadSpotlight();
     }
 
     async function initUser() {
@@ -450,24 +848,21 @@
           initChat();
           loadGallery();
         }
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     }
 
-    // ==========================================
-    // GLOBAL CHAT LOGIC
-    // ==========================================
+    // ── CHAT ──
     let chatMediaFile = null;
 
     function previewChatMedia(input) {
       if (input.files && input.files[0]) {
         chatMediaFile = input.files[0];
-        document.getElementById('chat-media-preview').classList.remove('hidden');
+        const preview = document.getElementById('chat-media-preview');
+        preview.style.display = 'block';
         if (chatMediaFile.type.startsWith('image/')) {
           document.getElementById('chat-media-thumb').src = URL.createObjectURL(chatMediaFile);
         } else {
-          document.getElementById('chat-media-thumb').src = 'https://cdn-icons-png.flaticon.com/512/3172/3172579.png'; // video icon
+          document.getElementById('chat-media-thumb').src = 'https://cdn-icons-png.flaticon.com/512/3172/3172579.png';
         }
       }
     }
@@ -475,215 +870,159 @@
     function clearChatMedia() {
       chatMediaFile = null;
       document.getElementById('chat-media-input').value = '';
-      document.getElementById('chat-media-preview').classList.add('hidden');
+      document.getElementById('chat-media-preview').style.display = 'none';
     }
 
     async function initChat() {
-      // Fetch History
       try {
         const res = await fetch(`${CONFIG.API_URL}/community/chat`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const history = await res.json();
-        const container = document.getElementById('chat-messages');
-        
-        // Don't clear completely, preserve the welcome message
-        const welcomeMsg = container.innerHTML;
-        container.innerHTML = welcomeMsg;
-
-        history.forEach(msg => {
-          appendMessage(msg);
-        });
+        history.forEach(msg => appendMessage(msg));
         scrollToBottom();
-      } catch (e) {
-        console.error("History fetch error", e);
-      }
+      } catch (e) { console.error("History fetch error", e); }
 
-      // Connect WebSocket
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const domain = CONFIG.API_URL.replace(/^https?:\/\//, '');
       const wsUrl = `${wsProtocol}//${domain}/community/ws?token=${token}`;
-      
       chatSocket = new WebSocket(wsUrl);
       chatSocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (data.type === 'wall-message') {
-          appendMessage(data.message);
-          scrollToBottom();
-        }
+        if (data.type === 'wall-message') { appendMessage(data.message); scrollToBottom(); }
       };
-      
-      chatSocket.onclose = () => {
-        console.log("Chat WS closed. Reconnecting...");
-        setTimeout(initChat, 3000);
-      };
+      chatSocket.onclose = () => { setTimeout(initChat, 3000); };
     }
 
     function appendMessage(msg) {
       const container = document.getElementById('chat-messages');
       const isMine = msg.userEmail.toLowerCase() === currentUserEmail;
-      
       const el = document.createElement('div');
       el.className = `chat-message ${isMine ? 'outgoing' : 'incoming'}`;
-      
+
       let mediaHtml = '';
       if (msg.mediaUrl) {
         if (msg.mediaType === 'video') {
-          mediaHtml = `<video src="${msg.mediaUrl}" controls class="chat-media-attachment"></video>`;
+          mediaHtml = '<video src="' + msg.mediaUrl + '" controls class="chat-media-attachment"></video>';
         } else {
-          mediaHtml = `<img src="${msg.mediaUrl}" class="chat-media-attachment" onclick="window.open('${msg.mediaUrl}', '_blank')" />`;
+          mediaHtml = '<img src="' + msg.mediaUrl + '" class="chat-media-attachment" onclick="window.open(\'' + msg.mediaUrl + '\', \'_blank\')" />';
         }
       }
 
-      el.innerHTML = `
-        ${!isMine ? `<div class="chat-meta">${msg.userName}</div>` : ''}
-        <div class="chat-bubble">
-          ${msg.message ? `<div>${msg.message}</div>` : ''}
-          ${mediaHtml}
-        </div>
-      `;
+      const avatarUrl = msg.avatar || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+      el.innerHTML =
+        '<img class="chat-avatar" src="' + avatarUrl + '" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/3135/3135715.png\'">' +
+        '<div class="chat-body">' +
+          (!isMine ? '<div class="chat-meta">' + msg.userName + '</div>' : '') +
+          '<div class="chat-bubble">' +
+            (msg.message ? '<div>' + msg.message + '</div>' : '') +
+            mediaHtml +
+          '</div>' +
+        '</div>';
       container.appendChild(el);
     }
 
     function scrollToBottom() {
-      const container = document.getElementById('chat-messages');
-      container.scrollTop = container.scrollHeight;
+      const c = document.getElementById('chat-messages');
+      c.scrollTop = c.scrollHeight;
     }
 
     async function sendChatMessage() {
       const input = document.getElementById('chat-text-input');
       const text = input.value.trim();
-      
       if (!text && !chatMediaFile) return;
-      
       input.value = '';
       const fd = new FormData();
       fd.append('token', token);
       fd.append('message', text);
-      if (chatMediaFile) {
-        fd.append('mediaFile', chatMediaFile);
-        clearChatMedia();
-      }
-
+      if (chatMediaFile) { fd.append('mediaFile', chatMediaFile); clearChatMedia(); }
       try {
-        await fetch(`${CONFIG.API_URL}/community/chat/send`, {
-          method: 'POST',
-          body: fd
-        });
-        // WS will broadcast it back to us, so we don't append manually
-      } catch (e) {
-        console.error("Send error", e);
-      }
+        await fetch(`${CONFIG.API_URL}/community/chat/send`, { method: 'POST', body: fd });
+      } catch (e) { console.error("Send error", e); }
     }
 
-
-    // ==========================================
-    // MEDIA GALLERY LOGIC
-    // ==========================================
+    // ── GALLERY ──
     async function loadGallery() {
       try {
         const res = await fetch(`${CONFIG.API_URL}/community/posts?token=${token}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const posts = await res.json();
-        
         const grid = document.getElementById('gallery-grid');
         grid.innerHTML = '';
-
+        let hasMedia = false;
         posts.forEach(post => {
-          if (!post.mediaUrl) return; // Only show media posts in gallery
-
+          if (!post.mediaUrl) return;
+          hasMedia = true;
           const isMine = post.userEmail.toLowerCase() === currentUserEmail;
           const el = document.createElement('div');
           el.className = 'gallery-item';
-          
-          let mediaHtml = '';
-          if (post.mediaType === 'video') {
-            mediaHtml = `<video src="${post.mediaUrl}" class="gallery-media" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>`;
-          } else {
-            mediaHtml = `<img src="${post.mediaUrl}" class="gallery-media" />`;
-          }
-
-          let deleteBtnHtml = isMine ? `<div class="gallery-delete" onclick="deleteMedia('${post.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></div>` : '';
-
-          el.innerHTML = `
-            ${mediaHtml}
-            ${deleteBtnHtml}
-            <div class="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
-               <div class="text-[10px] font-bold truncate">${post.userName}</div>
-            </div>
-          `;
+          const mediaHtml = post.mediaType === 'video'
+            ? '<video src="' + post.mediaUrl + '" class="gallery-media" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>'
+            : '<img src="' + post.mediaUrl + '" class="gallery-media" />';
+          const deleteBtn = isMine
+            ? '<div class="gallery-delete" onclick="deleteMedia(\'' + post.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></div>'
+            : '';
+          el.innerHTML = mediaHtml + deleteBtn +
+            '<div class="gallery-overlay"></div>' +
+            '<div class="gallery-info">' +
+              '<div style="font-size:11px;font-weight:700;color:white;text-shadow:0 1px 4px rgba(0,0,0,0.8);">' + post.userName + '</div>' +
+            '</div>';
           grid.appendChild(el);
         });
-      } catch (e) {
-        console.error(e);
-      }
+        if (!hasMedia) grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">📸</div><div class="empty-state-text">No media yet.<br>Be the first to share!</div></div>';
+      } catch (e) { console.error(e); }
     }
 
     async function uploadGalleryMedia(input) {
       if (!input.files || !input.files[0]) return;
-      const file = input.files[0];
-      
       const fd = new FormData();
       fd.append('token', token);
-      fd.append('content', ''); // No text content needed for gallery
-      fd.append('mediaFile', file);
-
+      fd.append('content', '');
+      fd.append('mediaFile', input.files[0]);
       try {
-        // Show loading state could go here
-        const res = await fetch(`${CONFIG.API_URL}/community/posts/create`, {
-          method: 'POST',
-          body: fd
-        });
-        if (res.ok) {
-          loadGallery(); // Reload grid
-        } else {
-          alert("Upload failed. Max size is 10MB.");
-        }
-      } catch (e) {
-        console.error(e);
-      }
+        const res = await fetch(`${CONFIG.API_URL}/community/posts/create`, { method: 'POST', body: fd });
+        if (res.ok) loadGallery();
+        else alert("Upload failed. Max size is 10MB.");
+      } catch (e) { console.error(e); }
       input.value = '';
     }
 
     async function deleteMedia(id) {
       if (!confirm("Delete this media permanently?")) return;
-      
       try {
-        const res = await fetch(`${CONFIG.API_URL}/community/posts/${id}?token=${token}`, {
-          method: 'DELETE'
-        });
-        if (res.ok) {
-          loadGallery(); // Reload grid
-        }
-      } catch (e) {
-        console.error(e);
-      }
+        const res = await fetch(`${CONFIG.API_URL}/community/posts/${id}?token=${token}`, { method: 'DELETE' });
+        if (res.ok) loadGallery();
+      } catch (e) { console.error(e); }
     }
 
-    // ==========================================
-    // NEW COMMUNITY FEATURES LOGIC
-    // ==========================================
-
+    // ── FORUMS ──
     async function loadForums() {
       try {
         const res = await fetch(`${CONFIG.API_URL}/community/forums?token=${token}`);
         const topics = await res.json();
         const list = document.getElementById('forums-list');
-        list.innerHTML = '';
-        topics.forEach(t => {
-          list.innerHTML += `
-            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-[#333]">
-              <div class="text-[10px] text-yellow-400 font-bold uppercase mb-1">${t.category}</div>
-              <h3 class="text-lg font-bold mb-2">${t.title}</h3>
-              <p class="text-sm text-gray-400 mb-4">${t.content}</p>
-              <div class="flex justify-between items-center text-xs text-gray-500">
-                <span>By ${t.userName}</span>
-                <span>${t.repliesCount} Replies</span>
-              </div>
-            </div>
-          `;
-        });
+        if (!topics.length) {
+          list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><div class="empty-state-text">No topics yet.<br>Start the conversation!</div></div>';
+          return;
+        }
+        const badgeMap = { 'Tips': 'badge-tips', 'Success Stories': 'badge-success', 'Q&A': 'badge-qa' };
+        list.innerHTML = topics.map(t => {
+          const badgeClass = badgeMap[t.category] || 'badge-tips';
+          const initial = (t.userName || 'U')[0].toUpperCase();
+          return '<div class="forum-card">' +
+            '<span class="forum-category-badge ' + badgeClass + '">' + t.category + '</span>' +
+            '<div class="forum-title">' + t.title + '</div>' +
+            '<div class="forum-content">' + t.content + '</div>' +
+            '<div class="forum-meta">' +
+              '<div class="forum-author">' +
+                '<div class="forum-author-dot">' + initial + '</div>' +
+                '<div class="forum-author-name">' + t.userName + '</div>' +
+              '</div>' +
+              '<div class="forum-replies"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' + (t.repliesCount || 0) + ' replies</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
       } catch(e) { console.error(e); }
     }
 
@@ -691,14 +1030,10 @@
       const cat = document.getElementById('forum-category').value;
       const title = document.getElementById('forum-title').value;
       const content = document.getElementById('forum-content').value;
-      if(!title || !content) return;
-      
+      if (!title || !content) return;
       const fd = new FormData();
-      fd.append('token', token);
-      fd.append('category', cat);
-      fd.append('title', title);
-      fd.append('content', content);
-      
+      fd.append('token', token); fd.append('category', cat);
+      fd.append('title', title); fd.append('content', content);
       try {
         await fetch(`${CONFIG.API_URL}/community/forums/create`, { method: 'POST', body: fd });
         document.getElementById('forum-modal').classList.add('hidden');
@@ -708,50 +1043,71 @@
       } catch(e) { console.error(e); }
     }
 
+    // ── LEADERBOARD ──
     async function loadLeaderboard() {
       try {
         const res = await fetch(`${CONFIG.API_URL}/community/leaderboard?token=${token}`);
         const users = await res.json();
-        const tbody = document.getElementById('leaderboard-list');
-        tbody.innerHTML = '';
-        users.forEach((u, i) => {
-          tbody.innerHTML += `
-            <tr class="hover:bg-[#222]">
-              <td class="px-6 py-4 text-yellow-400 font-bold">#${i+1}</td>
-              <td class="px-6 py-4 flex items-center gap-3">
-                <img src="${u.avatar || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="w-8 h-8 rounded-full border border-[#333]">
-                <span class="font-bold">${u.name}</span>
-              </td>
-              <td class="px-6 py-4 text-right text-gray-400 font-mono">${u.points} pts</td>
-            </tr>
-          `;
+        const podiumEl = document.getElementById('leaderboard-podium');
+        const listEl = document.getElementById('leaderboard-list');
+        podiumEl.innerHTML = '';
+        listEl.innerHTML = '';
+        if (!users.length) {
+          listEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏆</div><div class="empty-state-text">No rankings yet.<br>Start earning points!</div></div>';
+          return;
+        }
+        const icons = ['🥇','🥈','🥉'];
+        const rankClasses = ['rank-1','rank-2','rank-3'];
+        users.slice(0, 3).forEach((u, i) => {
+          const avatar = u.avatar || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+          podiumEl.innerHTML += '<div class="podium-card ' + rankClasses[i] + '">' +
+            '<div class="podium-rank-icon">' + icons[i] + '</div>' +
+            '<img class="podium-avatar" src="' + avatar + '" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/3135/3135715.png\'">' +
+            '<div class="podium-name">' + u.name + '</div>' +
+            '<div class="podium-pts">' + u.points + ' pts</div>' +
+          '</div>';
+        });
+        users.slice(3).forEach((u, i) => {
+          const avatar = u.avatar || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+          listEl.innerHTML += '<div class="lb-row">' +
+            '<div class="lb-rank">#' + (i + 4) + '</div>' +
+            '<img class="lb-avatar" src="' + avatar + '" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/3135/3135715.png\'">' +
+            '<div class="lb-name">' + u.name + '</div>' +
+            '<div class="lb-pts">' + u.points + ' pts</div>' +
+          '</div>';
         });
       } catch(e) { console.error(e); }
     }
 
+    // ── EVENTS ──
     async function loadEvents() {
       try {
         const res = await fetch(`${CONFIG.API_URL}/community/events?token=${token}`);
         const events = await res.json();
         const list = document.getElementById('events-list');
-        list.innerHTML = '';
-        events.forEach(e => {
+        if (!events.length) {
+          list.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">📅</div><div class="empty-state-text">No upcoming events.<br>Check back soon!</div></div>';
+          return;
+        }
+        list.innerHTML = events.map(e => {
           const dt = new Date(e.date);
+          const dateStr = dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
           const hasRsvp = e.rsvps && e.rsvps.includes(currentUserEmail);
-          list.innerHTML += `
-            <div class="bg-[#1a1a1a] p-5 rounded-xl border border-[#333]">
-              <div class="text-[10px] text-yellow-400 font-bold uppercase mb-1">${e.type} &bull; ${dt.toLocaleDateString()}</div>
-              <h3 class="text-lg font-bold mb-2">${e.title}</h3>
-              <p class="text-sm text-gray-400 mb-4">${e.description}</p>
-              <div class="flex justify-between items-center mt-4 pt-4 border-t border-[#333]">
-                <div class="text-xs text-gray-500">📍 ${e.location}</div>
-                <button onclick="rsvpEvent('${e._id || e.id}')" class="px-3 py-1 rounded text-xs font-bold ${hasRsvp ? 'bg-green-600 text-white' : 'bg-[#333] text-white hover:bg-[#444]'}">
-                  ${hasRsvp ? '✓ Attending' : 'RSVP'}
-                </button>
-              </div>
-            </div>
-          `;
-        });
+          return '<div class="event-card">' +
+            '<span class="event-type-badge">' + e.type + '</span>' +
+            '<div class="event-title">' + e.title + '</div>' +
+            '<div class="event-desc">' + e.description + '</div>' +
+            '<div class="event-footer">' +
+              '<div>' +
+                '<div class="event-meta">📅 ' + dateStr + '</div>' +
+                '<div class="event-meta" style="margin-top:4px;">📍 ' + e.location + '</div>' +
+              '</div>' +
+              '<button onclick="rsvpEvent(\'' + (e._id || e.id) + '\')" class="btn-rsvp ' + (hasRsvp ? 'attending' : 'not-attending') + '">' +
+                (hasRsvp ? '✓ Attending' : 'RSVP') +
+              '</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
       } catch(e) { console.error(e); }
     }
 
@@ -766,28 +1122,34 @@
       } catch(e) { console.error(e); }
     }
 
+    // ── SPOTLIGHT ──
     async function loadSpotlight() {
       try {
         const res = await fetch(`${CONFIG.API_URL}/community/spotlight?token=${token}`);
-        if(res.ok) {
-           const s = await res.json();
-           if(s) {
-              const imgHtml = s.transformationImage
-                ? '<img src="' + s.transformationImage + '" class="w-full max-w-md rounded-xl mb-6 shadow-2xl">'
-                : '';
-              document.getElementById('spotlight-content').innerHTML =
-                '<h3 class="text-2xl font-black italic mb-2">' + s.userName + '</h3>' +
-                '<div class="text-yellow-400 font-bold text-sm uppercase mb-6">' + s.achievement + '</div>' +
-                imgHtml +
-                '<p class="text-gray-300 italic max-w-lg">"' + s.bio + '"</p>';
-           }
+        if (res.ok) {
+          const s = await res.json();
+          if (s) {
+            const imgSide = s.transformationImage
+              ? '<div class="spotlight-image-side"><img src="' + s.transformationImage + '" alt="Transformation"></div>'
+              : '';
+            document.getElementById('spotlight-content').innerHTML =
+              '<div class="spotlight-hero">' +
+                imgSide +
+                '<div class="spotlight-info-side">' +
+                  '<div class="spotlight-crown">⚡</div>' +
+                  '<div class="spotlight-label">Member of the Month</div>' +
+                  '<div class="spotlight-name">' + s.userName + '</div>' +
+                  '<div class="spotlight-achievement">' + s.achievement + '</div>' +
+                  '<div class="spotlight-bio">"' + s.bio + '"</div>' +
+                '</div>' +
+              '</div>';
+          }
         }
       } catch(e) { console.error(e); }
     }
 
-    // Init on load
+    // Init
     initUser();
-
   </script>
 </body>
 </html>
