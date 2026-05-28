@@ -91,3 +91,44 @@ class SocialProfile(Document):
 
     class Settings:
         name = "social_profiles"
+
+class CommunityForumTopic(Document):
+    userEmail: str
+    userName: str
+    category: str # "Tips", "Success Stories", "Q&A"
+    title: str
+    content: str
+    replies: List[dict] = [] # {id, userEmail, userName, text, timestamp}
+    views: int = 0
+    likes: List[str] = []
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "community_forums"
+
+class CommunityEvent(Document):
+    title: str
+    description: str
+    date: datetime
+    location: str
+    type: str # "Workshop", "Group Class", "Social"
+    rsvps: List[str] = [] # List of user emails who RSVP'd
+    maxAttendees: Optional[int] = None
+    createdBy: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "community_events"
+
+class MemberSpotlight(Document):
+    userEmail: str
+    userName: str
+    bio: str
+    transformationImage: str
+    achievement: str
+    activeFrom: datetime
+    activeUntil: datetime
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "community_spotlights"

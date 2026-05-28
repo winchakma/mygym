@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Form, UploadFile, File, WebSocket, WebSocketDisconnect
 from app.models.user import User
-from app.models.community import CommunityPost, CommunityChat, PrivateMessage, SocialLink, Story, SocialProfile
+from app.models.community import CommunityPost, CommunityChat, PrivateMessage, SocialLink, Story, SocialProfile, CommunityForumTopic, CommunityEvent, MemberSpotlight
 from app.models.admin import Notification
 from app.routes.auth import get_current_user
 from app.routes.profile import validate_media_file
@@ -1372,3 +1372,139 @@ async def delete_private_message_for_me(msgId: str, token: str):
     await manager.send_personal_message(delete_event, user_email)
     
     return {"status": "success", "messageId": str(msg.id)}
+
+# =========================================
+# FORUMS ENDPOINTS
+# =========================================
+@router.get("/forums")
+async def get_forums(token: str, category: Optional[str] = None):
+    await get_current_user(token)
+    query = {}
+    if category and category != "All":
+        query["category"] = category
+    topics = await CommunityForumTopic.find(query).sort("-timestamp").to_list()
+    # Enrich with avatars later if needed
+    for t in topics:
+        t.repliesCount = len(t.replies)
+    return topics
+
+@router.post("/forums/create")
+async def create_forum_topic(
+    token: str = Form(...),
+    category: str = Form(...),
+    title: str = Form(...),
+    content: str = Form(...)
+):
+    user = await get_current_user(token)
+    topic = CommunityForumTopic(
+        userEmail=user.email,
+        userName=f"{user.firstName} {user.lastName}",
+        category=category,
+        title=title,
+        content=content
+    )
+    await topic.insert()
+    return {"status": "success", "topic": topic}
+
+@router.post("/forums/{id}/reply")
+async def reply_forum(id: str, token: str = Form(...), text: str = Form(...)):
+    user = await get_current_user(token)
+    from beanie import PydanticObjectId
+    topic = await CommunityForumTopic.get(PydanticObjectId(id))
+    if not topic: raise HTTPException(404, "Not found")
+    
+    reply = {
+        "id": str(uuid.uuid4()),
+        "userEmail": user.email,
+        "userName": f"{user.firstName} {user.lastName}",
+        "text": text,
+        "timestamp": datetime.utcnow().isoformat() + "Z"
+    }
+    topic.replies.append(reply)
+    await topic.save()
+    return {"status": "success", "replies": topic.replies}
+
+# =========================================
+# EVENTS ENDPOINTS
+# =========================================
+@router.get("/events")
+async def get_events(token: str):
+    await get_current_user(token)
+    events = await CommunityEvent.find(CommunityEvent.date >= datetime.utcnow()).sort("date").to_list()
+    return events
+
+@router.post("/events/create")
+async def create_event(
+    token: str = Form(...),
+    title: str = Form(...),
+    description: str = Form(...),
+    date: str = Form(...), # ISO string
+    location: str = Form(...),
+    type: str = Form(...)
+):
+    user = await get_current_user(token)
+    # Check if admin/trainer
+    role = getattr(user, "role", "member").lower()
+    if "admin" not in role and "trainer" not in role:
+        raise HTTPException(403, "Not authorized to create events")
+        
+    dt = datetime.fromisoformat(date.replace("Z", "+00:00"))
+    event = CommunityEvent(
+        title=title,
+        description=description,
+        date=dt,
+        location=location,
+        type=type,
+        createdBy=user.email
+    )
+    await event.insert()
+    return {"status": "success"}
+
+@router.post("/events/{id}/rsvp")
+async def rsvp_event(id: str, data: dict):
+    token = data.get("token")
+    user = await get_current_user(token)
+    from beanie import PydanticObjectId
+    event = await CommunityEvent.get(PydanticObjectId(id))
+    if not event: raise HTTPException(404, "Not found")
+    
+    if user.email in event.rsvps:
+        event.rsvps.remove(user.email)
+    else:
+        event.rsvps.append(user.email)
+    await event.save()
+    return {"status": "success", "rsvps": event.rsvps}
+
+# =========================================
+# SPOTLIGHT ENDPOINTS
+# =========================================
+@router.get("/spotlight")
+async def get_spotlight(token: str):
+    await get_current_user(token)
+    now = datetime.utcnow()
+    spotlight = await MemberSpotlight.find(
+        MemberSpotlight.activeFrom <= now,
+        MemberSpotlight.activeUntil >= now
+    ).sort("-timestamp").first_or_none()
+    return spotlight
+
+# =========================================
+# LEADERBOARD ENDPOINTS
+# =========================================
+@router.get("/leaderboard")
+async def get_leaderboard(token: str):
+    await get_current_user(token)
+    users = await User.find_all().to_list()
+    # Simple leaderboard based on points
+    ranked = []
+    for u in users:
+        points = getattr(u, "points", 0)
+        if points > 0:
+            ranked.append({
+                "email": u.email,
+                "name": f"{u.firstName} {u.lastName}",
+                "avatar": getattr(u, "profilePicture", ""),
+                "points": points
+            })
+    ranked.sort(key=lambda x: x["points"], reverse=True)
+    return ranked[:50]

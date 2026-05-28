@@ -243,6 +243,26 @@
       <span class="hidden md:inline">Media Gallery</span>
     </div>
 
+    <div class="nav-item" onclick="switchTab('forums')" id="nav-forums">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span class="hidden md:inline">Forums</span>
+    </div>
+    
+    <div class="nav-item" onclick="switchTab('leaderboard')" id="nav-leaderboard">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span class="hidden md:inline">Leaderboard</span>
+    </div>
+    
+    <div class="nav-item" onclick="switchTab('events')" id="nav-events">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="hidden md:inline">Events</span>
+    </div>
+    
+    <div class="nav-item" onclick="switchTab('spotlight')" id="nav-spotlight">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span class="hidden md:inline">Spotlight</span>
+    </div>
+
     <div class="mt-auto hidden md:block">
       <button onclick="window.location.href='dashboard.html'" class="text-sm font-bold text-gray-500 hover:text-white transition">
         &larr; Back to Dashboard
@@ -319,6 +339,71 @@
       </div>
     </div>
 
+    <!-- FORUMS TAB -->
+    <div id="tab-forums" class="tab-section" style="padding: 24px; overflow-y: auto;">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-xl font-bold italic tracking-wide">Discussion <span class="text-yellow-400">Forums</span></h2>
+          <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Tips, Success, & Q&A</div>
+        </div>
+        <button onclick="document.getElementById('forum-modal').classList.remove('hidden')" class="bg-yellow-400 text-black px-4 py-2 rounded font-bold text-sm hover:bg-yellow-500 transition">
+          + New Topic
+        </button>
+      </div>
+      <div id="forums-list" class="flex flex-col gap-4"></div>
+    </div>
+
+    <!-- LEADERBOARD TAB -->
+    <div id="tab-leaderboard" class="tab-section" style="padding: 24px; overflow-y: auto;">
+      <h2 class="text-xl font-bold italic tracking-wide mb-6">Elite <span class="text-yellow-400">Leaderboard</span></h2>
+      <div class="bg-[#111] rounded-xl overflow-hidden border border-[#222]">
+        <table class="w-full text-left">
+          <thead class="bg-[#1a1a1a] text-gray-400 text-xs uppercase tracking-wider">
+            <tr>
+              <th class="px-6 py-4">Rank</th>
+              <th class="px-6 py-4">Member</th>
+              <th class="px-6 py-4 text-right">Points</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-list" class="divide-y divide-[#222]"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EVENTS TAB -->
+    <div id="tab-events" class="tab-section" style="padding: 24px; overflow-y: auto;">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold italic tracking-wide">Upcoming <span class="text-yellow-400">Events</span></h2>
+      </div>
+      <div id="events-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+
+    <!-- SPOTLIGHT TAB -->
+    <div id="tab-spotlight" class="tab-section" style="padding: 24px; overflow-y: auto;">
+      <h2 class="text-xl font-bold italic tracking-wide mb-6">Member <span class="text-yellow-400">Spotlight</span></h2>
+      <div id="spotlight-content" class="bg-[#111] rounded-xl border border-[#222] p-8 text-center flex flex-col items-center">
+         <div class="text-gray-500">No spotlight active currently.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FORUM MODAL -->
+  <div id="forum-modal" class="hidden fixed inset-0 bg-black/80 flex justify-center items-center z-50">
+    <div class="bg-[#111] border border-[#333] p-6 rounded-xl w-full max-w-md">
+      <h3 class="text-lg font-bold mb-4">Create Topic</h3>
+      <select id="forum-category" class="w-full bg-[#222] text-white p-2 rounded mb-4 border border-[#333]">
+        <option value="Tips">Training Tips</option>
+        <option value="Success Stories">Success Stories</option>
+        <option value="Q&A">Q&A</option>
+      </select>
+      <input type="text" id="forum-title" class="w-full bg-[#222] text-white p-2 rounded mb-4 border border-[#333]" placeholder="Topic Title">
+      <textarea id="forum-content" class="w-full bg-[#222] text-white p-2 rounded mb-4 border border-[#333] h-24" placeholder="What's on your mind?"></textarea>
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('forum-modal').classList.add('hidden')" class="px-4 py-2 bg-[#222] rounded text-white hover:bg-[#333]">Cancel</button>
+        <button onclick="createForumTopic()" class="px-4 py-2 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500">Post</button>
+      </div>
+    </div>
   </div>
 
   <script src="js/config.js"></script>
@@ -343,6 +428,14 @@
         setTimeout(scrollToBottom, 100);
       } else if (tabId === 'gallery') {
         loadGallery();
+      } else if (tabId === 'forums') {
+        loadForums();
+      } else if (tabId === 'leaderboard') {
+        loadLeaderboard();
+      } else if (tabId === 'events') {
+        loadEvents();
+      } else if (tabId === 'spotlight') {
+        loadSpotlight();
       }
     }
 
@@ -566,6 +659,130 @@
       } catch (e) {
         console.error(e);
       }
+    }
+
+    // ==========================================
+    // NEW COMMUNITY FEATURES LOGIC
+    // ==========================================
+
+    async function loadForums() {
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/forums?token=${token}`);
+        const topics = await res.json();
+        const list = document.getElementById('forums-list');
+        list.innerHTML = '';
+        topics.forEach(t => {
+          list.innerHTML += `
+            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-[#333]">
+              <div class="text-[10px] text-yellow-400 font-bold uppercase mb-1">${t.category}</div>
+              <h3 class="text-lg font-bold mb-2">${t.title}</h3>
+              <p class="text-sm text-gray-400 mb-4">${t.content}</p>
+              <div class="flex justify-between items-center text-xs text-gray-500">
+                <span>By ${t.userName}</span>
+                <span>${t.repliesCount} Replies</span>
+              </div>
+            </div>
+          `;
+        });
+      } catch(e) { console.error(e); }
+    }
+
+    async function createForumTopic() {
+      const cat = document.getElementById('forum-category').value;
+      const title = document.getElementById('forum-title').value;
+      const content = document.getElementById('forum-content').value;
+      if(!title || !content) return;
+      
+      const fd = new FormData();
+      fd.append('token', token);
+      fd.append('category', cat);
+      fd.append('title', title);
+      fd.append('content', content);
+      
+      try {
+        await fetch(`${CONFIG.API_URL}/community/forums/create`, { method: 'POST', body: fd });
+        document.getElementById('forum-modal').classList.add('hidden');
+        document.getElementById('forum-title').value = '';
+        document.getElementById('forum-content').value = '';
+        loadForums();
+      } catch(e) { console.error(e); }
+    }
+
+    async function loadLeaderboard() {
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/leaderboard?token=${token}`);
+        const users = await res.json();
+        const tbody = document.getElementById('leaderboard-list');
+        tbody.innerHTML = '';
+        users.forEach((u, i) => {
+          tbody.innerHTML += `
+            <tr class="hover:bg-[#222]">
+              <td class="px-6 py-4 text-yellow-400 font-bold">#${i+1}</td>
+              <td class="px-6 py-4 flex items-center gap-3">
+                <img src="${u.avatar || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="w-8 h-8 rounded-full border border-[#333]">
+                <span class="font-bold">${u.name}</span>
+              </td>
+              <td class="px-6 py-4 text-right text-gray-400 font-mono">${u.points} pts</td>
+            </tr>
+          `;
+        });
+      } catch(e) { console.error(e); }
+    }
+
+    async function loadEvents() {
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/events?token=${token}`);
+        const events = await res.json();
+        const list = document.getElementById('events-list');
+        list.innerHTML = '';
+        events.forEach(e => {
+          const dt = new Date(e.date);
+          const hasRsvp = e.rsvps && e.rsvps.includes(currentUserEmail);
+          list.innerHTML += `
+            <div class="bg-[#1a1a1a] p-5 rounded-xl border border-[#333]">
+              <div class="text-[10px] text-yellow-400 font-bold uppercase mb-1">${e.type} &bull; ${dt.toLocaleDateString()}</div>
+              <h3 class="text-lg font-bold mb-2">${e.title}</h3>
+              <p class="text-sm text-gray-400 mb-4">${e.description}</p>
+              <div class="flex justify-between items-center mt-4 pt-4 border-t border-[#333]">
+                <div class="text-xs text-gray-500">📍 ${e.location}</div>
+                <button onclick="rsvpEvent('${e._id || e.id}')" class="px-3 py-1 rounded text-xs font-bold ${hasRsvp ? 'bg-green-600 text-white' : 'bg-[#333] text-white hover:bg-[#444]'}">
+                  ${hasRsvp ? '✓ Attending' : 'RSVP'}
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      } catch(e) { console.error(e); }
+    }
+
+    async function rsvpEvent(id) {
+      try {
+        await fetch(`${CONFIG.API_URL}/community/events/${id}/rsvp`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({token})
+        });
+        loadEvents();
+      } catch(e) { console.error(e); }
+    }
+
+    async function loadSpotlight() {
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/spotlight?token=${token}`);
+        if(res.ok) {
+           const s = await res.json();
+           if(s) {
+              const imgHtml = s.transformationImage
+                ? '<img src="' + s.transformationImage + '" class="w-full max-w-md rounded-xl mb-6 shadow-2xl">'
+                : '';
+              document.getElementById('spotlight-content').innerHTML =
+                '<h3 class="text-2xl font-black italic mb-2">' + s.userName + '</h3>' +
+                '<div class="text-yellow-400 font-bold text-sm uppercase mb-6">' + s.achievement + '</div>' +
+                imgHtml +
+                '<p class="text-gray-300 italic max-w-lg">"' + s.bio + '"</p>';
+           }
+        }
+      } catch(e) { console.error(e); }
     }
 
     // Init on load
