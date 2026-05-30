@@ -326,8 +326,19 @@
       const dayBtns = document.querySelectorAll('.day-btn');
       const filterBtns = document.querySelectorAll('.filter-btn');
 
-      let currentDay = 'Mon';
+      const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      let currentDay = daysOfWeek[new Date().getDay()];
       let currentFilter = 'all';
+
+      // Set initial active state based on currentDay
+      dayBtns.forEach(b => {
+          b.classList.remove('active', 'border-white/20', 'bg-white/10', 'text-white', 'shadow-lg');
+          b.classList.add('border-white/5', 'bg-transparent', 'text-[#666]');
+          if (b.dataset.day === currentDay) {
+              b.classList.remove('border-white/5', 'bg-transparent', 'text-[#666]');
+              b.classList.add('active', 'border-white/20', 'bg-white/10', 'text-white', 'shadow-lg');
+          }
+      });
 
       window.bookClass = async function(id, name, time, trainer) {
         const token = localStorage.getItem('token');
