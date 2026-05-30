@@ -681,6 +681,24 @@
       Spotlight
     </div>
 
+    <div class="sidebar-section-label">Navigation</div>
+    <div class="nav-item" onclick="window.location.href='index.html'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </div>
+    <div class="nav-item" onclick="window.location.href='workouts.html'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6-6 6 6"/><path d="M12 3v18"/><path d="M18 15v6"/><path d="M6 15v6"/></svg>
+      Workouts
+    </div>
+    <div class="nav-item" onclick="window.location.href='shop.html'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+      Shop
+    </div>
+    <div class="nav-item" onclick="window.location.href='profile.html'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </div>
+
     <div class="sidebar-back" onclick="window.location.href='dashboard.html'">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
       Back to Dashboard
@@ -935,10 +953,41 @@
       const fd = new FormData();
       fd.append('token', token);
       fd.append('message', text);
+      
+      const tempMediaUrl = chatMediaFile ? URL.createObjectURL(chatMediaFile) : null;
+      const tempMediaType = chatMediaFile ? (chatMediaFile.type.startsWith('video') ? 'video' : 'image') : null;
+      
       if (chatMediaFile) { fd.append('mediaFile', chatMediaFile); clearChatMedia(); }
+      
+      const tempId = 'temp-' + Date.now();
+      appendMessage({
+        id: tempId,
+        userEmail: currentUserEmail,
+        userName: "You",
+        message: text,
+        mediaUrl: tempMediaUrl,
+        mediaType: tempMediaType,
+        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+      });
+      scrollToBottom();
+      
       try {
-        await fetch(`${CONFIG.API_URL}/community/chat/send`, { method: 'POST', body: fd });
-      } catch (e) { console.error("Send error", e); }
+        const res = await fetch(`${CONFIG.API_URL}/community/chat/send`, { method: 'POST', body: fd });
+        if (res.ok) {
+           const data = await res.json();
+           if(data.status === 'success' && data.message) {
+              const el = document.getElementById('msg-' + tempId);
+              if (el) el.id = 'msg-' + (data.message.id || data.message._id);
+           }
+        } else {
+           const el = document.getElementById('msg-' + tempId);
+           if (el) el.style.opacity = '0.5';
+        }
+      } catch (e) { 
+        console.error("Send error", e); 
+        const el = document.getElementById('msg-' + tempId);
+        if (el) el.style.opacity = '0.5';
+      }
     }
 
     // ── GALLERY ──
