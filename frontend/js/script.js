@@ -2260,7 +2260,7 @@ document.addEventListener('DOMContentLoaded', () => {
           e.preventDefault();
           const trainerName = document.querySelector('h1')?.textContent || 'Elite Coach';
           window.showToast(`Syncing schedule for ${trainerName}...`, 'info');
-          setTimeout(() => { window.location.href = 'classes.html'; }, 1000);
+          setTimeout(() => { window.location.href = 'workouts.html'; }, 1000);
         };
       }
     });

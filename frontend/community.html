@@ -844,7 +844,7 @@
         });
         if (res.ok) {
           const data = await res.json();
-          currentUserEmail = data.email.toLowerCase();
+          currentUserEmail = data.userEmail.toLowerCase();
           initChat();
           loadGallery();
         }

@@ -2,7 +2,7 @@ import requests
 import json
 import uuid
 
-API_BASE = "https://mygym-p9rd.onrender.com"
+API_BASE = "http://localhost:10000"
 
 # 1. Register a fake user
 fake_email = f"fakeuser_{uuid.uuid4().hex[:8]}@example.com"
