@@ -1490,6 +1490,10 @@ async def reply_forum(id: str, token: str = Form(...), text: str = Form(...)):
 async def get_events(token: str):
     await get_current_user(token)
     events = await CommunityEvent.find(CommunityEvent.date >= datetime.utcnow()).sort("date").to_list()
+    from datetime import timezone
+    for e in events:
+        if e.date and e.date.tzinfo is None:
+            e.date = e.date.replace(tzinfo=timezone.utc)
     return events
 
 @router.delete("/events/{id}")
@@ -1560,6 +1564,14 @@ async def get_spotlight(token: str):
         MemberSpotlight.activeFrom <= now,
         MemberSpotlight.activeUntil >= now
     ).sort("-timestamp").first_or_none()
+    
+    if spotlight:
+        from datetime import timezone
+        if spotlight.activeFrom and spotlight.activeFrom.tzinfo is None:
+            spotlight.activeFrom = spotlight.activeFrom.replace(tzinfo=timezone.utc)
+        if spotlight.activeUntil and spotlight.activeUntil.tzinfo is None:
+            spotlight.activeUntil = spotlight.activeUntil.replace(tzinfo=timezone.utc)
+            
     return spotlight
 
 @router.post("/spotlight/create")
@@ -1569,7 +1581,7 @@ async def create_spotlight(
     userEmail: str = Form(...),
     bio: str = Form(...),
     achievement: str = Form(...),
-    transformationImage: str = Form(...),
+    transformationImage: UploadFile = File(...),
     activeFrom: str = Form(...),
     activeUntil: str = Form(...)
 ):
@@ -1584,12 +1596,21 @@ async def create_spotlight(
     except Exception:
         raise HTTPException(400, "Invalid date format")
 
+    validate_media_file(transformationImage, max_size_mb=10)
+    
+    import cloudinary.uploader
+    upload_result = cloudinary.uploader.upload(
+        transformationImage.file,
+        folder="elite_gym/spotlights"
+    )
+    media_url = upload_result.get("secure_url")
+
     spotlight = MemberSpotlight(
         userName=userName,
         userEmail=userEmail,
         bio=bio,
         achievement=achievement,
-        transformationImage=transformationImage,
+        transformationImage=media_url,
         activeFrom=dt_from,
         activeUntil=dt_until
     )

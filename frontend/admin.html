@@ -409,7 +409,7 @@
                         </div>
                         <input type="text" id="spotlight-achievement" class="form-input" placeholder="Achievement (e.g. Lost 50lbs)" required>
                         <textarea id="spotlight-bio" class="form-input" placeholder="Short Bio or Quote..." rows="2" required></textarea>
-                        <input type="url" id="spotlight-image" class="form-input" placeholder="Transformation Image URL" required>
+                        <input type="file" id="spotlight-image" class="form-input" style="padding: 10px;" accept="image/*" required>
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div>
@@ -1021,7 +1021,7 @@
         fd.append('userEmail', document.getElementById('spotlight-email').value);
         fd.append('achievement', document.getElementById('spotlight-achievement').value);
         fd.append('bio', document.getElementById('spotlight-bio').value);
-        fd.append('transformationImage', document.getElementById('spotlight-image').value);
+        fd.append('transformationImage', document.getElementById('spotlight-image').files[0]);
         
         const isoFrom = document.getElementById('spotlight-from').value + ":00Z";
         const isoUntil = document.getElementById('spotlight-until').value + ":00Z";
