@@ -22,6 +22,8 @@ def is_booking_expired(b: Booking) -> bool:
     if days_ahead < 0:
         days_ahead += 7
         
+    # default fallback time if parsing fails
+    dt_time = datetime.strptime("23:59", "%H:%M").time()
     try:
         time_str = " ".join(parts[1:])
         if "am" in time_str.lower() or "pm" in time_str.lower():
@@ -36,7 +38,7 @@ def is_booking_expired(b: Booking) -> bool:
     except Exception:
         pass
         
-    class_date = booked_at.date() + timedelta(days=days_ahead)
+    class_datetime = datetime.combine(booked_at.date() + timedelta(days=days_ahead), dt_time)
     
-    # It expires the day after the class
-    return datetime.utcnow().date() > class_date
+    # It expires immediately after the exact class time passes (e.g. 7:01 AM)
+    return datetime.utcnow() > class_datetime
