@@ -42,16 +42,17 @@ def validate_media_file(file: UploadFile, max_size_mb: int = 10):
     # 2. Extension & MIME Type Check (prevent remote script execution)
     allowed_types = {
         "image/jpeg", "image/png", "image/webp", "image/gif", "image/jpg",
-        "video/mp4", "video/webm", "video/quicktime", "video/ogg"
+        "video/mp4", "video/webm", "video/quicktime", "video/ogg",
+        "audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg", "audio/m4a", "audio/x-m4a"
     }
     content_type = file.content_type
     if not content_type or content_type.lower() not in allowed_types:
         ext = os.path.splitext(file.filename)[1].lower() if file.filename else ""
-        allowed_exts = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".mov", ".webm", ".ogg"}
+        allowed_exts = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".mov", ".webm", ".ogg", ".mp3", ".wav", ".m4a"}
         if ext not in allowed_exts:
             raise HTTPException(
                 status_code=400, 
-                detail="Unsupported media format. Only JPEG, PNG, WEBP, GIF, and MP4/WEBM are allowed."
+                detail="Unsupported media format. Only Images, Video, and Audio are allowed."
             )
 
 @router.get("/me")

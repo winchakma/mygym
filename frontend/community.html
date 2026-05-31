@@ -812,7 +812,7 @@
           <div class="section-subtitle">Community progress &amp; moments</div>
         </div>
         <button class="btn-primary" onclick="document.getElementById('gallery-upload-input').click()">+ Upload</button>
-        <input type="file" id="gallery-upload-input" style="display:none;" accept="image/*,video/*" onchange="uploadGalleryMedia(this)">
+        <input type="file" id="gallery-upload-input" style="display:none;" accept="image/*,video/*,audio/*" onchange="uploadGalleryMedia(this)">
       </div>
       <div id="gallery-grid" class="gallery-container"></div>
     </div>
@@ -1110,17 +1110,19 @@
           const isMine = post.userEmail.toLowerCase() === currentUserEmail;
           const el = document.createElement('div');
           el.className = 'gallery-item';
-          const mediaHtml = post.mediaType === 'video'
-            ? '<video src="' + post.mediaUrl + '" class="gallery-media" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>'
-            : '<img src="' + post.mediaUrl + '" class="gallery-media" />';
+          const mediaHtml = post.mediaType === 'audio'
+            ? '<div style="display:flex;align-items:center;justify-content:center;height:100%;width:100%;background:#222;"><audio src="' + post.mediaUrl + '" controls style="width:90%;"></audio></div>'
+            : (post.mediaType === 'video'
+              ? '<video src="' + post.mediaUrl + '" class="gallery-media" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>'
+              : '<img src="' + post.mediaUrl + '" class="gallery-media" />');
           const deleteBtn = isMine
-            ? '<div class="gallery-delete" onclick="deleteMedia(\'' + post.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></div>'
+            ? '<div class="gallery-delete" onclick="event.stopPropagation(); deleteMedia(\'' + post.id + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></div>'
             : '';
-          el.innerHTML = mediaHtml + deleteBtn +
+          el.innerHTML = mediaHtml + 
             '<div class="gallery-overlay"></div>' +
             '<div class="gallery-info">' +
               '<div style="font-size:11px;font-weight:700;color:white;text-shadow:0 1px 4px rgba(0,0,0,0.8);">' + post.userName + '</div>' +
-            '</div>';
+            '</div>' + deleteBtn;
           grid.appendChild(el);
         });
         if (!hasMedia) grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">📸</div><div class="empty-state-text">No media yet.<br>Be the first to share!</div></div>';

@@ -176,11 +176,15 @@ async def add_post(
         try:
             filename_lower = mediaFile.filename.lower()
             is_video = False
-            if (mediaFile.content_type and mediaFile.content_type.startswith("video")) or \
+            is_audio = False
+            if (mediaFile.content_type and mediaFile.content_type.startswith("audio")) or \
+               any(filename_lower.endswith(ext) for ext in [".mp3", ".wav", ".ogg", ".m4a"]):
+                is_audio = True
+            elif (mediaFile.content_type and mediaFile.content_type.startswith("video")) or \
                any(filename_lower.endswith(ext) for ext in [".mp4", ".mov", ".avi", ".mkv", ".webm", ".3gp", ".m4v"]):
                 is_video = True
 
-            resource_type = "video" if is_video else "image"
+            resource_type = "video" if (is_video or is_audio) else "image"
             
             upload_result = cloudinary.uploader.upload(
                 mediaFile.file,
@@ -188,7 +192,7 @@ async def add_post(
                 resource_type=resource_type
             )
             media_url = upload_result.get("secure_url")
-            media_type = "video" if is_video else "image"
+            media_type = "audio" if is_audio else ("video" if is_video else "image")
         except Exception as e:
             print(f"[POST MEDIA ERROR] {e}")
 
