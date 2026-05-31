@@ -1457,7 +1457,7 @@
         }
         list.innerHTML = events.map(e => {
           const dt = new Date(e.date);
-          const dateStr = dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+          const dateStr = dt.toLocaleDateString('en-US', { timeZone: 'UTC', weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
           const hasRsvp = e.rsvps && e.rsvps.includes(currentUserEmail);
           return '<div class="event-card">' +
             '<span class="event-type-badge">' + e.type + '</span>' +
