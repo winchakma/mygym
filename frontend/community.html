@@ -1197,7 +1197,11 @@
           const badgeClass = badgeMap[t.category] || 'badge-tips';
           const initial = (t.userName || 'U')[0].toUpperCase();
           const topicId = t.id || t._id;
-          return '<div class="forum-card" onclick="viewTopic(\'' + topicId + '\')">' +
+          const isMine = t.userEmail && t.userEmail.toLowerCase() === currentUserEmail;
+          const deleteBtnHtml = isMine ? 
+            '<button onclick="event.stopPropagation(); deleteForumTopic(\'' + topicId + '\')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>' : '';
+          return '<div class="forum-card" onclick="viewTopic(\'' + topicId + '\')" style="position:relative;">' +
+            deleteBtnHtml +
             '<span class="forum-category-badge ' + badgeClass + '">' + t.category + '</span>' +
             '<div class="forum-title">' + t.title + '</div>' +
             '<div class="forum-content">' + t.content + '</div>' +
@@ -1211,6 +1215,13 @@
           '</div>';
         }).join('');
       } catch(e) { console.error(e); }
+    }
+
+    async function deleteForumTopic(id) {
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/forums/${id}?token=${token}`, { method: 'DELETE' });
+        if (res.ok) loadForums();
+      } catch (e) { console.error(e); }
     }
 
     async function createForumTopic() {
@@ -1264,15 +1275,25 @@
       container.innerHTML = replies.map(r => {
         const initial = (r.userName || 'U')[0].toUpperCase();
         return `
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px;">
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; position: relative;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
               <div class="forum-author-dot" style="width: 20px; height: 20px; font-size: 10px;">${initial}</div>
               <div style="font-size: 12px; font-weight: 600;">${r.userName}</div>
             </div>
-            <div style="font-size: 13px; color: #ddd; line-height: 1.5;">${r.text}</div>
+            <div style="font-size: 13px; color: #ddd; line-height: 1.5; padding-right: 40px;">${r.text}</div>
+            <button onclick="replyToUser('${r.userName.replace(/'/g, "\\'")}')" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer;">Reply</button>
           </div>
         `;
       }).join('');
+    }
+
+    function replyToUser(username) {
+      const input = document.getElementById('forum-reply-input');
+      const prefix = `@${username} `;
+      if (!input.value.includes(prefix)) {
+        input.value = prefix + input.value;
+      }
+      input.focus();
     }
     
     async function postForumReply() {

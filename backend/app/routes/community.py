@@ -1407,6 +1407,21 @@ async def create_forum_topic(
     await topic.insert()
     return {"status": "success", "topic": topic}
 
+@router.delete("/forums/{id}")
+async def delete_forum_topic(id: str, token: str):
+    user = await get_current_user(token)
+    from beanie import PydanticObjectId
+    try:
+        topic = await CommunityForumTopic.get(PydanticObjectId(id))
+        if not topic:
+            raise HTTPException(status_code=404, detail="Topic not found")
+        if topic.userEmail.lower() != user.email.lower() and getattr(user, "role", "member").lower() != "admin":
+            raise HTTPException(status_code=403, detail="Not authorized to delete this topic")
+        await topic.delete()
+        return {"status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/forums/{id}/reply")
 async def reply_forum(id: str, token: str = Form(...), text: str = Form(...)):
     user = await get_current_user(token)
