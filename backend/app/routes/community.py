@@ -1395,7 +1395,7 @@ async def create_forum_topic(
     category: str = Form(...),
     title: str = Form(...),
     content: str = Form(...),
-    mediaFiles: Optional[List[UploadFile]] = File(None)
+    mediaFiles: List[UploadFile] = File(default=[])
 ):
     user = await get_current_user(token)
     

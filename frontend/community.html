@@ -1285,14 +1285,22 @@
       }
 
       try {
-        await fetch(`${CONFIG.API_URL}/community/forums/create`, { method: 'POST', body: fd });
+        const res = await fetch(`${CONFIG.API_URL}/community/forums/create`, { method: 'POST', body: fd });
+        if (!res.ok) {
+          const err = await res.text();
+          alert("Failed to post topic: " + err);
+          return;
+        }
         document.getElementById('forum-modal').classList.add('hidden');
         document.getElementById('forum-title').value = '';
         document.getElementById('forum-content').value = '';
         selectedForumMediaFiles = [];
         renderForumMediaPreview();
         loadForums();
-      } catch(e) { console.error(e); }
+      } catch(e) { 
+        console.error(e); 
+        alert("Network error while posting topic.");
+      }
     }
 
     function viewTopic(topicId) {
