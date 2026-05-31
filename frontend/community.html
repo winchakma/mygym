@@ -889,7 +889,14 @@
       </select>
       <input type="text" id="forum-title" class="modal-input" placeholder="Give your topic a catchy title...">
       <textarea id="forum-content" class="modal-input" placeholder="Share your thoughts with the community..."></textarea>
-      <input type="file" id="forum-media-input" class="modal-input" accept="image/*,video/*" multiple style="padding: 10px; cursor: pointer; color: var(--text-secondary);">
+      
+      <label for="forum-media-input" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.2); border-radius: 12px; cursor: pointer; margin-bottom: 15px; transition: all 0.2s; text-align: center;" onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='var(--accent)';" onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.2)';">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px; color: var(--accent);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-weight: 600; color: white;">Upload Photos or Videos</div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Click here to browse files</div>
+      </label>
+      <input type="file" id="forum-media-input" accept="image/*,video/*" multiple style="display: none;" onchange="const cnt = document.getElementById('file-upload-count'); cnt.innerText = this.files.length > 0 ? this.files.length + ' file(s) selected for upload' : ''; cnt.style.display = this.files.length > 0 ? 'block' : 'none';">
+      <div id="file-upload-count" style="font-size: 12px; color: var(--accent); margin-top: -5px; margin-bottom: 15px; text-align: center; font-weight: 600; display: none;"></div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="document.getElementById('forum-modal').classList.add('hidden')">Cancel</button>
         <button class="btn-primary" onclick="createForumTopic()">Post Topic</button>
