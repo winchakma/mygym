@@ -1596,6 +1596,21 @@ async def create_spotlight(
     await spotlight.insert()
     return {"status": "success", "message": "Spotlight created successfully"}
 
+@router.delete("/spotlight/{id}")
+async def delete_spotlight(id: str, token: str):
+    user = await get_current_user(token)
+    role = getattr(user, "role", "member").lower()
+    if "admin" not in role and "trainer" not in role:
+        raise HTTPException(403, "Not authorized to delete spotlights")
+        
+    from beanie import PydanticObjectId
+    spotlight = await MemberSpotlight.get(PydanticObjectId(id))
+    if not spotlight:
+        raise HTTPException(404, "Spotlight not found")
+        
+    await spotlight.delete()
+    return {"message": "Spotlight deleted successfully"}
+
 # =========================================
 # LEADERBOARD ENDPOINTS
 # =========================================
