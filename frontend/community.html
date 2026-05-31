@@ -929,6 +929,7 @@
     const CONFIG = { API_URL: (window.ELITE_API_URL || '') + '/api' };
 
     let currentUserEmail = "";
+    let currentUserAvatar = "";
     let chatSocket = null;
 
     function switchTab(tabId) {
@@ -952,6 +953,7 @@
         if (res.ok) {
           const data = await res.json();
           currentUserEmail = data.userEmail.toLowerCase();
+          currentUserAvatar = data.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
           initChat();
           loadGallery();
         }
@@ -1069,7 +1071,7 @@
         message: text,
         mediaUrl: tempMediaUrl,
         mediaType: tempMediaType,
-        avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+        avatar: currentUserAvatar
       });
       scrollToBottom();
       
