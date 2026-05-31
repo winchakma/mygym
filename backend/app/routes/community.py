@@ -1383,9 +1383,6 @@ async def get_forums(token: str, category: Optional[str] = None):
     if category and category != "All":
         query["category"] = category
     topics = await CommunityForumTopic.find(query).sort("-timestamp").to_list()
-    # Enrich with avatars later if needed
-    for t in topics:
-        t.repliesCount = len(t.replies)
     return topics
 
 @router.post("/forums/create")
@@ -1487,6 +1484,40 @@ async def get_spotlight(token: str):
         MemberSpotlight.activeUntil >= now
     ).sort("-timestamp").first_or_none()
     return spotlight
+
+@router.post("/spotlight/create")
+async def create_spotlight(
+    token: str = Form(...),
+    userName: str = Form(...),
+    userEmail: str = Form(...),
+    bio: str = Form(...),
+    achievement: str = Form(...),
+    transformationImage: str = Form(...),
+    activeFrom: str = Form(...),
+    activeUntil: str = Form(...)
+):
+    user = await get_current_user(token)
+    role = getattr(user, "role", "member").lower()
+    if "admin" not in role and "trainer" not in role:
+        raise HTTPException(403, "Not authorized to create spotlights")
+
+    try:
+        dt_from = datetime.fromisoformat(activeFrom.replace("Z", "+00:00"))
+        dt_until = datetime.fromisoformat(activeUntil.replace("Z", "+00:00"))
+    except Exception:
+        raise HTTPException(400, "Invalid date format")
+
+    spotlight = MemberSpotlight(
+        userName=userName,
+        userEmail=userEmail,
+        bio=bio,
+        achievement=achievement,
+        transformationImage=transformationImage,
+        activeFrom=dt_from,
+        activeUntil=dt_until
+    )
+    await spotlight.insert()
+    return {"status": "success", "message": "Spotlight created successfully"}
 
 # =========================================
 # LEADERBOARD ENDPOINTS

@@ -76,6 +76,8 @@
         <div class="sidebar-link" onclick="showSection('videos')">Video Library</div>
         <div class="sidebar-link" onclick="showSection('bookings')">Live Bookings</div>
         <div class="sidebar-link" onclick="showSection('store')">Store Hub</div>
+        <div class="sidebar-link" onclick="showSection('events')">Community Events</div>
+        <div class="sidebar-link" onclick="showSection('spotlight')">Member Spotlight</div>
         <div class="sidebar-link" onclick="showSection('admissions')">Admission Docs</div>
         <div class="sidebar-link" onclick="showSection('attendance')">Attendance Log</div>
         <div class="sidebar-link" onclick="showSection('feedback')">Member Feedback</div>
@@ -348,6 +350,85 @@
                     <tbody id="order-list"></tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- Community Events -->
+        <div id="section-events" class="admin-section hidden">
+            <h2 class="text-4xl font-bold italic">Community <span class="text-yellow-400">Events</span></h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                <div class="stat-card">
+                    <h3 class="text-sm font-bold tracking-widest mb-6 uppercase">Deploy Event</h3>
+                    <form id="addEventForm" class="flex flex-col gap-4">
+                        <input type="text" id="event-title" class="form-input" placeholder="Event Title (e.g. Summer Boot Camp)" required>
+                        <textarea id="event-desc" class="form-input" placeholder="Event Description..." rows="2" required></textarea>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="datetime-local" id="event-date" class="form-input" required>
+                            <select id="event-type" class="form-input">
+                                <option value="GROUP CLASS">Group Class</option>
+                                <option value="WORKSHOP">Workshop</option>
+                                <option value="SOCIAL">Social</option>
+                                <option value="COMPETITION">Competition</option>
+                            </select>
+                        </div>
+                        <input type="text" id="event-location" class="form-input" placeholder="Location (e.g. Main Studio)" required>
+                        <button type="submit" class="btn btn-yellow justify-center">CREATE EVENT</button>
+                    </form>
+                </div> 
+                <div class="stat-card">
+                    <h3 class="text-sm font-bold tracking-widest mb-6 uppercase">Active Events</h3>
+                    <div class="overflow-x-auto">
+                        <table class="admin-table" style="min-width: 500px;">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Date/Time</th>
+                                    <th>Type</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-event-list"></tbody>
+                        </table>
+                    </div>
+                </div> 
+            </div> 
+        </div>
+
+        <!-- Member Spotlight -->
+        <div id="section-spotlight" class="admin-section hidden">
+            <h2 class="text-4xl font-bold italic">Member <span class="text-yellow-400">Spotlight</span></h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                <div class="stat-card">
+                    <h3 class="text-sm font-bold tracking-widest mb-6 uppercase">Deploy Spotlight</h3>
+                    <form id="addSpotlightForm" class="flex flex-col gap-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="spotlight-name" class="form-input" placeholder="Member Name" required>
+                            <input type="email" id="spotlight-email" class="form-input" placeholder="Member Email" required>
+                        </div>
+                        <input type="text" id="spotlight-achievement" class="form-input" placeholder="Achievement (e.g. Lost 50lbs)" required>
+                        <textarea id="spotlight-bio" class="form-input" placeholder="Short Bio or Quote..." rows="2" required></textarea>
+                        <input type="url" id="spotlight-image" class="form-input" placeholder="Transformation Image URL" required>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] text-[#555] font-bold uppercase block mb-1">Active From</label>
+                                <input type="datetime-local" id="spotlight-from" class="form-input" required>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-[#555] font-bold uppercase block mb-1">Active Until</label>
+                                <input type="datetime-local" id="spotlight-until" class="form-input" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-yellow justify-center mt-2">DEPLOY SPOTLIGHT</button>
+                    </form>
+                </div> 
+                <div class="stat-card">
+                    <h3 class="text-sm font-bold tracking-widest mb-6 uppercase">Current Spotlight</h3>
+                    <div id="current-spotlight-display" class="p-6 bg-[#111] rounded-xl border border-[#222]">
+                        <p class="text-[#444] text-xs italic">Loading...</p>
+                    </div>
+                </div> 
+            </div> 
         </div>
 
         <!-- Admission Documents -->
@@ -795,6 +876,116 @@
         } else {
           const err = await res.json().catch(() => ({}));
           showToast(err.detail || `Server Error: ${res.status}`, 'error');
+        }
+      } catch (err) {
+        showToast(`Network Error: ${err.message}`, 'error');
+      }
+    });
+
+    async function fetchAdminEvents() {
+      try {
+        const res = await fetch(`${activeAPI}/api/community/events?token=${encodeURIComponent(token)}`);
+        const events = await res.json();
+        document.getElementById('admin-event-list').innerHTML = events.map(e => `
+          <tr>
+            <td class="font-bold text-sm">${e.title}</td>
+            <td class="text-yellow-400 font-bold text-[10px]">${new Date(e.date).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</td>
+            <td class="text-[#888] font-bold text-[10px] uppercase">${e.type}</td>
+            <td class="text-xs text-[#555] font-bold">${e.location}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="4" class="text-center py-4 text-[#444] uppercase font-bold text-[10px]">No active events</td></tr>';
+      } catch (err) { console.error(err); }
+    }
+    fetchAdminEvents();
+
+    document.getElementById('addEventForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const fd = new FormData();
+        fd.append('token', token);
+        fd.append('title', document.getElementById('event-title').value);
+        fd.append('description', document.getElementById('event-desc').value);
+        
+        const dateVal = document.getElementById('event-date').value;
+        const isoDate = new Date(dateVal).toISOString();
+        fd.append('date', isoDate);
+        
+        fd.append('location', document.getElementById('event-location').value);
+        fd.append('type', document.getElementById('event-type').value);
+
+        const res = await fetch(`${activeAPI}/api/community/events/create`, {
+          method: 'POST',
+          body: fd
+        });
+        
+        if (res.ok) { 
+          e.target.reset(); 
+          fetchAdminEvents(); 
+          showToast('Event Created Successfully!', 'success');
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showToast(err.detail || `Server Error`, 'error');
+        }
+      } catch (err) {
+        showToast(`Network Error: ${err.message}`, 'error');
+      }
+    });
+
+    async function fetchAdminSpotlight() {
+      try {
+        const res = await fetch(`${activeAPI}/api/community/spotlight?token=${encodeURIComponent(token)}`);
+        const spotlight = await res.json();
+        const display = document.getElementById('current-spotlight-display');
+        if (spotlight) {
+          display.innerHTML = `
+            <div class="flex items-center gap-4 mb-4">
+              <img src="${spotlight.transformationImage}" class="w-16 h-16 rounded-full object-cover border-2 border-yellow-400">
+              <div>
+                <h4 class="font-bold text-lg text-white">${spotlight.userName}</h4>
+                <p class="text-xs text-yellow-400 font-bold uppercase tracking-wider">${spotlight.achievement}</p>
+              </div>
+            </div>
+            <p class="text-sm text-[#888] italic mb-4">"${spotlight.bio}"</p>
+            <div class="flex justify-between text-[10px] text-[#555] font-bold uppercase border-t border-[#222] pt-3">
+              <span>From: ${new Date(spotlight.activeFrom).toLocaleDateString()}</span>
+              <span>Until: ${new Date(spotlight.activeUntil).toLocaleDateString()}</span>
+            </div>
+          `;
+        } else {
+          display.innerHTML = '<p class="text-[#444] text-xs italic uppercase font-bold text-center py-4">No Active Spotlight</p>';
+        }
+      } catch (err) { console.error(err); }
+    }
+    fetchAdminSpotlight();
+
+    document.getElementById('addSpotlightForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const fd = new FormData();
+        fd.append('token', token);
+        fd.append('userName', document.getElementById('spotlight-name').value);
+        fd.append('userEmail', document.getElementById('spotlight-email').value);
+        fd.append('achievement', document.getElementById('spotlight-achievement').value);
+        fd.append('bio', document.getElementById('spotlight-bio').value);
+        fd.append('transformationImage', document.getElementById('spotlight-image').value);
+        
+        const isoFrom = new Date(document.getElementById('spotlight-from').value).toISOString();
+        const isoUntil = new Date(document.getElementById('spotlight-until').value).toISOString();
+        fd.append('activeFrom', isoFrom);
+        fd.append('activeUntil', isoUntil);
+
+        const res = await fetch(`${activeAPI}/api/community/spotlight/create`, {
+          method: 'POST',
+          body: fd
+        });
+        
+        if (res.ok) { 
+          e.target.reset(); 
+          fetchAdminSpotlight(); 
+          showToast('Spotlight Deployed Successfully!', 'success');
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showToast(err.detail || `Server Error`, 'error');
         }
       } catch (err) {
         showToast(`Network Error: ${err.message}`, 'error');
