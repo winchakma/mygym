@@ -921,6 +921,14 @@
     </div>
   </div>
 
+  <!-- MEDIA VIEW MODAL -->
+  <div id="media-view-modal" class="modal-backdrop hidden" onclick="closeMediaModal()">
+    <div class="modal-box" style="background: transparent; border: none; box-shadow: none; display: flex; align-items: center; justify-content: center; max-width: 90vw; max-height: 90vh;" onclick="event.stopPropagation()">
+      <button onclick="closeMediaModal()" style="position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 32px; cursor: pointer;">&times;</button>
+      <div id="media-view-content" style="max-width: 100%; max-height: 100%; display: flex; align-items: center; justify-content: center;"></div>
+    </div>
+  </div>
+
   <script src="js/config.js"></script>
   <script>
     const token = localStorage.getItem('token');
@@ -958,6 +966,23 @@
           loadGallery();
         }
       } catch (e) { console.error(e); }
+    }
+
+    function openMediaModal(url, type) {
+      const content = document.getElementById('media-view-content');
+      if (type === 'video') {
+        content.innerHTML = '<video src="' + url + '" controls autoplay style="max-width: 100%; max-height: 80vh; border-radius: 12px;"></video>';
+      } else if (type === 'audio') {
+        content.innerHTML = '<div style="background: #222; padding: 40px; border-radius: 16px; border: 1px solid var(--border);"><audio src="' + url + '" controls autoplay></audio></div>';
+      } else {
+        content.innerHTML = '<img src="' + url + '" style="max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: 12px;">';
+      }
+      document.getElementById('media-view-modal').classList.remove('hidden');
+    }
+
+    function closeMediaModal() {
+      document.getElementById('media-view-modal').classList.add('hidden');
+      document.getElementById('media-view-content').innerHTML = '';
     }
 
     // ── CHAT ──
@@ -1110,8 +1135,9 @@
           const isMine = post.userEmail.toLowerCase() === currentUserEmail;
           const el = document.createElement('div');
           el.className = 'gallery-item';
+          el.onclick = () => openMediaModal(post.mediaUrl, post.mediaType);
           const mediaHtml = post.mediaType === 'audio'
-            ? '<div style="display:flex;align-items:center;justify-content:center;height:100%;width:100%;background:#222;"><audio src="' + post.mediaUrl + '" controls style="width:90%;"></audio></div>'
+            ? '<div style="display:flex;align-items:center;justify-content:center;height:100%;width:100%;background:#222;" onclick="event.stopPropagation();"><audio src="' + post.mediaUrl + '" controls style="width:90%;"></audio></div>'
             : (post.mediaType === 'video'
               ? '<video src="' + post.mediaUrl + '" class="gallery-media" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>'
               : '<img src="' + post.mediaUrl + '" class="gallery-media" />');
@@ -1144,7 +1170,6 @@
     }
 
     async function deleteMedia(id) {
-      if (!confirm("Delete this media permanently?")) return;
       try {
         const res = await fetch(`${CONFIG.API_URL}/community/posts/${id}?token=${token}`, { method: 'DELETE' });
         if (res.ok) loadGallery();
