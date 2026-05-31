@@ -319,7 +319,7 @@ async def get_activities(token: str):
     for b in bookings:
         combined.append({
             "id": str(b.id),
-            "date": b.date.strftime("%b %d, %H:%M"),
+            "date": b.time or b.date.strftime("%b %d, %H:%M"),
             "activity": b.className,
             "location": b.trainerName,
             "status": "Booked",
@@ -358,7 +358,7 @@ async def book_class(class_id: str, token: str):
         classId=str(target.id),
         className=target.className,
         trainerName=target.trainerName,
-        time=target.time
+        time=f"{target.day} {target.time}"
     )
     await new_booking.insert()
     
