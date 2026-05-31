@@ -1492,6 +1492,21 @@ async def get_events(token: str):
     events = await CommunityEvent.find(CommunityEvent.date >= datetime.utcnow()).sort("date").to_list()
     return events
 
+@router.delete("/events/{id}")
+async def delete_event(id: str, token: str):
+    user = await get_current_user(token)
+    role = getattr(user, "role", "member").lower()
+    if "admin" not in role and "trainer" not in role:
+        raise HTTPException(403, "Not authorized to delete events")
+        
+    from beanie import PydanticObjectId
+    event = await CommunityEvent.get(PydanticObjectId(id))
+    if not event:
+        raise HTTPException(404, "Event not found")
+        
+    await event.delete()
+    return {"message": "Event deleted successfully"}
+
 @router.post("/events/create")
 async def create_event(
     token: str = Form(...),
