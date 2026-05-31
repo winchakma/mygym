@@ -1213,6 +1213,15 @@
             '<span class="forum-category-badge ' + badgeClass + '">' + t.category + '</span>' +
             '<div class="forum-title">' + t.title + '</div>' +
             '<div class="forum-content">' + t.content + '</div>' +
+            (t.mediaFiles && t.mediaFiles.length > 0 ? 
+              '<div style="display:flex; gap:10px; overflow-x:auto; margin-top:15px; padding-bottom:5px; scrollbar-width:thin;">' + 
+                t.mediaFiles.map(media => {
+                  return media.type === 'video' 
+                    ? '<video src="' + media.url + '" style="height:100px; border-radius:6px; cursor:pointer;" onclick="event.stopPropagation(); openMediaModal(\'' + media.url + '\', \'video\')" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>'
+                    : '<img src="' + media.url + '" style="height:100px; border-radius:6px; cursor:pointer;" onclick="event.stopPropagation(); openMediaModal(\'' + media.url + '\', \'image\')">';
+                }).join('') + 
+              '</div>' 
+            : '') +
             '<div class="forum-meta">' +
               '<div class="forum-author">' +
                 '<div class="forum-author-dot">' + initial + '</div>' +
