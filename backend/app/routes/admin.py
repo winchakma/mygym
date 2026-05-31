@@ -122,7 +122,17 @@ async def promote_user(email: str, token: str):
 @router.get("/bookings")
 async def list_bookings(token: str):
     await get_current_admin(token)
-    return await Booking.find().sort("-date").to_list()
+    from app.utils.booking_utils import is_booking_expired
+    all_bookings = await Booking.find().sort("-date").to_list()
+    
+    active_bookings = []
+    for b in all_bookings:
+        if is_booking_expired(b):
+            await b.delete()
+        else:
+            active_bookings.append(b)
+            
+    return active_bookings
 
 @router.get("/orders")
 async def list_orders(token: str):

@@ -316,7 +316,13 @@ async def get_activities(token: str):
             "status": "Logged",
             "type": "activity"
         })
+    from app.utils.booking_utils import is_booking_expired
+    
     for b in bookings:
+        if is_booking_expired(b):
+            await b.delete()
+            continue
+            
         combined.append({
             "id": str(b.id),
             "date": b.time or b.date.strftime("%b %d, %H:%M"),
