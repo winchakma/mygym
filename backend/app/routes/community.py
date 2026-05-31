@@ -227,6 +227,9 @@ async def add_post(
         profile.postsCount += 1
         await profile.save()
 
+    user.points = getattr(user, "points", 0) + 50
+    await user.save()
+
     return {"message": "Post shared with the community!", "post": new_post}
 
 @router.delete("/posts/{id}")
@@ -598,6 +601,9 @@ async def upload_transformation(
         comments=[]
     )
     await new_post.insert()
+    
+    user.points = getattr(user, "points", 0) + 50
+    await user.save()
 
     return {"status": "success", "mediaUrl": media_url}
 
@@ -1438,6 +1444,10 @@ async def create_forum_topic(
         mediaFiles=uploaded_media
     )
     await topic.insert()
+    
+    user.points = getattr(user, "points", 0) + 50
+    await user.save()
+    
     return {"status": "success", "topic": topic}
 
 @router.delete("/forums/{id}")

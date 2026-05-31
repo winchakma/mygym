@@ -369,6 +369,9 @@ async def book_class(class_id: str, token: str):
         details=f"Booked {target.className}"
     ).insert()
     
+    user.points = getattr(user, "points", 0) + 50
+    await user.save()
+    
     return {"message": "Neural reservation confirmed."}
 
 @router.post("/book/cancel/{id}")

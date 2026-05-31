@@ -80,6 +80,10 @@ async def login(credentials: UserLogin):
     from app.models.admin import Activity
     await Activity(userId=str(user.id), userEmail=user.email, action="login", details="Member accessed the HUD.").insert()
     
+    # Award points for signing in
+    user.points = getattr(user, "points", 0) + 50
+    await user.save()
+    
     token = create_access_token({"sub": user.email})
     return {
         "message": "Access Granted. Welcome back, " + user.firstName + ".",

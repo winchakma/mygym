@@ -29,8 +29,8 @@ async def store_checkout(data: dict, current_user: User = Depends(get_current_us
     ).insert()
     
     # Reward Points
-    points_earned = int(new_order.total // 10)
-    current_user.points += points_earned
+    points_earned = int(new_order.total // 10) + 50
+    current_user.points = getattr(current_user, "points", 0) + points_earned
     await current_user.save()
     
     return {
