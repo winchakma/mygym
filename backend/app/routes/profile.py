@@ -618,4 +618,8 @@ async def log_attendance(req: AttendanceRequest, token: str):
     )
     await activity.insert()
     
+    # Award points for checking in
+    user.points += 50
+    await user.save()
+    
     return {"status": "success", "message": "Attendance logged successfully."}
