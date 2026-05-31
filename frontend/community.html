@@ -896,6 +896,31 @@
     </div>
   </div>
 
+  <!-- FORUM TOPIC VIEW MODAL -->
+  <div id="forum-view-modal" class="modal-backdrop hidden">
+    <div class="modal-box" style="max-width: 600px; max-height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <div class="modal-title" id="view-topic-title" style="margin-bottom: 0; font-size: 20px;"></div>
+        <button onclick="closeTopicView()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 24px;">&times;</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <span id="view-topic-category" class="forum-category-badge"></span>
+        <span id="view-topic-author" style="font-size: 13px; color: var(--text-secondary); font-weight: 500;"></span>
+      </div>
+      <div id="view-topic-content" style="font-size: 14px; line-height: 1.6; color: #fff; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border);"></div>
+      
+      <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Replies</div>
+      <div id="view-topic-replies" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; padding-right: 10px;">
+        <!-- Replies will be injected here -->
+      </div>
+      
+      <div style="display: flex; gap: 10px; align-items: stretch; margin-top: auto;">
+        <input type="text" id="forum-reply-input" class="modal-input" style="margin-bottom: 0;" placeholder="Write a reply...">
+        <button class="btn-primary" onclick="postForumReply()">Reply</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/config.js"></script>
   <script>
     const token = localStorage.getItem('token');
@@ -1110,10 +1135,14 @@
     }
 
     // ── FORUMS ──
+    let loadedTopics = []; // cache topics to view them
+    let currentViewTopicId = null;
+
     async function loadForums() {
       try {
         const res = await fetch(`${CONFIG.API_URL}/community/forums?token=${token}`);
         const topics = await res.json();
+        loadedTopics = topics;
         const list = document.getElementById('forums-list');
         if (!topics.length) {
           list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><div class="empty-state-text">No topics yet.<br>Start the conversation!</div></div>';
@@ -1123,7 +1152,8 @@
         list.innerHTML = topics.map(t => {
           const badgeClass = badgeMap[t.category] || 'badge-tips';
           const initial = (t.userName || 'U')[0].toUpperCase();
-          return '<div class="forum-card">' +
+          const topicId = t.id || t._id;
+          return '<div class="forum-card" onclick="viewTopic(\'' + topicId + '\')">' +
             '<span class="forum-category-badge ' + badgeClass + '">' + t.category + '</span>' +
             '<div class="forum-title">' + t.title + '</div>' +
             '<div class="forum-content">' + t.content + '</div>' +
@@ -1153,6 +1183,79 @@
         document.getElementById('forum-title').value = '';
         document.getElementById('forum-content').value = '';
         loadForums();
+      } catch(e) { console.error(e); }
+    }
+
+    function viewTopic(topicId) {
+      const topic = loadedTopics.find(t => (t.id || t._id) === topicId);
+      if (!topic) return;
+      currentViewTopicId = topicId;
+      
+      const badgeMap = { 'Tips': 'badge-tips', 'Success Stories': 'badge-success', 'Q&A': 'badge-qa' };
+      
+      document.getElementById('view-topic-title').innerText = topic.title;
+      document.getElementById('view-topic-category').className = 'forum-category-badge ' + (badgeMap[topic.category] || 'badge-tips');
+      document.getElementById('view-topic-category').innerText = topic.category;
+      document.getElementById('view-topic-author').innerText = 'by ' + topic.userName;
+      document.getElementById('view-topic-content').innerText = topic.content;
+      
+      renderReplies(topic.replies || []);
+      
+      document.getElementById('forum-reply-input').value = '';
+      document.getElementById('forum-view-modal').classList.remove('hidden');
+    }
+    
+    function closeTopicView() {
+      document.getElementById('forum-view-modal').classList.add('hidden');
+      currentViewTopicId = null;
+    }
+    
+    function renderReplies(replies) {
+      const container = document.getElementById('view-topic-replies');
+      if (!replies || replies.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; font-style: italic;">No replies yet. Be the first to reply!</div>';
+        return;
+      }
+      
+      container.innerHTML = replies.map(r => {
+        const initial = (r.userName || 'U')[0].toUpperCase();
+        return `
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <div class="forum-author-dot" style="width: 20px; height: 20px; font-size: 10px;">${initial}</div>
+              <div style="font-size: 12px; font-weight: 600;">${r.userName}</div>
+            </div>
+            <div style="font-size: 13px; color: #ddd; line-height: 1.5;">${r.text}</div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    async function postForumReply() {
+      if (!currentViewTopicId) return;
+      const textInput = document.getElementById('forum-reply-input');
+      const text = textInput.value.trim();
+      if (!text) return;
+      
+      const fd = new FormData();
+      fd.append('token', token);
+      fd.append('text', text);
+      
+      try {
+        const res = await fetch(`${CONFIG.API_URL}/community/forums/${currentViewTopicId}/reply`, { method: 'POST', body: fd });
+        if (res.ok) {
+          const data = await res.json();
+          renderReplies(data.replies);
+          textInput.value = '';
+          
+          // update cache so loadForums has correct reply count
+          const topic = loadedTopics.find(t => (t.id || t._id) === currentViewTopicId);
+          if (topic) {
+            topic.replies = data.replies;
+            topic.repliesCount = data.replies.length;
+          }
+          loadForums(); // re-render list behind the modal
+        }
       } catch(e) { console.error(e); }
     }
 
