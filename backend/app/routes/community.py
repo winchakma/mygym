@@ -1394,15 +1394,48 @@ async def create_forum_topic(
     token: str = Form(...),
     category: str = Form(...),
     title: str = Form(...),
-    content: str = Form(...)
+    content: str = Form(...),
+    mediaFiles: Optional[List[UploadFile]] = File(None)
 ):
     user = await get_current_user(token)
+    
+    uploaded_media = []
+    if mediaFiles:
+        for file in mediaFiles:
+            if file and file.filename:
+                validate_media_file(file, max_size_mb=20)
+                try:
+                    filename_lower = file.filename.lower()
+                    is_audio = False
+                    is_video = False
+                    if (file.content_type and file.content_type.startswith("audio")) or \
+                       any(filename_lower.endswith(ext) for ext in [".mp3", ".wav", ".ogg", ".m4a"]):
+                        is_audio = True
+                    elif (file.content_type and file.content_type.startswith("video")) or \
+                       any(filename_lower.endswith(ext) for ext in [".mp4", ".mov", ".avi", ".mkv", ".webm", ".3gp", ".m4v"]):
+                        is_video = True
+                    
+                    resource_type = "video" if (is_video or is_audio) else "image"
+                    upload_result = cloudinary.uploader.upload(
+                        file.file,
+                        folder="elite_gym/forums",
+                        resource_type=resource_type
+                    )
+                    media_type = "audio" if is_audio else ("video" if is_video else "image")
+                    uploaded_media.append({
+                        "url": upload_result.get("secure_url"),
+                        "type": media_type
+                    })
+                except Exception as e:
+                    print(f"[FORUM MEDIA ERROR] {e}")
+
     topic = CommunityForumTopic(
         userEmail=user.email,
         userName=f"{user.firstName} {user.lastName}",
         category=category,
         title=title,
-        content=content
+        content=content,
+        mediaFiles=uploaded_media
     )
     await topic.insert()
     return {"status": "success", "topic": topic}

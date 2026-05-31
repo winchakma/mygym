@@ -98,6 +98,7 @@ class CommunityForumTopic(Document):
     category: str # "Tips", "Success Stories", "Q&A"
     title: str
     content: str
+    mediaFiles: List[dict] = [] # list of {url, type}
     replies: List[dict] = [] # {id, userEmail, userName, text, timestamp}
     views: int = 0
     likes: List[str] = []

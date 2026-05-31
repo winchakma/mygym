@@ -882,13 +882,14 @@
   <div id="forum-modal" class="modal-backdrop hidden">
     <div class="modal-box">
       <div class="modal-title">New <span>Topic</span></div>
-      <select id="forum-category" class="modal-input">
+      <select id="forum-category" class="modal-input" style="background-color: #1a1a1a; color: white;">
         <option value="Tips">💪 Training Tips</option>
         <option value="Success Stories">🏆 Success Stories</option>
         <option value="Q&A">💬 Q&A</option>
       </select>
       <input type="text" id="forum-title" class="modal-input" placeholder="Give your topic a catchy title...">
       <textarea id="forum-content" class="modal-input" placeholder="Share your thoughts with the community..."></textarea>
+      <input type="file" id="forum-media-input" class="modal-input" accept="image/*,video/*" multiple style="padding: 10px; cursor: pointer; color: var(--text-secondary);">
       <div class="modal-footer">
         <button class="btn-cancel" onclick="document.getElementById('forum-modal').classList.add('hidden')">Cancel</button>
         <button class="btn-primary" onclick="createForumTopic()">Post Topic</button>
@@ -1232,11 +1233,20 @@
       const fd = new FormData();
       fd.append('token', token); fd.append('category', cat);
       fd.append('title', title); fd.append('content', content);
+      
+      const mediaInput = document.getElementById('forum-media-input');
+      if (mediaInput && mediaInput.files) {
+        for (let i = 0; i < mediaInput.files.length; i++) {
+          fd.append('mediaFiles', mediaInput.files[i]);
+        }
+      }
+
       try {
         await fetch(`${CONFIG.API_URL}/community/forums/create`, { method: 'POST', body: fd });
         document.getElementById('forum-modal').classList.add('hidden');
         document.getElementById('forum-title').value = '';
         document.getElementById('forum-content').value = '';
+        if (mediaInput) mediaInput.value = '';
         loadForums();
       } catch(e) { console.error(e); }
     }
@@ -1252,7 +1262,21 @@
       document.getElementById('view-topic-category').className = 'forum-category-badge ' + (badgeMap[topic.category] || 'badge-tips');
       document.getElementById('view-topic-category').innerText = topic.category;
       document.getElementById('view-topic-author').innerText = 'by ' + topic.userName;
-      document.getElementById('view-topic-content').innerText = topic.content;
+      
+      const contentEl = document.getElementById('view-topic-content');
+      contentEl.innerText = topic.content;
+      if (topic.mediaFiles && topic.mediaFiles.length > 0) {
+        const mediaContainer = document.createElement('div');
+        mediaContainer.style = 'display:flex; gap:10px; overflow-x:auto; margin-top:15px; padding-bottom:10px; scrollbar-width:thin;';
+        topic.mediaFiles.forEach(media => {
+          if (media.type === 'video') {
+            mediaContainer.innerHTML += '<video src="' + media.url + '" style="height:150px; border-radius:8px; cursor:pointer;" onclick="openMediaModal(\'' + media.url + '\', \'video\')" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>';
+          } else {
+            mediaContainer.innerHTML += '<img src="' + media.url + '" style="height:150px; border-radius:8px; cursor:pointer;" onclick="openMediaModal(\'' + media.url + '\', \'image\')">';
+          }
+        });
+        contentEl.appendChild(mediaContainer);
+      }
       
       renderReplies(topic.replies || []);
       
