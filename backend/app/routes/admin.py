@@ -134,6 +134,15 @@ async def list_bookings(token: str):
             
     return active_bookings
 
+@router.delete("/bookings/{id}")
+async def delete_booking(id: str, token: str):
+    await get_current_admin(token)
+    from beanie import PydanticObjectId
+    target = await Booking.get(PydanticObjectId(id))
+    if not target:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    await target.delete()
+    return {"message": "Booking permanently deleted"}
 @router.get("/orders")
 async def list_orders(token: str):
     await get_current_admin(token)

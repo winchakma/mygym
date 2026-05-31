@@ -325,6 +325,7 @@
                             <th>Session</th>
                             <th>Day/Time</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="booking-list"></tbody>
@@ -763,10 +764,27 @@
             <td class="text-yellow-400 font-bold uppercase text-[10px]">${b.className}</td>
             <td class="text-[#555] text-[10px] uppercase font-bold">${b.time || new Date(b.date).toLocaleTimeString()}</td>
             <td><span class="text-green-500 font-bold uppercase text-[9px]">${b.status}</span></td>
+            <td>
+              <button onclick="deleteBooking('${b.id || b._id}')" class="px-3 py-1 bg-red-900/30 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white rounded text-[10px] font-bold uppercase transition-colors tracking-widest">Delete</button>
+            </td>
           </tr>
-        `).join('') || '<tr><td colspan="4" class="text-center py-4 text-[#444] uppercase font-bold text-[10px]">No live bookings</td></tr>';
+        `).join('') || '<tr><td colspan="5" class="text-center py-4 text-[#444] uppercase font-bold text-[10px]">No live bookings</td></tr>';
+      } catch (err) { console.error(err); }
       } catch (err) { console.error(err); }
     }
+
+    window.deleteBooking = async function(id) {
+      if (!confirm("Are you sure you want to delete this live booking?")) return;
+      const res = await fetch(`${activeAPI}/api/admin/bookings/${id}?token=${encodeURIComponent(token)}`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast('Booking deleted permanently', 'success');
+        fetchBookings();
+        fetchStats(); // Update stats if necessary
+      } else {
+        const data = await res.json();
+        showToast(data.detail || 'Failed to delete booking', 'error');
+      }
+    };
 
     async function fetchSchedule() {
       try {
