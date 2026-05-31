@@ -773,7 +773,6 @@
     }
 
     window.deleteBooking = async function(id) {
-      if (!confirm("Are you sure you want to delete this live booking?")) return;
       const res = await fetch(`${activeAPI}/api/admin/bookings/${id}?token=${encodeURIComponent(token)}`, { method: 'DELETE' });
       if (res.ok) {
         showToast('Booking deleted permanently', 'success');
