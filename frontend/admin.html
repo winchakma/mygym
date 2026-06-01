@@ -758,6 +758,13 @@
     </div>
   </div>
 
+  <div id="imageModal" class="modal-overlay hidden" onclick="this.classList.add('hidden')" style="z-index: 10000; background: rgba(0,0,0,0.9);">
+    <div class="relative w-full h-full flex items-center justify-center p-4">
+      <button class="absolute top-4 right-4 text-white text-4xl font-bold hover:text-yellow-400 z-50 transition-colors">&times;</button>
+      <img id="imageModalContent" src="" class="max-w-full max-h-full rounded-xl shadow-2xl border-2 border-white/10" onclick="event.stopPropagation()">
+    </div>
+  </div>
+
   <script src="js/config.js"></script>
   <script src="js/scientific_metabolics.js"></script>
   <script src="js/script.js?v=2028"></script>
@@ -1613,7 +1620,7 @@
                         <span>Burned: ${w.calories} kcal</span>
                         <div class="text-[10px] text-yellow-400 font-bold">${new Date(w.date.endsWith('Z') ? w.date : w.date + 'Z').toLocaleDateString()}</div>
                     </div>
-                    ${w.videoUrl ? (w.videoUrl.match(/\\.(jpeg|jpg|gif|png|webp|heic)$/i) || w.videoUrl.includes('image/upload') ? `<img src="${w.videoUrl}" onclick="window.open(this.src, '_blank')" class="w-full mt-2 rounded-xl border border-white/10 object-cover cursor-pointer hover:border-yellow-400 transition-colors" style="max-height: 150px;" title="Click to expand">` : `<video src="${w.videoUrl}" controls class="w-full mt-2 rounded-xl border border-white/10" style="max-height: 150px; background: #000;"></video>`) : ''}
+                    ${w.videoUrl ? (w.videoUrl.match(/\\.(jpeg|jpg|gif|png|webp|heic)$/i) || w.videoUrl.includes('image/upload') ? `<img src="${w.videoUrl}" onclick="document.getElementById('imageModal').classList.remove('hidden'); document.getElementById('imageModalContent').src=this.src;" class="w-full mt-2 rounded-xl border border-white/10 object-cover cursor-pointer hover:border-yellow-400 transition-colors" style="max-height: 150px;" title="Click to expand">` : `<video src="${w.videoUrl}" controls class="w-full mt-2 rounded-xl border border-white/10" style="max-height: 150px; background: #000;"></video>`) : ''}
                 </div>
             `).join('') || '<p class="text-[#444] italic text-xs uppercase font-bold tracking-widest text-center py-10">No recorded workouts in the neural vault.</p>';
 
