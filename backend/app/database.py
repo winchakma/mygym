@@ -3,6 +3,7 @@ from beanie import init_beanie
 import os
 from dotenv import load_dotenv
 from app.models.user import User, AttendanceLog
+from app.models.admin import SupportMessage
 from app.models import Workout, Booking, Activity, Order, ClassSchedule, Notification, Video, UserFeedback, MentorshipRequest
 from app.models.progress import WeightProgress
 from app.models.community import CommunityPost, CommunityChat, PrivateMessage, SocialLink, Story, SocialProfile, CommunityForumTopic, CommunityEvent, MemberSpotlight
@@ -35,7 +36,7 @@ async def init_db():
         await init_beanie(
             database=client[db_name],
             document_models=[
-                User, AttendanceLog, Workout, Booking, Activity, Order, ClassSchedule, Notification, Video, UserFeedback, MentorshipRequest, WeightProgress, 
+                User, AttendanceLog, Workout, Booking, Activity, Order, ClassSchedule, Notification, Video, UserFeedback, MentorshipRequest, WeightProgress, SupportMessage, 
                 CommunityPost, CommunityChat, PrivateMessage, SocialLink, Story, SocialProfile,
                 CommunityForumTopic, CommunityEvent, MemberSpotlight,
                 Review, Transformation
