@@ -42,7 +42,7 @@ class NotificationService:
     @staticmethod
     async def send_bulk_email(emails: List[str], subject: str, content: str):
         """Sends real emails using the Brevo HTTP API."""
-        brevo_key = os.getenv("BREVO_API_KEY")
+        brevo_key = os.getenv("BREVO_API_KEY", "").strip()
         if not brevo_key:
             logger.warning("BREVO_API_KEY credentials missing. Simulation mode active.")
             for email in emails:
