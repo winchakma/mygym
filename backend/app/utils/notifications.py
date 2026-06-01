@@ -27,7 +27,8 @@ class NotificationService:
     async def notify_new_class(class_name: str, time: str, trainer: str):
         """Notifies all members about a newly added class."""
         title = "NEW ELITE SESSION ADDED"
-        message = f"Gear up! {class_name} with {trainer} has been scheduled for {time}. Book your spot now in the Member HUD!"
+        frontend_url = os.getenv("FRONTEND_URL", "https://mygym-winchakma.vercel.app")
+        message = f"Gear up! {class_name} with {trainer} has been scheduled for {time}. Book your spot now in the Member HUD!<br><br><a href='{frontend_url}/community.html' style='display: inline-block; padding: 10px 20px; background-color: #f5e642; color: #000; text-decoration: none; font-weight: bold; border-radius: 5px;'>Go to Member HUD</a>"
         
         await NotificationService.broadcast_to_all(title, message)
 
@@ -35,7 +36,8 @@ class NotificationService:
     async def notify_gym_closure(reason: str = "Maintenance"):
         """Notifies all members that the gym is closed."""
         title = "GYM STATUS: CLOSED"
-        message = f"Attention Elite Members: The gym will be closed today for {reason}. We apologize for the inconvenience and will resume synchronization tomorrow."
+        frontend_url = os.getenv("FRONTEND_URL", "https://mygym-winchakma.vercel.app")
+        message = f"Attention Elite Members: The gym will be closed today for {reason}. We apologize for the inconvenience and will resume synchronization tomorrow.<br><br><a href='{frontend_url}' style='display: inline-block; padding: 10px 20px; background-color: #333; color: #fff; text-decoration: none; border-radius: 5px;'>Check Website for Updates</a>"
         
         await NotificationService.broadcast_to_all(title, message)
 
