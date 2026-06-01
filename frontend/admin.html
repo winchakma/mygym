@@ -758,12 +758,38 @@
     </div>
   </div>
 
-  <div id="imageModal" class="modal-overlay hidden" onclick="this.classList.add('hidden')" style="z-index: 10000; background: rgba(0,0,0,0.9);">
-    <div class="relative w-full h-full flex items-center justify-center p-4">
-      <button class="absolute top-4 right-4 text-white text-4xl font-bold hover:text-yellow-400 z-50 transition-colors">&times;</button>
-      <img id="imageModalContent" src="" class="max-w-full max-h-full rounded-xl shadow-2xl border-2 border-white/10" onclick="event.stopPropagation()">
+  <div id="mediaModal" class="modal-overlay hidden" style="z-index: 10000; background: rgba(0,0,0,0.85);" onclick="closeMediaModal(event)">
+    <div class="modal-content glass auth-modal-inner relative" style="max-width: 600px; padding: 20px; border: 1px solid rgba(245, 230, 66, 0.3);" onclick="event.stopPropagation()">
+      <button class="absolute top-2 right-4 text-[#888] text-3xl font-bold hover:text-yellow-400 z-50 transition-colors" onclick="closeMediaModal()">&times;</button>
+      <div id="mediaModalContentContainer" class="flex justify-center items-center w-full mt-4">
+         <!-- Media goes here -->
+      </div>
     </div>
   </div>
+
+  <script>
+    function openMediaModal(url, type) {
+        const modal = document.getElementById('mediaModal');
+        const container = document.getElementById('mediaModalContentContainer');
+        if (!modal || !container) return;
+        
+        container.innerHTML = '';
+        if (type === 'image') {
+            container.innerHTML = `<img src="${url}" class="max-w-full rounded-lg shadow-lg" style="max-height: 70vh;">`;
+        } else if (type === 'video') {
+            container.innerHTML = `<video src="${url}" controls autoplay class="w-full rounded-lg shadow-lg" style="max-height: 70vh;"></video>`;
+        }
+        modal.classList.remove('hidden');
+    }
+    
+    function closeMediaModal(event) {
+        if (event && event.target.id !== 'mediaModal' && event.target.tagName !== 'BUTTON' && !event.target.classList.contains('modal-close')) return;
+        const modal = document.getElementById('mediaModal');
+        const container = document.getElementById('mediaModalContentContainer');
+        if (modal) modal.classList.add('hidden');
+        if (container) container.innerHTML = ''; // Stop video playback
+    }
+  </script>
 
   <script src="js/config.js"></script>
   <script src="js/scientific_metabolics.js"></script>
@@ -1620,7 +1646,14 @@
                         <span>Burned: ${w.calories} kcal</span>
                         <div class="text-[10px] text-yellow-400 font-bold">${new Date(w.date.endsWith('Z') ? w.date : w.date + 'Z').toLocaleDateString()}</div>
                     </div>
-                    ${w.videoUrl ? (w.videoUrl.match(/\\.(jpeg|jpg|gif|png|webp|heic)$/i) || w.videoUrl.includes('image/upload') ? `<img src="${w.videoUrl}" onclick="document.getElementById('imageModal').classList.remove('hidden'); document.getElementById('imageModalContent').src=this.src;" class="w-full mt-2 rounded-xl border border-white/10 object-cover cursor-pointer hover:border-yellow-400 transition-colors" style="max-height: 150px;" title="Click to expand">` : `<video src="${w.videoUrl}" controls class="w-full mt-2 rounded-xl border border-white/10" style="max-height: 150px; background: #000;"></video>`) : ''}
+                    ${w.videoUrl ? (
+                        w.videoUrl.match(/\\.(jpeg|jpg|gif|png|webp|heic)$/i) || w.videoUrl.includes('image/upload') 
+                        ? `<img src="${w.videoUrl}" onclick="openMediaModal('${w.videoUrl}', 'image')" class="w-full mt-2 rounded-xl border border-white/10 object-cover cursor-pointer hover:border-yellow-400 transition-colors" style="max-height: 150px;" title="Click to expand">` 
+                        : `<div onclick="openMediaModal('${w.videoUrl}', 'video')" class="w-full mt-2 rounded-xl border border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-yellow-400 transition-colors bg-black/50 group" style="height: 150px;" title="Click to play video">
+                             <div class="w-12 h-12 rounded-full bg-yellow-400/20 text-yellow-400 flex items-center justify-center text-xl group-hover:scale-110 group-hover:bg-yellow-400 group-hover:text-black transition-all">▶</div>
+                             <span class="text-[10px] font-bold uppercase tracking-widest mt-2 text-[#888] group-hover:text-white transition-colors">Play Video</span>
+                           </div>`
+                    ) : ''}
                 </div>
             `).join('') || '<p class="text-[#444] italic text-xs uppercase font-bold tracking-widest text-center py-10">No recorded workouts in the neural vault.</p>';
 
