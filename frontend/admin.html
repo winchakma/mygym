@@ -1599,7 +1599,7 @@
                         <span>Burned: ${w.calories} kcal</span>
                         <span>${new Date(w.date.endsWith('Z') ? w.date : w.date + 'Z').toLocaleDateString()}</span>
                     </div>
-                    ${w.videoUrl ? (w.videoUrl.match(/\\.(jpeg|jpg|gif|png|webp|heic)$/i) || w.videoUrl.includes('image/upload') ? \`<img src="\${w.videoUrl}" class="w-full mt-2 rounded-xl border border-white/10 object-cover" style="max-height: 150px;">\` : \`<video src="\${w.videoUrl}" controls class="w-full mt-2 rounded-xl border border-white/10" style="max-height: 150px; background: #000;"></video>\`) : ''}
+                    ${w.videoUrl ? (w.videoUrl.match(/\.(jpeg|jpg|gif|png|webp|heic)$/i) || w.videoUrl.includes('image/upload') ? `<img src="${w.videoUrl}" class="w-full mt-2 rounded-xl border border-white/10 object-cover" style="max-height: 150px;">` : `<video src="${w.videoUrl}" controls class="w-full mt-2 rounded-xl border border-white/10" style="max-height: 150px; background: #000;"></video>`) : ''}
                 </div>
             `).join('') || '<p class="text-[#444] italic text-xs uppercase font-bold tracking-widest text-center py-10">No recorded workouts in the neural vault.</p>';
 
