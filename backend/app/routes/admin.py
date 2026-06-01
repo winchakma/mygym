@@ -410,6 +410,7 @@ async def get_user_progress(email: str, token: str):
         "trainingGoal": goal,
         "proteinTarget": protein_target,
         "calorieTarget": calorie_target,
+        "activeBurnTarget": round(weight * 10),
         "firstName": getattr(user, 'firstName', 'Elite'),
         "lastName": getattr(user, 'lastName', 'Member'),
         "role": getattr(user, 'role', 'user'),
