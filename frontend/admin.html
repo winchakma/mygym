@@ -133,8 +133,8 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 stat-card">
+            <div class="grid grid-cols-1 gap-8 mb-8">
+                <div class="stat-card">
                     <div class="flex justify-between items-center mb-6">
                         <h4 class="text-sm font-bold tracking-widest text-yellow-400">Broadcast Log</h4>
                         <span class="text-[9px] text-[#444] font-bold">Recent transmissions</span>
@@ -146,46 +146,38 @@
                         </div>
                     </div>
                 </div>
-                <div class="lg:col-span-2 stat-card">
-                    <div class="flex justify-between items-center mb-6">
-                        <h4 class="text-sm font-bold tracking-widest">Global Activity Pulse</h4>
-                        <span class="text-[9px] text-[#444] font-bold">Updates every 10s</span>
-                    </div>
-                    <div id="activity-feed" class="flex flex-col gap-2">
-                        <p class="text-[#444] italic">Synchronizing feed...</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="stat-card">
+                    <h4 class="text-sm font-bold mb-6 tracking-widest">Global Broadcast</h4>
+                    <div class="flex flex-col gap-4">
+                        <input id="broadcast-title" type="text" class="form-input" placeholder="Announcement Title">
+                        <textarea id="broadcast-msg" class="form-input" placeholder="Type your message to all members..." rows="3"></textarea>
+                        <button onclick="sendBroadcast()" class="btn btn-yellow justify-center">Send To All</button>
                     </div>
                 </div>
-                <div class="lg:col-span-1 flex flex-col gap-8">
-                    <div class="stat-card">
-                        <h4 class="text-sm font-bold mb-6 tracking-widest">Global Broadcast</h4>
-                        <div class="flex flex-col gap-4">
-                            <input id="broadcast-title" type="text" class="form-input" placeholder="Announcement Title">
-                            <textarea id="broadcast-msg" class="form-input" placeholder="Type your message to all members..." rows="3"></textarea>
-                            <button onclick="sendBroadcast()" class="btn btn-yellow justify-center">Send To All</button>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <h4 class="text-sm font-bold mb-6 tracking-widest">Admin Authorization</h4>
-                        <div class="flex flex-col gap-5">
-                            <div>
-                                <label class="text-[10px] font-bold text-[#444] mb-2 block">Promote New Admin</label>
-                                <div class="flex gap-2">
-                                    <input id="promote-email" type="email" class="form-input flex-1" placeholder="Email Address">
-                                    <button onclick="promoteUser()" class="btn btn-yellow">Promote</button>
-                                </div>
+                <div class="stat-card">
+                    <h4 class="text-sm font-bold mb-6 tracking-widest">Admin Authorization</h4>
+                    <div class="flex flex-col gap-5">
+                        <div>
+                            <label class="text-[10px] font-bold text-[#444] mb-2 block">Promote New Admin</label>
+                            <div class="flex flex-col gap-2">
+                                <input id="promote-email" type="email" class="form-input w-full" placeholder="Email Address">
+                                <button onclick="promoteUser()" class="btn btn-yellow justify-center w-full">Promote</button>
                             </div>
                         </div>
                     </div>
-                    <div class="stat-card border-blue-900/30">
-                        <h4 class="text-sm font-bold mb-4 tracking-widest text-blue-400">Server Health</h4>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-[10px] text-[#444] font-bold">Api Response</span>
-                                <span class="text-[10px] text-green-500 font-bold">24ms</span>
-                            </div>
-                            <div class="h-1 bg-[#1a1a1a] rounded-full overflow-hidden">
-                                <div class="h-full bg-blue-500 w-[85%]"></div>
-                            </div>
+                </div>
+                <div class="stat-card border-blue-900/30">
+                    <h4 class="text-sm font-bold mb-4 tracking-widest text-blue-400">Server Health</h4>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] text-[#444] font-bold">Api Response</span>
+                            <span class="text-[10px] text-green-500 font-bold">24ms</span>
+                        </div>
+                        <div class="h-1 bg-[#1a1a1a] rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 w-[85%]"></div>
                         </div>
                     </div>
                 </div>
@@ -812,25 +804,7 @@
         document.getElementById('stat-total-orders').textContent = data.totalOrders;
         document.getElementById('stat-revenue').textContent = `$${data.estimatedRevenue}`;
 
-        // Enhanced Activity Feed with Store and Booking badges
-        document.getElementById('activity-feed').innerHTML = data.recentActivities.map(a => {
-          let badgeColor = 'var(--yellow)';
-          let icon = '⚡';
-          if (a.action.toLowerCase().includes('book')) { badgeColor = '#ef4444'; icon = '🗓️'; }
-          if (a.action.toLowerCase().includes('bought') || a.action.toLowerCase().includes('order')) { badgeColor = '#3b82f6'; icon = '🛒'; }
-          
-          return `
-            <div class="activity-item" style="border-left: 2px solid ${badgeColor}">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded" style="background: ${badgeColor}; color: #000;">${icon} ${a.action.split(' ')[0]}</span>
-                  <p class="text-[10px] font-bold uppercase tracking-wider">${a.action}</p>
-                </div>
-                <p class="text-[9px] text-[#444] font-bold uppercase">${a.userEmail} • ${new Date(a.timestamp).toLocaleTimeString()}</p>
-              </div>
-            </div>
-          `;
-        }).join('') || '<p class="text-[#444] italic">Waiting for neural pulse...</p>';
+        // Global Activity Pulse removed as per admin instruction
         
         // Also update booking list if in that section
         if (!document.getElementById('section-bookings').classList.contains('hidden')) {
