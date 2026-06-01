@@ -383,6 +383,9 @@ async def get_user_progress(email: str, token: str):
     
     workouts = await Workout.find(Workout.user_id == str(user.id)).sort("-date").to_list()
     weight_history = await WeightProgress.find(WeightProgress.userEmail == email).sort("-timestamp").to_list()
+    bookings = await Booking.find(Booking.userEmail == email).sort("-date").to_list()
+    from app.models.user import AttendanceLog
+    attendance = await AttendanceLog.find(AttendanceLog.user_id == str(user.id)).sort("-date").to_list()
     
     weight = float(getattr(user, 'weight', 75.0) or 75.0)
     goal = getattr(user, 'goal', 'Maintenance') or 'Maintenance'
@@ -397,6 +400,11 @@ async def get_user_progress(email: str, token: str):
     return {
         "workouts": workouts,
         "weightHistory": weight_history,
+        "bookings": bookings,
+        "attendance": attendance,
+        "monthlyFeeStatus": getattr(user, 'monthlyFeeStatus', 'Unpaid'),
+        "lastFeePaidAmount": getattr(user, 'lastFeePaidAmount', 0.0),
+        "lastFeePaidDate": getattr(user, 'lastFeePaidDate', None),
         "currentWeight": weight,
         "targetWeight": float(getattr(user, 'weightGoal', 80.0) or 80.0),
         "trainingGoal": goal,
