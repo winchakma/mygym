@@ -2538,13 +2538,13 @@ window.loadSupportHistory = async function() {
                 container.innerHTML = '<div style="text-align:center; color:#888; font-size:13px; margin-top:20px;">No previous messages.</div>';
                 return;
             }
-            container.innerHTML = messages.map(msg => \`
+            container.innerHTML = messages.map(msg => `
                 <div class="support-msg-card">
-                    <div class="support-msg-role">To: \${msg.recipientType} (\${msg.status})</div>
-                    <div>\${msg.message}</div>
-                    \${msg.reply ? \`<div class="support-msg-reply"><b>Reply:</b> \${msg.reply}</div>\` : ''}
+                    <div class="support-msg-role">To: ${msg.recipientType} (${msg.status})</div>
+                    <div>${msg.message}</div>
+                    ${msg.reply ? `<div class="support-msg-reply"><b>Reply:</b> ${msg.reply}</div>` : ''}
                 </div>
-            \`).join('');
+            `).join('');
         }
     } catch(err) {
         console.error(err);
