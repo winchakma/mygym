@@ -952,7 +952,7 @@
         fd.append('description', document.getElementById('event-desc').value);
         
         const dateVal = document.getElementById('event-date').value;
-        const isoDate = dateVal + ":00Z";
+        const isoDate = new Date(dateVal).toISOString();
         fd.append('date', isoDate);
         
         fd.append('location', document.getElementById('event-location').value);
@@ -1028,8 +1028,10 @@
         fd.append('bio', document.getElementById('spotlight-bio').value);
         fd.append('transformationImage', document.getElementById('spotlight-image').files[0]);
         
-        const isoFrom = document.getElementById('spotlight-from').value + ":00Z";
-        const isoUntil = document.getElementById('spotlight-until').value + ":00Z";
+        const fromVal = document.getElementById('spotlight-from').value;
+        const untilVal = document.getElementById('spotlight-until').value;
+        const isoFrom = new Date(fromVal).toISOString();
+        const isoUntil = new Date(untilVal).toISOString();
         fd.append('activeFrom', isoFrom);
         fd.append('activeUntil', isoUntil);
 
