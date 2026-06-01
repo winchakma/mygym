@@ -780,6 +780,7 @@
 
     function renderTemplates() {
       const container = document.getElementById('session-templates');
+      if (!container) return;
       container.innerHTML = sessionTemplates.map(t => `
         <div class="activity-item" style="border-left: 2px solid var(--yellow); background: rgba(255,255,255,0.02);">
           <div class="flex-1">
@@ -1195,7 +1196,6 @@
       });
       if (targetLink) targetLink.classList.add('active');
 
-      if (section === 'dashboard') 
       if (section === 'users') fetchUsers();
       if (section === 'bookings') fetchBookings();
       
