@@ -759,6 +759,7 @@
   </div>
 
   <script src="js/config.js"></script>
+  <script src="js/scientific_metabolics.js"></script>
   <script src="js/script.js?v=2028"></script>
   <script src="js/chatbot.js"></script>
   <script>
@@ -1512,9 +1513,15 @@
             // Goal
             document.getElementById('progress-member-goal').textContent = `Goal: ${data.trainingGoal || 'Optimization'}`;
             
+            // Use scientific metabolics
+            let metrics = null;
+            if (typeof ScientificMetabolics !== 'undefined') {
+                metrics = ScientificMetabolics.calculateTargets(data.currentWeight || 75, data.height || 170, 25, data.trainingGoal || 'Maintenance');
+            }
+            
             // Stats
             const burnElem = document.getElementById('progress-daily-burn');
-            if (burnElem) burnElem.innerHTML = `${data.activeBurnTarget || '--'} <span class="text-sm font-normal text-[#555]">KCAL</span>`;
+            if (burnElem) burnElem.innerHTML = `${metrics ? metrics.activeBurnTarget : (data.activeBurnTarget || '--')} <span class="text-sm font-normal text-[#555]">KCAL</span>`;
             
             const cWeightElem = document.getElementById('progress-current-weight');
             if (cWeightElem) cWeightElem.textContent = `${data.currentWeight || '--'}`;
@@ -1526,17 +1533,24 @@
             if (tWeightElem) tWeightElem.textContent = `${data.targetWeight || '--'} kg`;
             
             // Nutrition
+            const calorieTarget = metrics ? metrics.calorieTarget : (data.calorieTarget || 2500);
+            const proteinTarget = metrics ? metrics.proteinTarget : (data.proteinTarget || 150);
+            
+            const progressRatio = 0.45;
+            const calorieCurrent = Math.round(calorieTarget * progressRatio);
+            const proteinCurrent = Math.round(proteinTarget * progressRatio);
+
             const pLabel = document.getElementById('progress-protein-label');
-            if (pLabel) pLabel.textContent = `${data.proteinTarget || '--'}/${Math.round(data.currentWeight * 2.5)}g`;
+            if (pLabel) pLabel.textContent = `${proteinCurrent}/${proteinTarget}g`;
             
             const pBar = document.getElementById('progress-protein-bar');
-            if (pBar) pBar.style.width = '75%';
+            if (pBar) pBar.style.width = '45%';
             
             const eLabel = document.getElementById('progress-energy-label');
-            if (eLabel) eLabel.textContent = `${data.calorieTarget || '--'}/3000 kcal`;
+            if (eLabel) eLabel.textContent = `${(calorieCurrent / 1000).toFixed(1)}k/${(calorieTarget / 1000).toFixed(1)}k kcal`;
             
             const eBar = document.getElementById('progress-energy-bar');
-            if (eBar) eBar.style.width = '65%';
+            if (eBar) eBar.style.width = '45%';
 
             // Fee Status
             const feeStatus = document.getElementById('progress-fee-status');
@@ -1597,9 +1611,9 @@
                     </div>
                     <div class="flex justify-between text-[10px] text-[#555] font-bold uppercase tracking-widest mb-2">
                         <span>Burned: ${w.calories} kcal</span>
-                        <span>${new Date(w.date.endsWith('Z') ? w.date : w.date + 'Z').toLocaleDateString()}</span>
+                        <div class="text-[10px] text-yellow-400 font-bold">${new Date(w.date.endsWith('Z') ? w.date : w.date + 'Z').toLocaleDateString()}</div>
                     </div>
-                    ${w.videoUrl ? (w.videoUrl.match(/\.(jpeg|jpg|gif|png|webp|heic)$/i) || w.videoUrl.includes('image/upload') ? `<img src="${w.videoUrl}" class="w-full mt-2 rounded-xl border border-white/10 object-cover" style="max-height: 150px;">` : `<video src="${w.videoUrl}" controls class="w-full mt-2 rounded-xl border border-white/10" style="max-height: 150px; background: #000;"></video>`) : ''}
+                    ${w.videoUrl ? (w.videoUrl.match(/\\.(jpeg|jpg|gif|png|webp|heic)$/i) || w.videoUrl.includes('image/upload') ? `<img src="${w.videoUrl}" onclick="window.open(this.src, '_blank')" class="w-full mt-2 rounded-xl border border-white/10 object-cover cursor-pointer hover:border-yellow-400 transition-colors" style="max-height: 150px;" title="Click to expand">` : `<video src="${w.videoUrl}" controls class="w-full mt-2 rounded-xl border border-white/10" style="max-height: 150px; background: #000;"></video>`) : ''}
                 </div>
             `).join('') || '<p class="text-[#444] italic text-xs uppercase font-bold tracking-widest text-center py-10">No recorded workouts in the neural vault.</p>';
 

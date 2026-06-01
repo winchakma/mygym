@@ -796,14 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const checkInBtn = document.getElementById('btnCheckIn');
-  if (checkInBtn) {
-    checkInBtn.addEventListener('click', () => {
-      checkInBtn.textContent = 'CHECKED IN'; checkInBtn.disabled = true; checkInBtn.style.opacity = '0.5';
-      window.showToast('Attendance recorded!', 'success');
-      window.logActivity('Checked In');
-    });
-  }
+  // CheckInBtn listener removed for correct form flow
   const cancelBtn = document.getElementById('btnCancel');
   if (cancelBtn) {
     cancelBtn.addEventListener('click', () => {
