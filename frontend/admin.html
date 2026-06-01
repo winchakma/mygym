@@ -1153,13 +1153,71 @@
           return;
         }
         const users = await res.json();
+
+        // Helper functions for visually distinguishing and sorting tiers
+        function getUserPriorityScore(u) {
+          const role = (u.role || '').toLowerCase();
+          const membershipType = (u.membershipType || '').toUpperCase();
+          const membershipClass = (u.membershipClass || '').toUpperCase();
+
+          if (role === 'super_admin') return 1;
+          if (role === 'admin') return 2;
+          if (role === 'trainer') return 3;
+          if (membershipType.includes('ELITE')) return 4;
+          if (membershipClass === 'A') return 5;
+          if (membershipClass === 'B') return 6;
+          if (membershipClass === 'C') return 7;
+          return 8; // FREE GUEST
+        }
+
+        function getPriorityClassBadge(u) {
+          const role = (u.role || '').toLowerCase();
+          const membershipClass = (u.membershipClass || '').toUpperCase();
+
+          if (role === 'super_admin') {
+            return `<span class="badge bg-yellow-400 text-black font-black px-2 py-0.5 rounded text-[10px]">CROWN</span>`;
+          }
+          if (role === 'admin') {
+            return `<span class="badge bg-yellow-400/20 text-yellow-400 border border-yellow-400/30 font-black px-2 py-0.5 rounded text-[10px]">A-ADM</span>`;
+          }
+          if (role === 'trainer') {
+            return `<span class="badge bg-green-500/20 text-green-400 border border-green-500/30 font-black px-2 py-0.5 rounded text-[10px]">A-TRN</span>`;
+          }
+          return `<span class="badge ${membershipClass === 'A' ? 'badge-elite' : membershipClass === 'B' ? 'badge-pro' : membershipClass === 'C' ? 'bg-green-500 text-black' : 'bg-[#222] text-[#555]'} font-black px-2 py-0.5 rounded text-[10px]">${membershipClass}</span>`;
+        }
+
+        function getPriorityPlanBadge(u) {
+          const role = (u.role || '').toLowerCase();
+          const membershipType = (u.membershipType || '').toUpperCase();
+
+          if (role === 'super_admin') {
+            return `<span class="badge bg-yellow-400 text-black font-black">SUPER ADMIN</span>`;
+          }
+          if (role === 'admin') {
+            return `<span class="badge bg-yellow-400/20 text-yellow-400 border border-yellow-400/30 font-black">ADMIN</span>`;
+          }
+          if (role === 'trainer') {
+            return `<span class="badge bg-green-500/20 text-green-400 border border-green-500/30 font-black">ELITE TRAINER</span>`;
+          }
+          if (membershipType.includes('ELITE')) {
+            return `<span class="badge bg-yellow-400/10 text-yellow-400 border border-yellow-400/20 font-black">ELITE ANNUAL</span>`;
+          }
+          if (membershipType.includes('PRO')) {
+            return `<span class="badge badge-pro">PRO PLAN</span>`;
+          }
+          return `<span class="badge bg-[#111] text-[#555] font-bold">${membershipType}</span>`;
+        }
+
+        // Sort by tier importance
+        users.sort((a, b) => getUserPriorityScore(a) - getUserPriorityScore(b));
+
         document.getElementById('user-list').innerHTML = users.map(u => `
           <tr>
             <td class="text-blue-400 font-bold text-[10px] uppercase">#${(u.id || u._id || '000000').slice(-6)}</td>
-            <td><span class="badge ${u.membershipClass === 'A' ? 'badge-elite' : u.membershipClass === 'B' ? 'badge-pro' : u.membershipClass === 'C' ? 'bg-green-500 text-black' : 'bg-[#222] text-[#555]'} font-black px-2 py-0.5 rounded text-[10px]">${u.membershipClass}</span></td>
+            <td>${getPriorityClassBadge(u)}</td>
             <td class="font-bold italic uppercase text-sm">${u.firstName} ${u.lastName}</td>
             <td class="text-[#555] text-xs">${u.email}</td>
-            <td><span class="badge ${u.membershipType.includes('ELITE') ? 'badge-elite' : 'badge-pro'}">${u.membershipType}</span></td>
+            <td>${getPriorityPlanBadge(u)}</td>
             <td><span class="text-[9px] font-bold uppercase ${u.admissionStatus === 'approved' ? 'text-green-500' : 'text-yellow-400'}">${u.admissionStatus}</span></td>
             <td><span class="text-green-500 font-bold uppercase text-[10px]">Active</span></td>
             <td><span class="text-[10px] font-bold uppercase ${u.monthlyFeeStatus === 'Paid' ? 'text-green-500' : 'text-red-500'}">${u.monthlyFeeStatus || 'Unpaid'}</span></td>

@@ -982,6 +982,28 @@
           currentUserAvatar = data.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
           initChat();
           loadGallery();
+
+          // Auto-clear direct message unread counts since direct messaging is a backend-only feature
+          try {
+            const convRes = await fetch(`${CONFIG.API_URL}/community/conversations?token=${token}`);
+            if (convRes.ok) {
+              const conversations = await convRes.json();
+              let markedAny = false;
+              for (const conv of conversations) {
+                if (conv.unreadCount > 0) {
+                  await fetch(`${CONFIG.API_URL}/community/private/read/${encodeURIComponent(conv.email)}?token=${token}`, {
+                    method: 'POST'
+                  });
+                  markedAny = true;
+                }
+              }
+              if (markedAny && window.syncUnreadMessages) {
+                setTimeout(window.syncUnreadMessages, 500);
+              }
+            }
+          } catch (convErr) {
+            console.warn("Direct message auto-read sync failure", convErr);
+          }
         }
       } catch (e) { console.error(e); }
     }
