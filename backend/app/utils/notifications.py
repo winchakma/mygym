@@ -53,9 +53,39 @@ class NotificationService:
                 logger.info(f"[SIMULATED EMAIL] To: {email} | Subject: {subject}")
             return
 
-        # Bypassing SMTP to prevent Render 502 Bad Gateway from blocked ports/timeouts
-        logger.info(f"[MOCK EMAIL] Sending to {len(emails)} users: {subject}")
-        return
+        import asyncio
+
+        def sync_send_emails(recipients: List[str], mail_subject: str, mail_content: str, host: str, port: int, user: str, password: str):
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+
+            for recipient in recipients:
+                recipient_clean = recipient.strip().lower()
+                if not recipient_clean:
+                    continue
+                try:
+                    msg = MIMEMultipart()
+                    msg["From"] = user
+                    msg["To"] = recipient_clean
+                    msg["Subject"] = mail_subject
+                    
+                    mime_type = "html" if "<html" in mail_content.lower() or "<p" in mail_content.lower() or "<div" in mail_content.lower() else "plain"
+                    msg.attach(MIMEText(mail_content, mime_type))
+
+                    # Connect and send
+                    server = smtplib.SMTP(host, port, timeout=10)
+                    server.starttls()
+                    server.login(user, password)
+                    server.sendmail(user, recipient_clean, msg.as_string())
+                    server.quit()
+                    logger.info(f"[SMTP EMAIL SUCCESS] Delivered to: {recipient_clean}")
+                except Exception as e:
+                    logger.error(f"[SMTP EMAIL ERROR] Failed delivering to {recipient_clean}: {e}")
+
+        # Offload blocking SMTP calls to a background thread to prevent Render HTTP request timeout (502 Bad Gateway)
+        logger.info(f"[SMTP BACKGROUND INITIATED] Queued {len(emails)} emails: {subject}")
+        asyncio.create_task(asyncio.to_thread(sync_send_emails, emails, subject, content, smtp_host, smtp_port, smtp_user, smtp_pass))
 
     @staticmethod
     async def send_bulk_sms(phones: List[str], message: str):
