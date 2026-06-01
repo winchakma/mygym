@@ -96,3 +96,15 @@ class MentorshipRequest(Document):
 
     class Settings:
         name = "mentorship_requests"
+
+class SupportMessage(Document):
+    senderEmail: str
+    senderName: str
+    recipientType: str # "Owner" or "Trainer"
+    message: str
+    reply: Optional[str] = None
+    status: str = "open" # "open", "resolved"
+    timestamp: datetime = datetime.utcnow()
+    
+    class Settings:
+        name = "support_messages"

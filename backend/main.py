@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 # Ensure .env is loaded from the correct path
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
 
-from app.routes import auth, profile, workout, community, chat, admin, store, public
+from app.routes import auth, profile, workout, community, chat, admin, store, public, support
 from app.database import init_db
 
 @contextlib.asynccontextmanager
@@ -145,6 +145,7 @@ app.include_router(chat.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 app.include_router(store.router, prefix="/api")
 app.include_router(public.router, prefix="/api")
+app.include_router(support.router, prefix="/api")
 
 @app.get("/")
 def read_root():

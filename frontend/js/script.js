@@ -2371,3 +2371,215 @@ window.bookClass = async function (id, name, time, trainer) {
     }
   }
 };
+
+/* ============================================
+   AI SUPPORT CHAT WIDGET
+   ============================================ */
+document.addEventListener("DOMContentLoaded", () => {
+    // Only load for logged in users
+    const token = localStorage.getItem("token");
+    if(!token) return;
+
+    const widgetHTML = `
+    <style>
+        .ai-support-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f5e642, #f5b042);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(245, 230, 66, 0.4);
+            cursor: pointer;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+        }
+        .ai-support-fab:hover {
+            transform: scale(1.1);
+        }
+        .ai-support-fab svg {
+            width: 30px;
+            height: 30px;
+            fill: #000;
+        }
+        .ai-support-panel {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 320px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            z-index: 9998;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        .ai-support-panel.active {
+            display: flex;
+        }
+        .ai-support-header {
+            background: #0d0d0d;
+            padding: 15px;
+            text-align: center;
+            color: #f5e642;
+            font-weight: bold;
+            border-bottom: 1px solid #333;
+        }
+        .ai-support-body {
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .ai-support-footer {
+            padding: 15px;
+            background: #0d0d0d;
+            border-top: 1px solid #333;
+        }
+        .ai-support-select {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .ai-support-textarea {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            resize: none;
+            height: 80px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .ai-support-btn {
+            width: 100%;
+            padding: 10px;
+            background: #f5e642;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .ai-support-btn:hover {
+            background: #f5b042;
+        }
+        .support-msg-card {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .support-msg-role {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        .support-msg-reply {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #444;
+            color: #f5e642;
+        }
+    </style>
+    <div class="ai-support-fab" id="aiSupportFab">
+        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </div>
+    <div class="ai-support-panel" id="aiSupportPanel">
+        <div class="ai-support-header">AI Elite Assistant</div>
+        <div class="ai-support-body" id="aiSupportHistory">
+            <!-- Messages go here -->
+        </div>
+        <div class="ai-support-footer">
+            <select class="ai-support-select" id="aiSupportRecipient">
+                <option value="Trainer">Message Elite Trainer</option>
+                <option value="Owner">Message Super Admin (Owner)</option>
+            </select>
+            <textarea class="ai-support-textarea" id="aiSupportInput" placeholder="How can we assist you today?"></textarea>
+            <button class="ai-support-btn" onclick="sendSupportMessage()">Send Message</button>
+        </div>
+    </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', widgetHTML);
+    
+    document.getElementById("aiSupportFab").addEventListener("click", () => {
+        const panel = document.getElementById("aiSupportPanel");
+        panel.classList.toggle("active");
+        if(panel.classList.contains("active")) {
+            loadSupportHistory();
+        }
+    });
+});
+
+window.loadSupportHistory = async function() {
+    const token = localStorage.getItem("token");
+    try {
+        const res = await fetch(`${API_URL}/api/support/history?token=${token}`);
+        if(res.ok) {
+            const messages = await res.json();
+            const container = document.getElementById("aiSupportHistory");
+            if(messages.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#888; font-size:13px; margin-top:20px;">No previous messages.</div>';
+                return;
+            }
+            container.innerHTML = messages.map(msg => \`
+                <div class="support-msg-card">
+                    <div class="support-msg-role">To: \${msg.recipientType} (\${msg.status})</div>
+                    <div>\${msg.message}</div>
+                    \${msg.reply ? \`<div class="support-msg-reply"><b>Reply:</b> \${msg.reply}</div>\` : ''}
+                </div>
+            \`).join('');
+        }
+    } catch(err) {
+        console.error(err);
+    }
+}
+
+window.sendSupportMessage = async function() {
+    const token = localStorage.getItem("token");
+    const recipientType = document.getElementById("aiSupportRecipient").value;
+    const message = document.getElementById("aiSupportInput").value;
+    
+    if(!message.trim()) return;
+    
+    const btn = document.querySelector(".ai-support-btn");
+    btn.textContent = "Sending...";
+    btn.disabled = true;
+    
+    try {
+        const res = await fetch(`${API_URL}/api/support/send?token=${token}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({recipientType, message})
+        });
+        
+        if(res.ok) {
+            window.showToast("Message sent to " + recipientType);
+            document.getElementById("aiSupportInput").value = '';
+            loadSupportHistory();
+        } else {
+            const data = await res.json();
+            window.showToast(data.detail || "Failed to send message", "error");
+        }
+    } catch(err) {
+        window.showToast("Connection error", "error");
+    } finally {
+        btn.textContent = "Send Message";
+        btn.disabled = false;
+    }
+}

@@ -81,6 +81,7 @@
         <div class="sidebar-link" onclick="showSection('admissions')">Admission Docs</div>
         <div class="sidebar-link" onclick="showSection('attendance')">Attendance Log</div>
         <div class="sidebar-link" onclick="showSection('feedback')">Member Feedback</div>
+        <div class="sidebar-link" onclick="showSection('support')">Support Chat (Owner)</div>
 
         <div class="mt-auto">
             <a href="dashboard.html" class="sidebar-link text-white bg-white/5">← Return to Site</a>
@@ -466,6 +467,14 @@
         </div>
 
                         <!-- Performance Hub (Detail View) -->
+        <!-- Support Chat (Owner) -->
+        <div id="section-support" class="admin-section hidden">
+            <h2 class="text-3xl font-bold italic mb-6">Support <span class="text-yellow-400">Chat</span> (Owner)</h2>
+            <div id="support-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Support messages rendered here -->
+            </div>
+        </div>
+
         <div id="section-progress" class="admin-section hidden">
             <div class="flex items-center gap-4 mb-10">
                 <button onclick="showSection('users')" class="btn btn-outline-white text-[10px]">← BACK</button>
@@ -1768,6 +1777,61 @@
       e.stopPropagation();
       document.querySelector('.admin-sidebar').classList.toggle('active');
     }
+
+    window.fetchSupportMessages = async function() {
+        try {
+            const res = await fetch(`${activeAPI}/api/support/owner?token=${token}`);
+            if (res.ok) {
+                const messages = await res.json();
+                const container = document.getElementById('support-list');
+                container.innerHTML = messages.map(m => `
+                    <div class="stat-card">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-white font-bold text-lg">${m.senderName}</h3>
+                                <p class="text-[10px] text-gray-400">${m.senderEmail}</p>
+                            </div>
+                            <span class="badge ${m.status === 'open' ? 'badge-elite' : 'badge-pro'}">${m.status.toUpperCase()}</span>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-4 bg-white/5 p-3 rounded border border-white/5">"${m.message}"</p>
+                        ${m.status === 'open' ? `
+                            <div class="flex gap-2">
+                                <input type="text" id="reply-${m._id}" class="admin-input flex-1 p-2 rounded bg-[#111] border border-[#333] text-white text-sm" placeholder="Type reply...">
+                                <button onclick="replySupport('${m._id}')" class="btn btn-primary px-4 py-2 rounded font-bold text-black bg-yellow-400 hover:bg-yellow-500">Send</button>
+                            </div>
+                        ` : `
+                            <div class="mt-4 p-3 border-l-2 border-yellow-400 bg-white/5 text-sm text-yellow-100">
+                                <span class="text-[10px] text-yellow-400 font-bold block mb-1">YOUR REPLY</span>
+                                ${m.reply}
+                            </div>
+                        `}
+                    </div>
+                `).join('') || '<p class="text-gray-500 italic">No support messages found.</p>';
+            }
+        } catch (err) { console.error(err); }
+    };
+
+    window.replySupport = async function(id) {
+        const reply = document.getElementById(`reply-${id}`).value;
+        if (!reply) return;
+        try {
+            const res = await fetch(`${activeAPI}/api/support/${id}/reply?token=${token}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reply })
+            });
+            if (res.ok) {
+                showToast("Reply sent successfully", "success");
+                fetchSupportMessages();
+            } else showToast("Failed to reply", "error");
+        } catch (err) { console.error(err); }
+    };
+
+    const originalShowSection = window.showSection;
+    window.showSection = function(section) {
+        originalShowSection(section);
+        if (section === 'support') fetchSupportMessages();
+    };
 
     // Init
     fetchStats();
