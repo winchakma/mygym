@@ -1470,16 +1470,30 @@
             document.getElementById('progress-member-goal').textContent = `Goal: ${data.trainingGoal || 'Optimization'}`;
             
             // Stats
-            document.getElementById('progress-daily-burn').innerHTML = `${data.calorieTarget || '--'} <span class="text-sm font-normal text-[#555]">KCAL</span>`;
-            document.getElementById('progress-current-weight').textContent = `${data.currentWeight || '--'}`;
-            document.getElementById('progress-height').textContent = `${data.height || '--'} cm`;
-            document.getElementById('progress-target-weight').textContent = `${data.targetWeight || '--'} kg`;
+            const burnElem = document.getElementById('progress-daily-burn');
+            if (burnElem) burnElem.innerHTML = `${data.calorieTarget || '--'} <span class="text-sm font-normal text-[#555]">KCAL</span>`;
+            
+            const cWeightElem = document.getElementById('progress-current-weight');
+            if (cWeightElem) cWeightElem.textContent = `${data.currentWeight || '--'}`;
+            
+            const heightElem = document.getElementById('progress-height');
+            if (heightElem) heightElem.textContent = `${data.height || '--'} cm`;
+            
+            const tWeightElem = document.getElementById('progress-target-weight');
+            if (tWeightElem) tWeightElem.textContent = `${data.targetWeight || '--'} kg`;
             
             // Nutrition
-            document.getElementById('progress-protein-label').textContent = `${data.proteinTarget || '--'}/${Math.round(data.currentWeight * 2.5)}g`;
-            document.getElementById('progress-protein-bar').style.width = '75%';
-            document.getElementById('progress-energy-label').textContent = `${data.calorieTarget || '--'}/3000 kcal`;
-            document.getElementById('progress-energy-bar').style.width = '65%';
+            const pLabel = document.getElementById('progress-protein-label');
+            if (pLabel) pLabel.textContent = `${data.proteinTarget || '--'}/${Math.round(data.currentWeight * 2.5)}g`;
+            
+            const pBar = document.getElementById('progress-protein-bar');
+            if (pBar) pBar.style.width = '75%';
+            
+            const eLabel = document.getElementById('progress-energy-label');
+            if (eLabel) eLabel.textContent = `${data.calorieTarget || '--'}/3000 kcal`;
+            
+            const eBar = document.getElementById('progress-energy-bar');
+            if (eBar) eBar.style.width = '65%';
 
 
             // Render Workouts
