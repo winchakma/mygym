@@ -23,6 +23,9 @@ class User(Document):
     profilePicture: str = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
     role: str = "member" # member, admin, super_admin
     isBanned: bool = False
+    monthlyFeeStatus: str = "Unpaid" # Paid, Unpaid
+    lastFeePaidAmount: float = 0.0
+    lastFeePaidDate: Optional[datetime] = None
     created_at: datetime = datetime.utcnow()
 
     class Settings:

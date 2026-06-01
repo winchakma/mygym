@@ -78,7 +78,10 @@ async def list_users(token: str):
                     "membershipType": getattr(u, 'membershipType', 'FREE GUEST'),
                     "admissionStatus": getattr(u, 'admissionStatus', 'pending'),
                     "membershipClass": getattr(u, 'membershipClass', 'D'),
-                    "role": getattr(u, 'role', 'member')
+                    "role": getattr(u, 'role', 'member'),
+                    "monthlyFeeStatus": getattr(u, 'monthlyFeeStatus', 'Unpaid'),
+                    "lastFeePaidAmount": getattr(u, 'lastFeePaidAmount', 0.0),
+                    "lastFeePaidDate": getattr(u, 'lastFeePaidDate', None)
                 })
             except Exception as e:
                 print(f"CRITICAL: Failed to serialize user {getattr(u, 'email', 'unknown')}: {str(e)}")
@@ -103,6 +106,21 @@ async def delete_user(email: str, token: str):
     
     await target.delete()
     return {"message": f"User {email} and all associated records purged."}
+
+@router.post("/users/{email}/fee")
+async def update_user_fee(email: str, data: dict, token: str):
+    await get_current_admin(token)
+    target = await User.find_one(User.email == email)
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    target.monthlyFeeStatus = data.get("status", getattr(target, 'monthlyFeeStatus', 'Unpaid'))
+    target.lastFeePaidAmount = float(data.get("amount", getattr(target, 'lastFeePaidAmount', 0.0)))
+    if target.monthlyFeeStatus == "Paid":
+        target.lastFeePaidDate = datetime.utcnow()
+        
+    await target.save()
+    return {"message": f"User {email} fee status updated."}
 
 @router.post("/promote")
 async def promote_user(email: str, token: str):

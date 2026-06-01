@@ -206,6 +206,8 @@
                             <th>Plan</th>
                             <th>Admission</th>
                             <th>Status</th>
+                            <th>Fee Status</th>
+                            <th>Amount</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -1109,15 +1111,18 @@
             <td><span class="badge ${u.membershipType.includes('ELITE') ? 'badge-elite' : 'badge-pro'}">${u.membershipType}</span></td>
             <td><span class="text-[9px] font-bold uppercase ${u.admissionStatus === 'approved' ? 'text-green-500' : 'text-yellow-400'}">${u.admissionStatus}</span></td>
             <td><span class="text-green-500 font-bold uppercase text-[10px]">Active</span></td>
+            <td><span class="text-[10px] font-bold uppercase ${u.monthlyFeeStatus === 'Paid' ? 'text-green-500' : 'text-red-500'}">${u.monthlyFeeStatus || 'Unpaid'}</span></td>
+            <td class="text-[10px] font-bold text-[#aaa]">$${u.lastFeePaidAmount || 0}</td>
             <td>
                 <div class="flex items-center gap-4">
+                    <button onclick="updateFeeStatus('${u.email}', '${u.monthlyFeeStatus || 'Unpaid'}')" class="text-yellow-400 hover:scale-125 transition-transform text-lg" title="Manage Fee">💰</button>
                     <button onclick="showProgress('${u.email}')" class="px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500 hover:text-white rounded text-[9px] font-bold uppercase transition-colors" title="View Progress">Progress</button>
                     <button onclick="deleteUser('${u.email}')" class="text-red-500 hover:scale-125 transition-transform text-lg" title="Delete User">🗑️</button>
                     ${u.admissionStatus === 'submitted' ? `<button onclick="showSection('admissions')" class="px-3 py-1 bg-yellow-400/10 text-yellow-400 border border-yellow-400/20 hover:bg-yellow-400 hover:text-black rounded text-[9px] font-bold uppercase transition-colors" title="Review Admission">Review</button>` : ''}
                 </div>
             </td>
           </tr>
-        `).join('') || '<tr><td colspan="7" class="text-center py-4 text-[#444] uppercase font-bold text-[10px]">No members found</td></tr>';
+        `).join('') || '<tr><td colspan="10" class="text-center py-4 text-[#444] uppercase font-bold text-[10px]">No members found</td></tr>';
       } catch (err) { 
         console.error(err);
         document.getElementById('user-list').innerHTML = '<tr><td colspan="7" class="text-center py-4 text-red-500 uppercase font-bold text-[10px]">Network Sync Error</td></tr>';
@@ -1140,6 +1145,38 @@
         showToast('Member Purged Successfully');
         fetchUsers(); 
         fetchStats(); 
+      }
+    };
+
+    window.updateFeeStatus = async function(email, currentStatus) {
+      const isPaid = currentStatus === 'Paid';
+      const action = isPaid ? 'Unpaid' : 'Paid';
+      
+      let amount = 0;
+      if (!isPaid) {
+        const amtStr = prompt(`Enter the fee amount paid by ${email} this month:`, "149");
+        if (amtStr === null) return; // User cancelled
+        amount = parseFloat(amtStr);
+        if (isNaN(amount) || amount < 0) {
+          showToast('Invalid amount entered', 'error');
+          return;
+        }
+      }
+      
+      if (!confirm(`Are you sure you want to mark ${email} as ${action}?`)) return;
+      
+      const res = await fetch(`${activeAPI}/api/admin/users/${email}/fee?token=${encodeURIComponent(token)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: action, amount: amount })
+      });
+      
+      if (res.ok) {
+        showToast(`Fee status updated to ${action}`, 'success');
+        fetchUsers();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast(err.detail || 'Failed to update fee status', 'error');
       }
     };
 
