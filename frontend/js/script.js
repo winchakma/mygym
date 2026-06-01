@@ -102,8 +102,12 @@ window.updateDashboardUI = function (user) {
   // Role-based navigation
   if (user.role === 'admin' || user.role === 'super_admin') {
     document.querySelectorAll('.nav-admin-only').forEach(el => el.classList.remove('hidden'));
-  } else {
+    document.querySelectorAll('.nav-trainer-only').forEach(el => el.classList.add('hidden'));
+  } else if (user.role === 'trainer') {
     document.querySelectorAll('.nav-admin-only').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.nav-trainer-only').forEach(el => el.classList.remove('hidden'));
+  } else {
+    document.querySelectorAll('.nav-admin-only, .nav-trainer-only').forEach(el => el.classList.add('hidden'));
   }
 
   const fullName = user.username || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Elite Member';
@@ -723,7 +727,15 @@ document.addEventListener('DOMContentLoaded', () => {
               const isRegister = form.id.toLowerCase().includes('register');
               window.logActivity(isRegister ? 'Signed Up' : 'Logged In');
             }
-            setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+            setTimeout(() => {
+              if (data.user && (data.user.role === 'admin' || data.user.role === 'super_admin')) {
+                window.location.href = 'admin.html';
+              } else if (data.user && data.user.role === 'trainer') {
+                window.location.href = 'trainer.html';
+              } else {
+                window.location.href = 'dashboard.html';
+              }
+            }, 1000);
           } else { 
             form.reset(); 
             const parentModal = form.closest('.modal-overlay');

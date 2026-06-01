@@ -27,8 +27,22 @@ async def get_current_admin(token: str):
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+
+async def get_current_admin_or_trainer(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        user = await User.find_one(User.email == email)
+        if not user or user.role not in ["admin", "super_admin", "trainer"]:
+            raise HTTPException(status_code=403, detail="Not authorized")
+        return user
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 async def get_super_admin(token: str):
-    user = await get_current_admin(token)
+    user = await get_current_admin_or_trainer(token)
     if user.role != "super_admin":
         raise HTTPException(status_code=403, detail="Only Super Admin can perform this action")
     return user
@@ -61,7 +75,7 @@ async def get_stats(token: str):
 @router.get("/users")
 async def list_users(token: str):
     try:
-        await get_current_admin(token)
+        await get_current_admin_or_trainer(token)
         users = await User.find_all().to_list()
         # Manual conversion with strict error isolation for each record
         data = []
@@ -93,7 +107,7 @@ async def list_users(token: str):
 
 @router.delete("/users/{email}")
 async def delete_user(email: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     target = await User.find_one(User.email == email)
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
@@ -109,7 +123,7 @@ async def delete_user(email: str, token: str):
 
 @router.post("/users/{email}/fee")
 async def update_user_fee(email: str, data: dict, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     target = await User.find_one(User.email == email)
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
@@ -129,17 +143,17 @@ async def promote_user(email: str, token: str):
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
     
-    admin_count = await User.find(User.role == "admin").count()
+    admin_count = await User.find(User.role == "trainer").count()
     if admin_count >= 3:
-        raise HTTPException(status_code=400, detail="Maximum limit of 3 admins reached")
+        raise HTTPException(status_code=400, detail="Maximum limit of 3 trainers reached")
         
-    target.role = "admin"
+    target.role = "trainer"
     await target.save()
-    return {"message": f"User {email} promoted to Admin."}
+    return {"message": f"User {email} promoted to Trainer."}
 
 @router.get("/bookings")
 async def list_bookings(token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     from app.utils.booking_utils import is_booking_expired
     all_bookings = await Booking.find().sort("-date").to_list()
     
@@ -154,7 +168,7 @@ async def list_bookings(token: str):
 
 @router.delete("/bookings/{id}")
 async def delete_booking(id: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     from beanie import PydanticObjectId
     target = await Booking.get(PydanticObjectId(id))
     if not target:
@@ -168,12 +182,12 @@ async def list_orders(token: str):
 
 @router.get("/classes")
 async def list_classes(token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     return await ClassSchedule.find_all().to_list()
 
 @router.post("/classes/add")
 async def add_class(data: dict, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     new_class = ClassSchedule(**data)
     new_class.status = "Active"
     await new_class.insert()
@@ -193,7 +207,7 @@ async def add_class(data: dict, token: str):
 
 @router.post("/classes/cancel/{id}")
 async def cancel_class(id: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     from beanie import PydanticObjectId
     target = await ClassSchedule.get(PydanticObjectId(id))
     if not target:
@@ -212,7 +226,7 @@ async def add_video(
     trainer: Optional[str] = Form("Elite Coach"),
     videoFile: Optional[UploadFile] = File(None)
 ):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     
     final_url = url
     thumbnail = "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500"
@@ -270,12 +284,12 @@ async def add_video(
 
 @router.get("/videos")
 async def list_videos(token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     return await Video.find_all().to_list()
 
 @router.delete("/videos/{id}")
 async def delete_video(id: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     from beanie import PydanticObjectId
     video = await Video.get(PydanticObjectId(id))
     if not video:
@@ -312,7 +326,7 @@ async def broadcast_message(data: dict, token: str):
 
 @router.post("/gym-off")
 async def mark_gym_off(data: dict, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     reason = data.get("reason", "Maintenance")
     
     from app.utils.notifications import NotificationService
@@ -325,7 +339,7 @@ async def mark_gym_off(data: dict, token: str):
 
 @router.post("/orders/{id}/status")
 async def update_order_status(id: str, data: dict, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     from beanie import PydanticObjectId
     order = await Order.get(PydanticObjectId(id))
     if not order:
@@ -346,7 +360,7 @@ async def update_order_status(id: str, data: dict, token: str):
 
 @router.get("/feedback")
 async def list_feedback(token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     feedbacks = await UserFeedback.find_all().sort("-timestamp").to_list()
     
     result = []
@@ -364,7 +378,7 @@ async def list_feedback(token: str):
 
 @router.post("/feedback/{id}/resolve")
 async def resolve_feedback(id: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     from beanie import PydanticObjectId
     feedback = await UserFeedback.get(PydanticObjectId(id))
     if not feedback:
@@ -376,7 +390,7 @@ async def resolve_feedback(id: str, token: str):
 
 @router.get("/users/{email}/progress")
 async def get_user_progress(email: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     user = await User.find_one(User.email == email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -448,7 +462,7 @@ async def approve_admission(email: str, token: str):
 
 @router.post("/admissions/{email}/reject")
 async def reject_admission(email: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     user = await User.find_one(User.email == email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -462,7 +476,7 @@ from app.models.community import CommunityPost, SocialProfile, PrivateMessage
 
 @router.delete("/community/posts/{id}")
 async def delete_community_post(id: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     from beanie import PydanticObjectId
     post = await CommunityPost.get(PydanticObjectId(id))
     if not post: raise HTTPException(status_code=404)
@@ -471,7 +485,7 @@ async def delete_community_post(id: str, token: str):
 
 @router.delete("/community/posts/{id}/comments/{comment_id}")
 async def delete_community_comment(id: str, comment_id: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     from beanie import PydanticObjectId
     post = await CommunityPost.get(PydanticObjectId(id))
     if not post: raise HTTPException(status_code=404)
@@ -481,7 +495,7 @@ async def delete_community_comment(id: str, comment_id: str, token: str):
 
 @router.post("/community/users/{email}/ban")
 async def ban_community_user(email: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     user = await User.find_one(User.email == email)
     if not user: raise HTTPException(status_code=404)
     user.isBanned = not user.isBanned
@@ -490,7 +504,7 @@ async def ban_community_user(email: str, token: str):
 
 @router.post("/community/users/{email}/verify")
 async def verify_community_trainer(email: str, token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     profile = await SocialProfile.find_one(SocialProfile.userEmail == email)
     if not profile: raise HTTPException(status_code=404)
     profile.isVerified = not profile.isVerified
@@ -499,7 +513,7 @@ async def verify_community_trainer(email: str, token: str):
 
 @router.post("/community/announcements/create")
 async def create_announcement(data: dict, token: str):
-    admin = await get_current_admin(token)
+    admin = await get_current_admin_or_trainer(token)
     post = CommunityPost(
         userEmail=admin.email,
         userName="GYM MANAGEMENT",
@@ -529,7 +543,7 @@ from datetime import datetime, timezone
 
 @router.get("/attendance")
 async def get_attendance(token: str):
-    await get_current_admin(token)
+    await get_current_admin_or_trainer(token)
     today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     logs = await AttendanceLog.find(AttendanceLog.date >= today_start).sort("-date").to_list()
     return logs
