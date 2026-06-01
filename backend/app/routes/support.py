@@ -1,8 +1,40 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.models.admin import SupportMessage
 from app.models.user import User
-from app.routes.auth import get_current_user, get_current_admin, get_current_trainer, get_current_admin_or_trainer
+from app.routes.auth import get_current_user
 from datetime import datetime
+import jwt
+import os
+
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
+ALGORITHM = "HS256"
+
+async def get_current_admin(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if not email: raise HTTPException(status_code=401, detail="Invalid token")
+        user = await User.find_one(User.email == email.strip().lower())
+        if not user or user.role != "superadmin":
+            raise HTTPException(status_code=403, detail="Not authorized. Superadmin only.")
+        return user
+    except:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+async def get_current_trainer(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if not email: raise HTTPException(status_code=401, detail="Invalid token")
+        user = await User.find_one(User.email == email.strip().lower())
+        if not user or user.role not in ["superadmin", "trainer"]:
+            raise HTTPException(status_code=403, detail="Not authorized. Trainer only.")
+        return user
+    except:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+async def get_current_admin_or_trainer(token: str):
+    return await get_current_trainer(token)
 
 router = APIRouter(prefix="/support", tags=["Support Chat"])
 
