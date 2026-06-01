@@ -456,7 +456,8 @@ async def approve_admission(email: str, token: str):
     # Notify user
     from app.utils.notifications import NotificationService
     try:
-        await NotificationService.broadcast_to_all(
+        await NotificationService.send_bulk_email(
+            [user.email],
             "ADMISSION APPROVED",
             f"Welcome to the Elite, {user.firstName}! Your admission has been verified. You now have full access to our facilities."
         )
