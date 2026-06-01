@@ -7,7 +7,7 @@ class User(Document):
     firstName: str
     lastName: str
     email: str = Indexed(unique=True)
-    hashed_password: Optional[str] = Field(None, exclude=True)
+    hashed_password: Optional[str] = Field(None)
     phoneNumber: Optional[str] = None
     nickname: str = "Elite Member"
     bio: str = "No bio set."
