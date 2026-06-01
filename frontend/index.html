@@ -40,8 +40,8 @@
       <a href="about.html">About</a>
     </div>
     <div class="nav-actions">
-      <a href="membership.html" class="btn-nav btn-nav-outline nav-auth-only">Sign In</a>
-      <a href="membership.html" class="btn-nav btn-nav-fill nav-auth-only">Start Free Trial</a>
+      <a href="#" onclick="openAuthModal('login'); return false;" class="btn-nav btn-nav-outline nav-auth-only">Sign In</a>
+      <a href="#" onclick="openAuthModal('register'); return false;" class="btn-nav btn-nav-fill nav-auth-only">Start Free Trial</a>
       <div id="navProfileBtn" class="nav-profile-link nav-dashboard-link hidden" style="display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative;">
         <span id="nav-greeting" class="text-xs font-bold text-yellow-400 hidden lg:inline">Elite Member</span>
         <img id="nav-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--yellow); object-fit: cover;">

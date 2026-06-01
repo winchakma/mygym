@@ -2384,11 +2384,12 @@ document.addEventListener("DOMContentLoaded", () => {
     <style>
         .ai-support-fab {
             position: fixed;
-            bottom: 30px;
+            bottom: 110px; /* Above the chatbot heart */
             right: 30px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #f5e642, #f5b042);
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #111, #222);
+            border: 2px solid #f5e642;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -2402,13 +2403,13 @@ document.addEventListener("DOMContentLoaded", () => {
             transform: scale(1.1);
         }
         .ai-support-fab svg {
-            width: 30px;
-            height: 30px;
-            fill: #000;
+            width: 24px;
+            height: 24px;
+            fill: #f5e642;
         }
         .ai-support-panel {
             position: fixed;
-            bottom: 100px;
+            bottom: 170px;
             right: 30px;
             width: 320px;
             background: #1a1a1a;
@@ -2496,8 +2497,8 @@ document.addEventListener("DOMContentLoaded", () => {
             color: #f5e642;
         }
     </style>
-    <div class="ai-support-fab" id="aiSupportFab">
-        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    <div class="ai-support-fab" id="aiSupportFab" title="Support Chat">
+        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
     </div>
     <div class="ai-support-panel" id="aiSupportPanel">
         <div class="ai-support-header">AI Elite Assistant</div>
