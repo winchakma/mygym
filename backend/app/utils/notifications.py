@@ -41,51 +41,47 @@ class NotificationService:
 
     @staticmethod
     async def send_bulk_email(emails: List[str], subject: str, content: str):
-        """Sends real emails using the SMTP credentials from environment variables."""
-        smtp_user = os.getenv("SMTP_USER")
-        smtp_pass = os.getenv("SMTP_PASSWORD")
-        smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
-        smtp_port = int(os.getenv("SMTP_PORT", "587"))
-
-        if not smtp_user or not smtp_pass:
-            logger.warning("SMTP credentials missing. Simulation mode active.")
+        """Sends real emails using the Brevo HTTP API."""
+        brevo_key = os.getenv("BREVO_API_KEY")
+        if not brevo_key:
+            logger.warning("BREVO_API_KEY credentials missing. Simulation mode active.")
             for email in emails:
                 logger.info(f"[SIMULATED EMAIL] To: {email} | Subject: {subject}")
             return
 
         import asyncio
 
-        def sync_send_emails(recipients: List[str], mail_subject: str, mail_content: str, host: str, port: int, user: str, password: str):
-            import smtplib
-            from email.mime.text import MIMEText
-            from email.mime.multipart import MIMEMultipart
-
+        def sync_send_brevo(recipients: List[str], mail_subject: str, mail_content: str, api_key: str):
+            import requests
+            url = "https://api.brevo.com/v3/smtp/email"
+            headers = {
+                "accept": "application/json",
+                "api-key": api_key,
+                "content-type": "application/json"
+            }
+            
             for recipient in recipients:
                 recipient_clean = recipient.strip().lower()
                 if not recipient_clean:
                     continue
                 try:
-                    msg = MIMEMultipart()
-                    msg["From"] = user
-                    msg["To"] = recipient_clean
-                    msg["Subject"] = mail_subject
-                    
-                    mime_type = "html" if "<html" in mail_content.lower() or "<p" in mail_content.lower() or "<div" in mail_content.lower() else "plain"
-                    msg.attach(MIMEText(mail_content, mime_type))
-
-                    # Connect and send
-                    server = smtplib.SMTP(host, port, timeout=10)
-                    server.starttls()
-                    server.login(user, password)
-                    server.sendmail(user, recipient_clean, msg.as_string())
-                    server.quit()
-                    logger.info(f"[SMTP EMAIL SUCCESS] Delivered to: {recipient_clean}")
+                    payload = {
+                        "sender": {"name": "East Blue Gym", "email": "winchakma123@gmail.com"},
+                        "to": [{"email": recipient_clean}],
+                        "subject": mail_subject,
+                        "htmlContent": f"<html><body><p>{mail_content}</p></body></html>"
+                    }
+                    response = requests.post(url, json=payload, headers=headers, timeout=10)
+                    if response.ok:
+                        logger.info(f"[BREVO EMAIL SUCCESS] Delivered to: {recipient_clean}")
+                    else:
+                        logger.error(f"[BREVO EMAIL ERROR] Failed delivering to {recipient_clean}: {response.text}")
                 except Exception as e:
-                    logger.error(f"[SMTP EMAIL ERROR] Failed delivering to {recipient_clean}: {e}")
+                    logger.error(f"[BREVO EMAIL ERROR] Exception delivering to {recipient_clean}: {e}")
 
-        # Offload blocking SMTP calls to a background thread to prevent Render HTTP request timeout (502 Bad Gateway)
-        logger.info(f"[SMTP BACKGROUND INITIATED] Queued {len(emails)} emails: {subject}")
-        asyncio.create_task(asyncio.to_thread(sync_send_emails, emails, subject, content, smtp_host, smtp_port, smtp_user, smtp_pass))
+        # Offload blocking HTTP calls to a background thread to prevent Render HTTP request timeout
+        logger.info(f"[BREVO BACKGROUND INITIATED] Queued {len(emails)} emails: {subject}")
+        asyncio.create_task(asyncio.to_thread(sync_send_brevo, emails, subject, content, brevo_key))
 
     @staticmethod
     async def send_bulk_sms(phones: List[str], message: str):
