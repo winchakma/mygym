@@ -2529,8 +2529,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 window.loadSupportHistory = async function() {
     const token = localStorage.getItem("token");
+    const baseApi = window.ELITE_API_URL || "https://mygym-p9rd.onrender.com";
     try {
-        const res = await fetch(`${API_URL}/api/support/history?token=${token}`);
+        const res = await fetch(`${baseApi}/api/support/history?token=${token}`);
         if(res.ok) {
             const messages = await res.json();
             const container = document.getElementById("aiSupportHistory");
@@ -2555,6 +2556,7 @@ window.sendSupportMessage = async function() {
     const token = localStorage.getItem("token");
     const recipientType = document.getElementById("aiSupportRecipient").value;
     const message = document.getElementById("aiSupportInput").value;
+    const baseApi = window.ELITE_API_URL || "https://mygym-p9rd.onrender.com";
     
     if(!message.trim()) return;
     
@@ -2563,7 +2565,7 @@ window.sendSupportMessage = async function() {
     btn.disabled = true;
     
     try {
-        const res = await fetch(`${API_URL}/api/support/send?token=${token}`, {
+        const res = await fetch(`${baseApi}/api/support/send?token=${token}`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({recipientType, message})
