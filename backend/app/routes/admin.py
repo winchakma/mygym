@@ -108,7 +108,8 @@ async def list_users(token: str):
 @router.delete("/users/{email}")
 async def delete_user(email: str, token: str):
     await get_current_admin_or_trainer(token)
-    target = await User.find_one(User.email == email)
+    email_clean = email.strip().lower()
+    target = await User.find_one(User.email == email_clean)
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
     if target.role == "super_admin":
@@ -124,7 +125,8 @@ async def delete_user(email: str, token: str):
 @router.post("/users/{email}/fee")
 async def update_user_fee(email: str, data: dict, token: str):
     await get_current_admin_or_trainer(token)
-    target = await User.find_one(User.email == email)
+    email_clean = email.strip().lower()
+    target = await User.find_one(User.email == email_clean)
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -139,7 +141,8 @@ async def update_user_fee(email: str, data: dict, token: str):
 @router.post("/promote")
 async def promote_user(email: str, token: str):
     await get_super_admin(token)
-    target = await User.find_one(User.email == email)
+    email_clean = email.strip().lower()
+    target = await User.find_one(User.email == email_clean)
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
     

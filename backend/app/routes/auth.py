@@ -28,8 +28,9 @@ def create_access_token(data: dict):
 
 @router.post("/register")
 async def register(user_data: UserCreate):
+    email_clean = user_data.email.strip().lower()
     # Check if user exists
-    existing_user = await User.find_one(User.email == user_data.email)
+    existing_user = await User.find_one(User.email == email_clean)
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
@@ -40,7 +41,7 @@ async def register(user_data: UserCreate):
     new_user = User(
         firstName=user_data.firstName,
         lastName=user_data.lastName,
-        email=user_data.email,
+        email=email_clean,
         phoneNumber=user_data.phoneNumber,
         hashed_password=hashed_password,
         membershipType=user_data.membershipType
@@ -62,9 +63,10 @@ async def register(user_data: UserCreate):
 @router.post("/login")
 async def login(credentials: UserLogin):
     # Dual Login: Search by Email or Phone Number
+    email_clean = credentials.email.strip().lower()
     user = await User.find_one({
         "$or": [
-            {"email": credentials.email},
+            {"email": email_clean},
             {"phoneNumber": credentials.email}
         ]
     })
@@ -94,7 +96,8 @@ async def login(credentials: UserLogin):
 
 @router.post("/forgot-password")
 async def forgot_password(request: ForgotPasswordRequest):
-    user = await User.find_one(User.email == request.email)
+    email_clean = request.email.strip().lower()
+    user = await User.find_one(User.email == email_clean)
     if not user:
         # For security, don't reveal if user exists. Just say email sent.
         return {"message": "If this email is registered, a temporary password has been sent."}
@@ -139,7 +142,8 @@ async def get_current_user(token: str):
         email: str = payload.get("sub")
         if email is None:
             raise HTTPException(status_code=401, detail="Could not validate credentials")
-        user = await User.find_one(User.email == email)
+        email_clean = email.strip().lower()
+        user = await User.find_one(User.email == email_clean)
         if user is None:
             raise HTTPException(status_code=401, detail="User not found")
             
