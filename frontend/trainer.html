@@ -990,17 +990,6 @@
       }
     });
 
-    /api/admin/orders/${id}/status?token=${encodeURIComponent(token)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      if (res.ok) {
-        showToast(`Order #${id.slice(-6)} updated to ${status}`);
-        fetchOrders();
-      }
-    };
-
     async function fetchUsers() {
       try {
         const res = await fetch(`${activeAPI}/api/admin/users?token=${encodeURIComponent(token)}`);
