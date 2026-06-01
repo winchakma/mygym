@@ -89,7 +89,7 @@ window.initNeuralTracking = function () {
   });
 };
 
-window.updateDashboardUI = function (user) {
+window.updateDashboardUI = function (user, isFresh = false) {
   if (!user || user.error) return;
   document.querySelectorAll('#nav-avatar, #sidebar-avatar, #dashboard-avatar, #modal-avatar, #modal-avatar-preview').forEach(img => {
     let pic = user.profilePicture || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
@@ -200,7 +200,8 @@ window.updateDashboardUI = function (user) {
 
   const path = window.location.pathname.toLowerCase();
   const requiresAdmission = path.includes('dashboard') || path.includes('workouts') || path.includes('activity');
-  if (user.admissionStatus === 'pending' && requiresAdmission) {
+  const isStaff = user.role === 'admin' || user.role === 'super_admin' || user.role === 'trainer';
+  if (user.admissionStatus === 'pending' && requiresAdmission && !isStaff && isFresh) {
     window.location.href = 'admission.html';
     return;
   }
@@ -573,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(user => {
         clearTimeout(timeoutId);
         if (user && !user.detail && !user.error) {
-          window.updateDashboardUI(user);
+          window.updateDashboardUI(user, true);
           localStorage.setItem('elite_profile', JSON.stringify(user));
         }
       })

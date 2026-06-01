@@ -148,6 +148,7 @@ async def promote_user(email: str, token: str):
         raise HTTPException(status_code=400, detail="Maximum limit of 3 trainers reached")
         
     target.role = "trainer"
+    target.admissionStatus = "approved"
     await target.save()
     return {"message": f"User {email} promoted to Trainer."}
 
