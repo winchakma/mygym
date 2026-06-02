@@ -2393,209 +2393,93 @@ document.addEventListener("DOMContentLoaded", () => {
     const widgetHTML = `
     <style>
         .ai-support-fab {
-            position: fixed;
-            bottom: 110px; /* Above the chatbot heart */
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #111, #222);
-            border: 2px solid #f5e642;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(245, 230, 66, 0.4);
-            cursor: pointer;
-            z-index: 9999;
-            transition: transform 0.3s ease;
+            position: fixed; bottom: 110px; right: 30px; width: 50px; height: 50px;
+            background: linear-gradient(135deg, #111, #222); border: 2px solid #f5e642; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(245, 230, 66, 0.4); cursor: pointer; z-index: 9999; transition: transform 0.3s ease;
         }
-        .ai-support-fab:hover {
-            transform: scale(1.1);
-        }
-        .ai-support-fab svg {
-            width: 24px;
-            height: 24px;
-            fill: #f5e642;
-        }
+        .ai-support-fab:hover { transform: scale(1.1); }
+        .ai-support-fab svg { width: 24px; height: 24px; fill: #f5e642; }
         .ai-support-panel {
-            position: fixed;
-            bottom: 170px;
-            right: 30px;
-            width: 350px;
-            background: #fff;
-            border: 1px solid #eaeaea;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            display: none;
-            flex-direction: column;
-            z-index: 9998;
-            overflow: hidden;
-            font-family: 'Inter', sans-serif;
+            position: fixed; bottom: 170px; right: 30px; width: 350px; background: #fff;
+            border: 1px solid #eaeaea; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            display: none; flex-direction: column; z-index: 9998; overflow: hidden; font-family: 'Inter', sans-serif;
         }
-        .ai-support-panel.active {
-            display: flex;
-        }
-        .ai-support-header {
-            background: #fff;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .ai-support-header-avatars {
-            display: flex;
-            margin-right: 12px;
-        }
-        .ai-support-header-avatars img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            margin-left: -10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .ai-support-header-avatars img:first-child {
-            margin-left: 0;
-        }
-        .ai-support-header-title {
-            flex: 1;
-            font-size: 13px;
-            font-weight: 600;
-            color: #333;
-            line-height: 1.3;
-        }
-        .ai-support-close {
-            cursor: pointer;
-            color: #999;
-            font-size: 20px;
-            margin-left: 10px;
-        }
-        .ai-support-body {
-            padding: 15px;
-            height: 320px;
-            background: #f9f9f9;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        .ai-support-footer {
-            padding: 15px;
-            background: #fff;
-            border-top: 1px solid #f0f0f0;
-            display: flex;
-            flex-direction: column;
-        }
-        .ai-support-select {
-            width: 100%;
-            padding: 8px;
-            background: #fff;
-            color: #555;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            font-size: 12px;
-            outline: none;
-        }
-        .ai-support-input-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-        }
-        .ai-support-input-wrap {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            background: #f1f1f1;
-            border-radius: 20px;
-            padding: 10px 14px;
-        }
-        .ai-support-input-wrap input {
-            border: none;
-            background: transparent;
-            outline: none;
-            flex: 1;
-            font-size: 14px;
-            color: #333;
-        }
-        .ai-support-icons {
-            display: flex;
-            gap: 10px;
-            color: #888;
-            margin-left: 10px;
-        }
-        .ai-support-send-btn {
-            background: #e0e0e0;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #fff;
-            transition: all 0.2s ease;
-        }
-        .ai-support-send-btn.active {
-            background: #f5e642;
-            color: #000;
-        }
-        .support-msg-bubble {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            margin-bottom: 12px;
-            font-size: 13px;
-            line-height: 1.4;
-            clear: both;
-        }
-        .support-msg-user {
-            background: #f5e642;
-            color: #000;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 2px 5px rgba(245, 230, 66, 0.2);
-        }
-        .support-msg-admin {
-            background: #fff;
-            color: #333;
-            border: 1px solid #eaeaea;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        .ai-support-panel.active { display: flex; }
+        .ai-support-header { background: #fff; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; }
+        .ai-support-header-title { flex: 1; font-size: 14px; font-weight: 600; color: #333; line-height: 1.3; }
+        .ai-support-close { cursor: pointer; color: #999; font-size: 20px; margin-left: 10px; }
+        .ai-support-body { padding: 15px; height: 320px; background: #f9f9f9; overflow-y: auto; display: flex; flex-direction: column; }
+        .ai-support-footer { padding: 15px; background: #fff; border-top: 1px solid #f0f0f0; display: flex; flex-direction: column; }
+        .ai-support-input-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .ai-support-input-wrap { flex: 1; display: flex; align-items: center; background: #f1f1f1; border-radius: 20px; padding: 10px 14px; }
+        .ai-support-input-wrap input { border: none; background: transparent; outline: none; flex: 1; font-size: 14px; color: #333; }
+        .ai-support-icons { display: flex; gap: 10px; color: #888; margin-left: 10px; }
+        .ai-support-send-btn { background: #e0e0e0; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: all 0.2s ease; }
+        .ai-support-send-btn.active { background: #f5e642; color: #000; }
+        .support-msg-bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; margin-bottom: 12px; font-size: 13px; line-height: 1.4; clear: both; }
+        .support-msg-user { background: #f5e642; color: #000; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 2px 5px rgba(245, 230, 66, 0.2); }
+        .support-msg-admin { background: #fff; color: #333; border: 1px solid #eaeaea; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        .ai-support-list-view, .ai-support-chat-view { display: flex; flex-direction: column; height: 100%; width: 100%; }
+        .ai-support-chat-view { display: none; }
+        .user-support-item { padding: 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; align-items: center; transition: background 0.2s; }
+        .user-support-item:hover { background: #f9f9f9; }
+        .user-support-avatar { width: 36px; height: 36px; border-radius: 50%; margin-right: 12px; border: 1px solid #eee; }
+        .user-support-name { font-weight: 600; font-size: 14px; color: #333; }
+        .user-support-desc { font-size: 12px; color: #777; margin-top: 2px; }
+        .ai-support-back { cursor: pointer; margin-right: 10px; font-weight: bold; font-size: 16px; color: #555; display: flex; align-items: center; }
     </style>
     <div class="ai-support-fab" id="aiSupportFab" title="Support Chat">
         <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
     </div>
     <div class="ai-support-panel" id="aiSupportPanel">
-        <div class="ai-support-header">
-            <div class="ai-support-header-avatars">
-                <img src="https://ui-avatars.com/api/?name=EB&background=f5e642&color=000" alt="East Blue">
-                <img src="https://ui-avatars.com/api/?name=AD&background=111&color=fff" alt="Admin">
+        <!-- List View -->
+        <div class="ai-support-list-view" id="aiSupportListView">
+            <div class="ai-support-header">
+                <div class="ai-support-header-title">Messages</div>
+                <div class="ai-support-close" onclick="document.getElementById('aiSupportPanel').classList.remove('active')">&times;</div>
             </div>
-            <div class="ai-support-header-title">Welcome to East Blue. Anything I can assist?</div>
-            <div class="ai-support-close" onclick="document.getElementById('aiSupportPanel').classList.remove('active')">&times;</div>
-        </div>
-        <div class="ai-support-body" id="aiSupportHistory">
-            <!-- Messages go here -->
-        </div>
-        <div class="ai-support-footer">
-            <select class="ai-support-select" id="aiSupportRecipient">
-                <option value="Owner">Message Super Admin (Owner)</option>
-                <option value="Trainer">Message Elite Trainer</option>
-            </select>
-            <div class="ai-support-input-row">
-                <div class="ai-support-input-wrap">
-                    <input type="text" id="aiSupportInput" placeholder="Message..." oninput="document.getElementById('aiSupportBtn').classList.toggle('active', this.value.trim().length > 0)">
-                    <div class="ai-support-icons">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            <div class="ai-support-body" style="padding: 0; background: #fff;">
+                <div class="user-support-item" onclick="openUserSupportChat('Owner', 'Super Admin')">
+                    <img src="https://ui-avatars.com/api/?name=AD&background=111&color=fff" class="user-support-avatar">
+                    <div>
+                        <div class="user-support-name">Super Admin</div>
+                        <div class="user-support-desc">Account & Billing Support</div>
                     </div>
                 </div>
-                <button class="ai-support-send-btn" id="aiSupportBtn" onclick="sendSupportMessage()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                </button>
+                <div class="user-support-item" onclick="openUserSupportChat('Trainer', 'Elite Trainer')">
+                    <img src="https://ui-avatars.com/api/?name=TR&background=f5e642&color=000" class="user-support-avatar">
+                    <div>
+                        <div class="user-support-name">Elite Trainer</div>
+                        <div class="user-support-desc">Fitness & Nutrition Guidance</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat View -->
+        <div class="ai-support-chat-view" id="aiSupportChatView">
+            <div class="ai-support-header">
+                <div class="ai-support-back" onclick="backToUserSupportList()">←</div>
+                <div class="ai-support-header-title" id="aiSupportChatTitle">Support</div>
+                <div class="ai-support-close" onclick="document.getElementById('aiSupportPanel').classList.remove('active')">&times;</div>
+            </div>
+            <div class="ai-support-body" id="aiSupportHistory">
+                <!-- Messages go here -->
+            </div>
+            <div class="ai-support-footer">
+                <div class="ai-support-input-row">
+                    <div class="ai-support-input-wrap">
+                        <input type="text" id="aiSupportInput" placeholder="Message..." oninput="document.getElementById('aiSupportBtn').classList.toggle('active', this.value.trim().length > 0)" onkeypress="if(event.key === 'Enter') sendSupportMessage()">
+                        <div class="ai-support-icons">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                        </div>
+                    </div>
+                    <button class="ai-support-send-btn" id="aiSupportBtn" onclick="sendSupportMessage()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2618,23 +2502,24 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.loadSupportHistory = async function() {
+    if (!window.activeUserSupportRecipient) return;
     const token = localStorage.getItem("token");
     const baseApi = window.ELITE_API_URL || "https://mygym-p9rd.onrender.com";
     try {
-        const res = await fetch(`${baseApi}/api/support/history?token=${token}`);
+        const res = await fetch(`${baseApi}/api/support/history?token=${encodeURIComponent(token)}`);
         if(res.ok) {
             const messages = await res.json();
+            const filteredMessages = messages.filter(m => m.recipientType === window.activeUserSupportRecipient);
             const container = document.getElementById("aiSupportHistory");
-            if(messages.length === 0) {
+            if(filteredMessages.length === 0) {
                 container.innerHTML = '<div style="text-align:center; color:#888; font-size:13px; margin-top:20px;">No previous messages.</div>';
                 return;
             }
             // Reverse to show oldest first, newest at the bottom
-            const chronologicalMessages = [...messages].reverse();
+            const chronologicalMessages = [...filteredMessages].reverse();
             
             container.innerHTML = chronologicalMessages.map(msg => `
                 <div class="support-msg-bubble support-msg-user">
-                    <div style="font-size:10px; opacity:0.6; margin-bottom:4px;">To: ${msg.recipientType}</div>
                     ${msg.message}
                 </div>
                 ${msg.reply ? `<div class="support-msg-bubble support-msg-admin">${msg.reply}</div>` : ''}
@@ -2649,8 +2534,9 @@ window.loadSupportHistory = async function() {
 }
 
 window.sendSupportMessage = async function() {
+    if (!window.activeUserSupportRecipient) return;
     const token = localStorage.getItem("token");
-    const recipientType = document.getElementById("aiSupportRecipient").value;
+    const recipientType = window.activeUserSupportRecipient;
     const message = document.getElementById("aiSupportInput").value;
     const baseApi = window.ELITE_API_URL || "https://mygym-p9rd.onrender.com";
     
@@ -2661,7 +2547,7 @@ window.sendSupportMessage = async function() {
     btn.disabled = true;
     
     try {
-        const res = await fetch(`${baseApi}/api/support/send?token=${token}`, {
+        const res = await fetch(`${baseApi}/api/support/send?token=${encodeURIComponent(token)}`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({recipientType, message})
@@ -2669,7 +2555,8 @@ window.sendSupportMessage = async function() {
         
         if(res.ok) {
             document.getElementById("aiSupportInput").value = '';
-            loadSupportHistory();
+            document.getElementById("aiSupportBtn").classList.remove('active');
+            window.loadSupportHistory();
         } else {
             const data = await res.json();
             window.showToast(data.detail || "Failed to send message", "error");
@@ -2679,6 +2566,22 @@ window.sendSupportMessage = async function() {
     } finally {
         btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>';
         btn.disabled = false;
-        btn.classList.remove('active');
     }
 }
+
+window.activeUserSupportRecipient = null;
+
+window.openUserSupportChat = function(recipientType, name) {
+    window.activeUserSupportRecipient = recipientType;
+    document.getElementById("aiSupportChatTitle").textContent = name;
+    document.getElementById("aiSupportListView").style.display = "none";
+    document.getElementById("aiSupportChatView").style.display = "flex";
+    window.loadSupportHistory();
+};
+
+window.backToUserSupportList = function() {
+    window.activeUserSupportRecipient = null;
+    document.getElementById("aiSupportListView").style.display = "flex";
+    document.getElementById("aiSupportChatView").style.display = "none";
+};
+
