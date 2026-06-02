@@ -446,7 +446,14 @@
         const res = await fetch(`${API_URL}/api/store/checkout?token=${encodeURIComponent(token)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ items_summary: itemsStr, total: total, payment_method: selectedPayment })
+          body: JSON.stringify({ 
+            items_summary: itemsStr, 
+            total: total, 
+            payment_method: selectedPayment,
+            name: name,
+            phone: phone,
+            address: fullAddress
+          })
         });
         const data = await res.json();
         if (data.status === 'success') {

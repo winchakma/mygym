@@ -12,11 +12,13 @@ async def store_checkout(data: dict, current_user: User = Depends(get_current_us
     new_order = Order(
         userId=str(current_user.id),
         userEmail=current_user.email,
-        userName=f"{current_user.firstName} {current_user.lastName}",
+        userName=data.get("name") or f"{current_user.firstName} {current_user.lastName}",
+        phone=data.get("phone", ""),
+        address=data.get("address", ""),
         items=data.get("items_summary", "Neural Gear Bundle"),
         total=float(data.get("total", 0)),
         paymentMethod=data.get("payment_method", "Unknown"),
-        status="processing"
+        status="Processing"
     )
     await new_order.insert()
     

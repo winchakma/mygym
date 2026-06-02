@@ -60,6 +60,13 @@ async def get_profile(token: str):
     user = await get_current_user(token)
     return user
 
+@router.get("/orders")
+async def get_my_orders(token: str):
+    user = await get_current_user(token)
+    from app.models.admin import Order
+    orders = await Order.find(Order.userEmail == user.email).sort("-timestamp").to_list()
+    return orders
+
 @router.get("/ai-insights")
 async def get_ai_insights(token: str):
     user = await get_current_user(token)

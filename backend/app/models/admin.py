@@ -31,6 +31,8 @@ class Order(Document):
     userId: str
     userEmail: str
     userName: str
+    phone: Optional[str] = None
+    address: Optional[str] = None
     items: str
     total: float
     paymentMethod: str

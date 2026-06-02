@@ -334,11 +334,13 @@
         <div id="section-store" class="admin-section hidden">
             <h2 class="text-4xl font-bold italic">Store <span class="text-yellow-400">Hub</span></h2>
             <div class="overflow-x-auto">
-                <table class="admin-table" style="min-width: 800px;">
+                <table class="admin-table" style="min-width: 1000px;">
                     <thead>
                         <tr>
                             <th>Order ID</th>
                             <th>Customer</th>
+                            <th>Contact</th>
+                            <th>Address</th>
                             <th>Item(s)</th>
                             <th>Total</th>
                             <th>Method</th>
@@ -1155,17 +1157,26 @@
           <tr>
             <td class="font-bold text-blue-400 text-[10px] uppercase">#${(o.id || o._id || '000000').slice(-6)}</td>
             <td class="font-bold italic uppercase text-xs">${o.userName}</td>
+            <td class="text-[#888] text-[10px] uppercase">${o.phone || 'N/A'}<br/>${o.userEmail}</td>
+            <td class="text-[#888] text-[9px] uppercase max-w-[200px] truncate" title="${o.address || 'N/A'}">${o.address || 'N/A'}</td>
             <td class="text-[#555] text-[10px] uppercase font-bold">${o.items}</td>
             <td class="font-black italic text-white">$${o.total.toFixed(2)}</td>
             <td class="text-xs font-bold uppercase text-[#444]">${o.paymentMethod}</td>
-            <td><span class="text-yellow-400 font-bold uppercase text-[9px] cursor-pointer" onclick="updateOrderStatus('${o.id || o._id}', 'Shipped')">${o.status}</span></td>
+            <td>
+              <select class="bg-black border border-white/20 text-yellow-400 font-bold uppercase text-[9px] p-1 rounded" onchange="updateOrderStatus('${o.id || o._id}', this.value)">
+                <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                <option value="Approved" ${o.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+            </td>
           </tr>
         `).join('');
       } catch (err) { console.error(err); }
     }
 
-    window.updateOrderStatus = async function(id, currentStatus) {
-      const status = prompt("Update Order Status (Pending, Shipped, Delivered, Cancelled):", currentStatus || "Shipped");
+    window.updateOrderStatus = async function(id, status) {
       if (!status) return;
       const res = await fetch(`${activeAPI}/api/admin/orders/${id}/status?token=${encodeURIComponent(token)}`, {
         method: 'POST',
