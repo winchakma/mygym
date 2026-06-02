@@ -146,9 +146,7 @@ async def promote_user(email: str, token: str):
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
     
-    admin_count = await User.find(User.role == "trainer").count()
-    if admin_count >= 3:
-        raise HTTPException(status_code=400, detail="Maximum limit of 3 trainers reached")
+    # Super Admin can add unlimited trainers
         
     target.role = "trainer"
     target.admissionStatus = "approved"
