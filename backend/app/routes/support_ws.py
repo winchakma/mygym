@@ -39,7 +39,10 @@ class ConnectionManager:
     async def send_personal_message(self, message: dict, email: str):
         if email in self.active_connections:
             for connection in self.active_connections[email]:
-                await connection.send_text(json.dumps(message))
+                try:
+                    await connection.send_text(json.dumps(message))
+                except Exception:
+                    pass
 
     async def broadcast_to_admins(self, message: dict, target_role: str):
         # target_role is "Normal Admin" (trainer) or "Super Admin" (superadmin)
@@ -47,7 +50,10 @@ class ConnectionManager:
         for email, role in self.admin_roles.items():
             if role == mapped_role:
                 for connection in self.active_connections.get(email, []):
-                    await connection.send_text(json.dumps(message))
+                    try:
+                        await connection.send_text(json.dumps(message))
+                    except Exception:
+                        pass
 
 manager = ConnectionManager()
 
@@ -223,7 +229,8 @@ async def support_chat_endpoint(websocket: WebSocket, token: str):
                         "messages": []
                     }, email)
 
-    except WebSocketDisconnect:
+    except Exception as e:
+        print(f"WebSocket error: {e}")
         manager.disconnect(websocket, email)
 
 @router.post("/upload-image")
