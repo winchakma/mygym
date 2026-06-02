@@ -409,6 +409,9 @@
         originalRender();
         document.querySelectorAll('.group.relative.overflow-hidden').forEach(card => observer.observe(card));
       };
+      
+      // Also observe modality cards immediately
+      document.querySelectorAll('.modality-card').forEach(card => observer.observe(card));
 
       fetchClasses();
 

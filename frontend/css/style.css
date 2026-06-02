@@ -2888,7 +2888,7 @@ TRANSFORMATION SECTION
   padding: 30px;
 }
 
-.modality-card:hover {
+.modality-card:hover, .modality-card.is-active {
   transform: translateY(-10px);
   border-color: var(--yellow);
   box-shadow: 0 20px 40px rgba(0,0,0,0.8);
@@ -2906,7 +2906,7 @@ TRANSFORMATION SECTION
   filter: grayscale(100%) brightness(0.6);
 }
 
-.modality-card:hover .modality-bg {
+.modality-card:hover .modality-bg, .modality-card.is-active .modality-bg {
   transform: scale(1.05);
   filter: grayscale(0%) brightness(0.8);
 }
@@ -2970,7 +2970,7 @@ TRANSFORMATION SECTION
   transition: transform 0.3s;
 }
 
-.modality-card:hover .modality-btn::after {
+.modality-card:hover .modality-btn::after, .modality-card.is-active .modality-btn::after {
   transform: translateX(5px);
 }
 
