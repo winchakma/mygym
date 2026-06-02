@@ -1634,7 +1634,7 @@
           if (!reply || !id) return;
           
           try {
-              const res = await fetch(`${activeAPI}/api/support/${id}/reply?token=${token}`, {
+              const res = await fetch(`${activeAPI}/api/support/${id}/reply?token=${encodeURIComponent(token)}`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ reply })

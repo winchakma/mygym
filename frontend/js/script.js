@@ -2381,7 +2381,7 @@ window.bookClass = async function (id, name, time, trainer) {
 /* ============================================
    AI SUPPORT CHAT WIDGET
    ============================================ */
-document.addEventListener("DOMContentLoaded", () => {
+function initSupportWidget() {
     // Only load for logged in users
     const token = localStorage.getItem("token");
     if(!token) return;
@@ -2499,7 +2499,13 @@ document.addEventListener("DOMContentLoaded", () => {
             clearInterval(supportChatInterval);
         }
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", initSupportWidget);
+} else {
+    initSupportWidget();
+}
 
 window.loadSupportHistory = async function() {
     if (!window.activeUserSupportRecipient) return;
@@ -2584,4 +2590,5 @@ window.backToUserSupportList = function() {
     document.getElementById("aiSupportListView").style.display = "flex";
     document.getElementById("aiSupportChatView").style.display = "none";
 };
+;
 
