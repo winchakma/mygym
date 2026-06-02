@@ -1633,7 +1633,6 @@
                   body: JSON.stringify({ reply })
               });
               if (res.ok) {
-                  showToast("Reply sent successfully", "success");
                   input.value = '';
                   fetchSupportMessages();
               } else showToast("Failed to reply", "error");
@@ -1641,6 +1640,7 @@
       };
 
       // Attach floating widget click
+      let adminSupportChatInterval;
       document.addEventListener("DOMContentLoaded", () => {
           const fab = document.getElementById("adminSupportFab");
           if (fab) {
@@ -1649,6 +1649,9 @@
                   panel.classList.toggle("active");
                   if(panel.classList.contains("active")) {
                       fetchSupportMessages();
+                      adminSupportChatInterval = setInterval(fetchSupportMessages, 5000);
+                  } else {
+                      clearInterval(adminSupportChatInterval);
                   }
               });
           }

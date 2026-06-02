@@ -2602,11 +2602,16 @@ document.addEventListener("DOMContentLoaded", () => {
     
     document.body.insertAdjacentHTML('beforeend', widgetHTML);
     
+    let supportChatInterval;
+    
     document.getElementById("aiSupportFab").addEventListener("click", () => {
         const panel = document.getElementById("aiSupportPanel");
         panel.classList.toggle("active");
         if(panel.classList.contains("active")) {
             loadSupportHistory();
+            supportChatInterval = setInterval(loadSupportHistory, 5000);
+        } else {
+            clearInterval(supportChatInterval);
         }
     });
 });
@@ -2630,6 +2635,9 @@ window.loadSupportHistory = async function() {
                 </div>
                 ${msg.reply ? `<div class="support-msg-bubble support-msg-admin">${msg.reply}</div>` : ''}
             `).join('');
+            
+            // Auto scroll to bottom
+            container.scrollTop = container.scrollHeight;
         }
     } catch(err) {
         console.error(err);
@@ -2656,7 +2664,6 @@ window.sendSupportMessage = async function() {
         });
         
         if(res.ok) {
-            window.showToast("Message sent to " + recipientType);
             document.getElementById("aiSupportInput").value = '';
             loadSupportHistory();
         } else {
