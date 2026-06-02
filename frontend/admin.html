@@ -1925,7 +1925,183 @@
     }
   </script>
 
+    <style>
+        .ai-support-fab {
+            position: fixed;
+            bottom: 110px; /* Above the chatbot heart */
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #111, #222);
+            border: 2px solid #f5e642;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(245, 230, 66, 0.4);
+            cursor: pointer;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+        }
+        .ai-support-fab:hover {
+            transform: scale(1.1);
+        }
+        .ai-support-fab svg {
+            width: 24px;
+            height: 24px;
+            fill: #f5e642;
+        }
+        .ai-support-panel {
+            position: fixed;
+            bottom: 170px;
+            right: 30px;
+            width: 350px;
+            background: #fff;
+            border: 1px solid #eaeaea;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 9998;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        .ai-support-panel.active {
+            display: flex;
+        }
+        .ai-support-header {
+            background: #fff;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .ai-support-header-avatars {
+            display: flex;
+            margin-right: 12px;
+        }
+        .ai-support-header-avatars img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            margin-left: -10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .ai-support-header-avatars img:first-child {
+            margin-left: 0;
+        }
+        .ai-support-header-title {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.3;
+        }
+        .ai-support-close {
+            cursor: pointer;
+            color: #999;
+            font-size: 20px;
+            margin-left: 10px;
+        }
+        .ai-support-body {
+            padding: 15px;
+            height: 320px;
+            background: #f9f9f9;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-support-footer {
+            padding: 15px;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-support-select {
+            width: 100%;
+            padding: 8px;
+            background: #fff;
+            color: #555;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            outline: none;
+        }
+        .ai-support-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+        .ai-support-input-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: #f1f1f1;
+            border-radius: 20px;
+            padding: 10px 14px;
+        }
+        .ai-support-input-wrap input {
+            border: none;
+            background: transparent;
+            outline: none;
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+        .ai-support-icons {
+            display: flex;
+            gap: 10px;
+            color: #888;
+            margin-left: 10px;
+        }
+        .ai-support-send-btn {
+            background: #e0e0e0;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            transition: all 0.2s ease;
+        }
+        .ai-support-send-btn.active {
+            background: #f5e642;
+            color: #000;
+        }
+        .support-msg-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            line-height: 1.4;
+            clear: both;
+        }
+        .support-msg-user {
+            background: #f5e642;
+            color: #000;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 5px rgba(245, 230, 66, 0.2);
+        }
+        .support-msg-admin {
+            background: #fff;
+            color: #333;
+            border: 1px solid #eaeaea;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
     <!-- Admin Support Floating Widget -->
+    <style>/* ai-support-fab styles */</style>
     <div class="ai-support-fab" id="adminSupportFab" title="Support Chat">
         <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
     </div>
