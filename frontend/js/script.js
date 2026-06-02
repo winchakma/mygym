@@ -2387,7 +2387,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if(!token) return;
     
     // Do not load the user widget on Admin or Trainer panels
-    if (window.location.pathname.includes('admin.html') || window.location.pathname.includes('trainer.html')) return;
+    const pathName = window.location.pathname;
+    if (pathName.includes('admin') || pathName.includes('trainer')) return;
 
     const widgetHTML = `
     <style>
@@ -2628,7 +2629,10 @@ window.loadSupportHistory = async function() {
                 container.innerHTML = '<div style="text-align:center; color:#888; font-size:13px; margin-top:20px;">No previous messages.</div>';
                 return;
             }
-            container.innerHTML = messages.map(msg => `
+            // Reverse to show oldest first, newest at the bottom
+            const chronologicalMessages = [...messages].reverse();
+            
+            container.innerHTML = chronologicalMessages.map(msg => `
                 <div class="support-msg-bubble support-msg-user">
                     <div style="font-size:10px; opacity:0.6; margin-bottom:4px;">To: ${msg.recipientType}</div>
                     ${msg.message}

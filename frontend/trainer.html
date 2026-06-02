@@ -1543,13 +1543,19 @@
 
       window.fetchSupportMessages = async function() {
           try {
-              const res = await fetch(`${activeAPI}/api/support/trainer?token=${token}`);
+              const res = await fetch(`${activeAPI}/api/support/trainer?token=${encodeURIComponent(token)}`);
               if (res.ok) {
                   allSupportMessages = await res.json();
                   renderSupportUsersList();
                   if (activeSupportEmail) selectSupportUser(activeSupportEmail);
+              } else {
+                  // Fallback if API fails
+                  renderSupportUsersList();
               }
-          } catch (err) { console.error(err); }
+          } catch (err) { 
+              console.error(err); 
+              renderSupportUsersList();
+          }
       };
 
       window.renderSupportUsersList = function() {
@@ -1580,8 +1586,8 @@
       window.selectSupportUser = function(email) {
           activeSupportEmail = email;
           
-          const userMsgs = allSupportMessages.filter(m => m.senderEmail === email);
-          const userName = userMsgs.length > 0 ? userMsgs[0].senderName : email;
+          const userMsgs = allSupportMessages.filter(m => m.senderEmail === email).reverse();
+          const userName = userMsgs.length > 0 ? userMsgs[userMsgs.length - 1].senderName : email;
           
           document.getElementById('support-active-header-title').textContent = userName;
           
