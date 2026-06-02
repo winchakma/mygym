@@ -2399,10 +2399,7 @@ window.allSupportMessages = [];
 window.activeSupportEmail = null;
 window.adminSupportChatInterval = null;
 
-window.fetchSupportMessages = async function() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    const payload = window.parseJwt(token);
+window.parseJwt(token);
     const role = payload ? payload.role : 'user';
     const endpoint = role === 'superadmin' ? 'owner' : 'trainer';
     const activeAPI = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
@@ -2422,12 +2419,7 @@ window.fetchSupportMessages = async function() {
     }
 };
 
-window.renderSupportUsersList = function() {
-    const container = document.getElementById('support-users-list');
-    if(!container) return;
-    const users = {};
-    
-    window.allSupportMessages.forEach(m => {
+window.allSupportMessages.forEach(m => {
         if (!users[m.senderEmail]) {
             users[m.senderEmail] = { name: m.senderName, email: m.senderEmail, messages: [], hasOpen: false };
         }
@@ -2450,8 +2442,7 @@ window.renderSupportUsersList = function() {
     
 };
 
-window.selectSupportUser = function(email) {
-    window.activeSupportEmail = email;
+window.activeSupportEmail = email;
     
     const userMsgs = window.allSupportMessages.filter(m => m.senderEmail === email).reverse();
     const userName = userMsgs.length > 0 ? userMsgs[userMsgs.length - 1].senderName : email;
@@ -2492,13 +2483,7 @@ window.backToSupportList = function() {
     window.renderSupportUsersList();
 };
 
-window.sendActiveSupportReply = async function() {
-    const token = localStorage.getItem('token');
-    const replyArea = document.getElementById('support-reply-area');
-    const id = replyArea.getAttribute('data-reply-id');
-    const input = document.getElementById('support-reply-input');
-    const reply = input.value;
-    const activeAPI = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
     
     if (!reply || !id || !token) return;
     
@@ -2517,26 +2502,13 @@ window.sendActiveSupportReply = async function() {
     } catch (err) { console.error(err); }
 };
 
-function initSupportWidget() {
-    const token = localStorage.getItem("token");
-    if(!token) return;
-    
-    // Do not inject any floating widget on admin or trainer panels
-    const pathName = window.location.pathname;
-    if (pathName.includes('admin') || pathName.includes('trainer')) return;
-    
-    // Inject user widget for everyone on the normal frontend pages
-    initUserSupportWidget();
-}
 
-window.initSupportInbox = function() {
-    window.fetchSupportMessages();
+window.fetchSupportMessages();
     if (window.adminSupportChatInterval) clearInterval(window.adminSupportChatInterval);
     window.adminSupportChatInterval = setInterval(window.fetchSupportMessages, 5000);
 };
 
-window.stopSupportInbox = function() {
-    if (window.adminSupportChatInterval) clearInterval(window.adminSupportChatInterval);
+window.adminSupportChatInterval) clearInterval(window.adminSupportChatInterval);
 };
 
 
@@ -2655,11 +2627,7 @@ function initUserSupportWidget() {
     });
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener("DOMContentLoaded", initSupportWidget);
-} else {
-    initSupportWidget();
-}
+
 
 window.loadSupportHistory = async function() {
     if (!window.activeUserSupportRecipient) return;
@@ -2747,8 +2715,4 @@ window.backToUserSupportList = function() {
 ;
 
 
-if (document.readyState === 'loading') {
-    document.addEventListener("DOMContentLoaded", initSupportWidget);
-} else {
-    initSupportWidget();
-}
+
