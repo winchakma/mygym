@@ -31,17 +31,26 @@
     }
     .form-input:focus { border-color: var(--yellow); outline: none; box-shadow: 0 0 15px rgba(245, 230, 66, 0.05); }
 
-    .payment-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
-    .payment-btn {
-      background: #080808; border: 1px solid var(--border-color); border-radius: 16px;
-      padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      cursor: pointer; transition: all 0.3s;
+    .payment-stack { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    .payment-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 20px; background: #080808; border: 1px solid var(--border-color);
+      border-radius: 12px; cursor: pointer; transition: all 0.3s;
     }
-    .payment-btn:hover { border-color: var(--yellow); background: #111; }
-    .payment-btn.active { border-color: var(--yellow); background: rgba(245, 230, 66, 0.05); }
-    .payment-btn img { height: 20px; object-fit: contain; margin-bottom: 8px; }
-    .payment-btn span { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); }
-    .payment-btn.active span { color: var(--yellow); }
+    .payment-row:hover { border-color: #333; background: #111; }
+    .payment-row.active { border-color: var(--yellow); background: rgba(245, 230, 66, 0.05); }
+    .radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #444; position: relative; transition: all 0.3s;}
+    .payment-row.active .radio-dot { border-color: var(--yellow); }
+    .payment-row.active .radio-dot::after {
+      content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 8px; height: 8px; background: var(--yellow); border-radius: 50%;
+    }
+    .payment-row img { height: 24px; object-fit: contain; }
+    .stripe-input-group { border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: #111; }
+    .stripe-input-group .form-input { border: none; border-radius: 0; background: transparent; }
+    .stripe-input-group .form-input:focus { box-shadow: none; background: #151515; }
+    .stripe-border-b { border-bottom: 1px solid var(--border-color); }
+    .stripe-border-r { border-right: 1px solid var(--border-color); }
 
     .order-item { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid #111; }
     .order-item:last-child { border-bottom: none; }
@@ -151,29 +160,44 @@
             <span class="w-6 h-6 bg-yellow-400 text-black flex items-center justify-center rounded-full text-[10px]">2</span>
             Payment Selection
           </h3>
-          <div class="payment-grid">
-            <div class="payment-btn" onclick="setPayment('card', this)">
-              <div class="flex gap-2 mb-2 items-center justify-center">
-                <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" class="h-5" alt="Visa">
-                <img src="https://cdn-icons-png.flaticon.com/512/196/196561.png" class="h-5" alt="Mastercard">
-                <img src="https://cdn-icons-png.flaticon.com/512/196/196539.png" class="h-5" alt="Amex">
+          <div class="payment-stack">
+            <div class="payment-row" onclick="setPayment('card', this)">
+              <div class="flex items-center gap-4">
+                <div class="radio-dot"></div>
+                <span class="text-sm font-bold tracking-wide">Credit / Debit Card</span>
               </div>
-              <span>Credit / Debit Card</span>
+              <div class="flex gap-2">
+                <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="Visa">
+                <img src="https://cdn-icons-png.flaticon.com/512/196/196561.png" alt="Mastercard">
+                <img src="https://cdn-icons-png.flaticon.com/512/196/196539.png" alt="Amex">
+              </div>
             </div>
-            <div class="payment-btn" onclick="setPayment('paypal', this)">
-              <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" class="h-5 mb-2" alt="PayPal">
-              <span>PayPal</span>
+            
+            <div class="payment-row" onclick="setPayment('paypal', this)">
+              <div class="flex items-center gap-4">
+                <div class="radio-dot"></div>
+                <span class="text-sm font-bold tracking-wide">PayPal</span>
+              </div>
+              <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" alt="PayPal">
             </div>
-            <div class="payment-btn" onclick="setPayment('bkash', this)">
-              <div class="bg-[#E2136E] text-white px-3 py-1 rounded text-[10px] font-black mb-2 tracking-wider">bKash</div>
-              <span>bKash Transfer</span>
+
+            <div class="payment-row" onclick="setPayment('bkash', this)">
+              <div class="flex items-center gap-4">
+                <div class="radio-dot"></div>
+                <span class="text-sm font-bold tracking-wide">bKash</span>
+              </div>
+              <img src="https://raw.githubusercontent.com/shurjopay-plugins/sp-plugin-woocommerce/master/assets/images/bkash.png" style="height: 20px" alt="bKash">
             </div>
-            <div class="payment-btn" onclick="setPayment('nagad', this)">
-              <div class="bg-[#F05C2B] text-white px-3 py-1 rounded text-[10px] font-black mb-2 tracking-wider">Nagad</div>
-              <span>Nagad Transfer</span>
+
+            <div class="payment-row" onclick="setPayment('nagad', this)">
+              <div class="flex items-center gap-4">
+                <div class="radio-dot"></div>
+                <span class="text-sm font-bold tracking-wide">Nagad</span>
+              </div>
+              <img src="https://raw.githubusercontent.com/shurjopay-plugins/sp-plugin-woocommerce/master/assets/images/nagad.png" style="height: 16px" alt="Nagad">
             </div>
           </div>
-          <div id="payment-details-box" class="mt-8 pt-8 border-t border-[#1a1a1a] hidden">
+          <div id="payment-details-box" class="mt-4 hidden">
             <!-- Dynamic payment fields -->
           </div>
         </section>
@@ -331,15 +355,31 @@
     }
 
     window.setPayment = function(method, el) {
-      document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.payment-row').forEach(b => b.classList.remove('active'));
       el.classList.add('active');
       selectedPayment = method;
       const box = document.getElementById('payment-details-box');
       box.classList.remove('hidden');
-      if (method === 'bkash' || method === 'nagad') {
-        box.innerHTML = `<div class="form-group"><label class="form-label">${method} Wallet Number</label><input type="text" class="form-input w-full" placeholder="01XXXXXXXXX" required></div>`;
-      } else if (method === 'card') {
-        box.innerHTML = `<div class="form-group"><label class="form-label">Card Number</label><input type="text" class="form-input w-full" placeholder="XXXX XXXX XXXX XXXX" required></div>`;
+      
+      if (method === 'card') {
+        box.innerHTML = `
+          <div class="form-group mb-4">
+            <label class="form-label">Card Details</label>
+            <div class="stripe-input-group">
+              <input type="text" class="form-input w-full stripe-border-b" placeholder="Card number" required>
+              <div class="flex">
+                <input type="text" class="form-input w-1/2 stripe-border-r" placeholder="MM / YY" required>
+                <input type="text" class="form-input w-1/2" placeholder="CVC" required>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cardholder Name</label>
+            <input type="text" class="form-input w-full" placeholder="Name on card" required>
+          </div>
+        `;
+      } else if (method === 'bkash' || method === 'nagad') {
+        box.innerHTML = `<div class="form-group"><label class="form-label">${method.toUpperCase()} Mobile Number</label><input type="text" class="form-input w-full" placeholder="01XXXXXXXXX" required></div>`;
       } else {
         box.innerHTML = `<div class="form-group"><label class="form-label">PayPal Email</label><input type="email" class="form-input w-full" placeholder="you@paypal.com" required></div>`;
       }
