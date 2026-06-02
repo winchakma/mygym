@@ -2381,15 +2381,274 @@ window.bookClass = async function (id, name, time, trainer) {
 /* ============================================
    AI SUPPORT CHAT WIDGET
    ============================================ */
+
+window.parseJwt = function(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        return null;
+    }
+};
+
+window.allSupportMessages = [];
+window.activeSupportEmail = null;
+window.adminSupportChatInterval = null;
+
+window.fetchSupportMessages = async function() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const payload = window.parseJwt(token);
+    const role = payload ? payload.role : 'user';
+    const endpoint = role === 'superadmin' ? 'owner' : 'trainer';
+    const activeAPI = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+    
+    try {
+        const res = await fetch(`${activeAPI}/api/support/${endpoint}?token=${encodeURIComponent(token)}`);
+        if (res.ok) {
+            window.allSupportMessages = await res.json();
+            window.renderSupportUsersList();
+            if (window.activeSupportEmail) window.selectSupportUser(window.activeSupportEmail);
+        } else {
+            window.renderSupportUsersList();
+        }
+    } catch (err) { 
+        console.error(err); 
+        window.renderSupportUsersList();
+    }
+};
+
+window.renderSupportUsersList = function() {
+    const container = document.getElementById('support-users-list');
+    if(!container) return;
+    const users = {};
+    
+    window.allSupportMessages.forEach(m => {
+        if (!users[m.senderEmail]) {
+            users[m.senderEmail] = { name: m.senderName, email: m.senderEmail, messages: [], hasOpen: false };
+        }
+        users[m.senderEmail].messages.push(m);
+        if (m.status === 'open') users[m.senderEmail].hasOpen = true;
+    });
+    
+    const userListHTML = Object.values(users).map(u => `
+        <div onclick="window.selectSupportUser('${u.email}')" class="admin-support-item ${u.hasOpen ? 'unread' : ''}">
+            <div>
+                <div class="admin-support-name">${u.name}</div>
+                <div class="admin-support-email">${u.email}</div>
+            </div>
+            ${u.hasOpen ? '<div class="unread-dot"></div>' : ''}
+        </div>
+    `).join('') || '<div style="padding: 20px; text-align: center; color: #888; font-size: 12px; font-style: italic;">No conversations found.</div>';
+    
+    container.innerHTML = userListHTML;
+    
+    // Update badge on FAB
+    const fabBadge = document.getElementById('adminSupportBadge');
+    if(fabBadge) {
+        const hasAnyOpen = Object.values(users).some(u => u.hasOpen);
+        fabBadge.style.display = hasAnyOpen ? 'block' : 'none';
+    }
+};
+
+window.selectSupportUser = function(email) {
+    window.activeSupportEmail = email;
+    
+    const userMsgs = window.allSupportMessages.filter(m => m.senderEmail === email).reverse();
+    const userName = userMsgs.length > 0 ? userMsgs[userMsgs.length - 1].senderName : email;
+    
+    const headerTitle = document.getElementById('support-active-header-title');
+    if(headerTitle) headerTitle.textContent = userName;
+    
+    const msgsContainer = document.getElementById('support-active-messages');
+    if(msgsContainer) {
+        msgsContainer.innerHTML = userMsgs.map(m => `
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="msg-bubble msg-user">
+                    ${m.message}
+                </div>
+                ${m.reply ? `
+                    <div class="msg-bubble msg-admin">
+                        ${m.reply}
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+        msgsContainer.scrollTop = msgsContainer.scrollHeight;
+    }
+    
+    const replyMsgId = userMsgs.length > 0 ? userMsgs[userMsgs.length - 1]._id : null;
+    const replyArea = document.getElementById('support-reply-area');
+    if (replyArea && replyMsgId) {
+        replyArea.setAttribute('data-reply-id', replyMsgId);
+    }
+    
+    document.getElementById('adminSupportListView').style.display = 'none';
+    document.getElementById('adminSupportChatView').style.display = 'flex';
+    
+    setTimeout(() => {
+        const replyInput = document.getElementById('support-reply-input');
+        if(replyInput) replyInput.focus();
+    }, 100);
+};
+
+window.backToSupportList = function() {
+    window.activeSupportEmail = null;
+    document.getElementById('adminSupportListView').style.display = 'flex';
+    document.getElementById('adminSupportChatView').style.display = 'none';
+    window.renderSupportUsersList();
+};
+
+window.sendActiveSupportReply = async function() {
+    const token = localStorage.getItem('token');
+    const replyArea = document.getElementById('support-reply-area');
+    const id = replyArea.getAttribute('data-reply-id');
+    const input = document.getElementById('support-reply-input');
+    const reply = input.value;
+    const activeAPI = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+    
+    if (!reply || !id || !token) return;
+    
+    try {
+        const res = await fetch(`${activeAPI}/api/support/${id}/reply?token=${encodeURIComponent(token)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reply })
+        });
+        if (res.ok) {
+            input.value = '';
+            window.fetchSupportMessages();
+        } else {
+            window.showToast("Failed to reply", "error");
+        }
+    } catch (err) { console.error(err); }
+};
+
+function initAdminSupportWidget(role) {
+    const widgetHTML = `
+    <style>
+        .ai-support-fab {
+            position: fixed; bottom: 110px; right: 30px; width: 50px; height: 50px;
+            background: linear-gradient(135deg, #111, #222); border: 2px solid #f5e642; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(245, 230, 66, 0.4); cursor: pointer; z-index: 9999; transition: transform 0.3s ease;
+        }
+        .ai-support-fab:hover { transform: scale(1.1); }
+        .ai-support-fab svg { width: 24px; height: 24px; fill: #f5e642; }
+        .ai-support-badge {
+            position: absolute; top: -5px; right: -5px; width: 14px; height: 14px;
+            background: #ff4d4d; border-radius: 50%; display: none; border: 2px solid #111;
+        }
+        .ai-support-panel {
+            position: fixed; bottom: 170px; right: 30px; width: 350px; background: #fff;
+            border: 1px solid #eaeaea; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            display: none; flex-direction: column; z-index: 9998; overflow: hidden; font-family: 'Inter', sans-serif;
+        }
+        .ai-support-panel.active { display: flex; }
+        .ai-support-header { background: #fff; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; }
+        .ai-support-header-title { flex: 1; font-size: 14px; font-weight: 600; color: #333; line-height: 1.3; }
+        .ai-support-close { cursor: pointer; color: #999; font-size: 20px; margin-left: 10px; }
+        .ai-support-body { padding: 15px; height: 320px; background: #f9f9f9; overflow-y: auto; display: flex; flex-direction: column; }
+        .ai-support-footer { padding: 15px; background: #fff; border-top: 1px solid #f0f0f0; display: flex; flex-direction: column; }
+        .ai-support-input-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .ai-support-input-wrap { flex: 1; display: flex; align-items: center; background: #f1f1f1; border-radius: 20px; padding: 10px 14px; }
+        .ai-support-input-wrap input { border: none; background: transparent; outline: none; flex: 1; font-size: 14px; color: #333; }
+        .ai-support-send-btn { background: #e0e0e0; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: all 0.2s ease; }
+        .ai-support-send-btn.active { background: #f5e642; color: #000; }
+        
+        .admin-support-item { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; }
+        .admin-support-item:hover { background: #f9f9f9; }
+        .admin-support-item.unread .admin-support-name { font-weight: bold; color: #000; }
+        .admin-support-name { font-size: 13px; color: #444; }
+        .admin-support-email { font-size: 11px; color: #888; margin-top: 2px; }
+        .unread-dot { width: 8px; height: 8px; background: #ff4d4d; border-radius: 50%; }
+        
+        .msg-bubble { max-width: 85%; padding: 10px 14px; border-radius: 16px; margin-bottom: 10px; font-size: 13px; line-height: 1.4; clear: both; }
+        .msg-user { background: #fff; color: #333; border: 1px solid #eaeaea; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .msg-admin { background: #f5e642; color: #000; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 1px 3px rgba(245,230,66,0.2); }
+    </style>
+    
+    <div class="ai-support-fab" id="adminSupportFab" title="Support Chat">
+        <div class="ai-support-badge" id="adminSupportBadge"></div>
+        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
+    </div>
+    
+    <div class="ai-support-panel" id="adminSupportPanel">
+        <!-- List View -->
+        <div id="adminSupportListView" class="admin-list-view" style="display: flex; flex-direction: column; height: 100%;">
+            <div class="ai-support-header">
+                <div class="ai-support-header-title">${role === 'trainer' ? 'Trainer Messages' : 'Incoming Messages'}</div>
+                <div class="ai-support-close" onclick="document.getElementById('adminSupportPanel').classList.remove('active'); clearInterval(window.adminSupportChatInterval);">&times;</div>
+            </div>
+            <div class="ai-support-body" id="support-users-list" style="padding: 0; background: #fff;">
+                <!-- Users here -->
+            </div>
+        </div>
+        
+        <!-- Chat View -->
+        <div id="adminSupportChatView" class="admin-chat-view" style="display: none; flex-direction: column; height: 100%;">
+            <div class="ai-support-header" style="background: #f1f1f1; cursor: pointer;" onclick="window.backToSupportList()">
+                <div style="font-size: 16px; margin-right: 10px; color: #555;">←</div>
+                <div class="ai-support-header-title" id="support-active-header-title">User Name</div>
+            </div>
+            <div class="ai-support-body" id="support-active-messages" style="background: #f9f9f9;">
+                <!-- Messages here -->
+            </div>
+            <div class="ai-support-footer" id="support-reply-area">
+                <div class="ai-support-input-row">
+                    <div class="ai-support-input-wrap">
+                        <input type="text" id="support-reply-input" placeholder="Reply..." onkeypress="if(event.key === 'Enter') window.sendActiveSupportReply()">
+                    </div>
+                    <button class="ai-support-send-btn active" onclick="window.sendActiveSupportReply()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', widgetHTML);
+    
+    const fab = document.getElementById("adminSupportFab");
+    if (fab) {
+        fab.addEventListener("click", () => {
+            const panel = document.getElementById("adminSupportPanel");
+            panel.classList.toggle("active");
+            if(panel.classList.contains("active")) {
+                window.fetchSupportMessages();
+                window.adminSupportChatInterval = setInterval(window.fetchSupportMessages, 5000);
+            } else {
+                clearInterval(window.adminSupportChatInterval);
+            }
+        });
+        
+        // Initial fetch to check for unread badge
+        window.fetchSupportMessages();
+    }
+}
+
 function initSupportWidget() {
-    // Only load for logged in users
     const token = localStorage.getItem("token");
     if(!token) return;
     
-    // Do not load the user widget on Admin or Trainer panels
-    const pathName = window.location.pathname;
-    if (pathName.includes('admin') || pathName.includes('trainer')) return;
+    const payload = window.parseJwt(token);
+    const role = payload ? payload.role : 'user';
+    
+    if (role === 'superadmin' || role === 'trainer') {
+        initAdminSupportWidget(role);
+    } else {
+        initUserSupportWidget();
+    }
+}
 
+function initUserSupportWidget() {
+    const token = localStorage.getItem("token");
+    if(!token) return;
     const widgetHTML = `
     <style>
         .ai-support-fab {
