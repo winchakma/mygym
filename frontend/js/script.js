@@ -2592,3 +2592,9 @@ window.backToUserSupportList = function() {
 };
 ;
 
+
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", initSupportWidget);
+} else {
+    initSupportWidget();
+}
