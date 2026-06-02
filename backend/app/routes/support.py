@@ -94,6 +94,18 @@ async def reply_support_message(msg_id: str, data: dict, token: str):
     msg.status = "resolved"
     await msg.save()
     
+    # Also resolve any other open messages from this user so the unread dot disappears
+    open_msgs = await SupportMessage.find(
+        SupportMessage.senderEmail == msg.senderEmail,
+        SupportMessage.recipientType == msg.recipientType,
+        SupportMessage.status == "open"
+    ).to_list()
+    
+    for m in open_msgs:
+        if m.id != msg.id:
+            m.status = "resolved"
+            await m.save()
+    
     # Notify user via email
     from app.utils.notifications import NotificationService
     try:

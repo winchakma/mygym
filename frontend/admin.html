@@ -1841,9 +1841,10 @@
           
           msgsContainer.scrollTop = msgsContainer.scrollHeight;
           
-          const openMsg = userMsgs.find(m => m.status === 'open');
-          const replyMsgId = openMsg ? openMsg._id : userMsgs[userMsgs.length - 1]._id;
-          document.getElementById('support-reply-area').setAttribute('data-reply-id', replyMsgId);
+          const replyMsgId = userMsgs.length > 0 ? userMsgs[userMsgs.length - 1]._id : null;
+          if (replyMsgId) {
+              document.getElementById('support-reply-area').setAttribute('data-reply-id', replyMsgId);
+          }
           
           document.getElementById('adminSupportListView').style.display = 'none';
           document.getElementById('adminSupportChatView').style.display = 'flex';
