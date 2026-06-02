@@ -98,8 +98,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         
-        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        ws = new WebSocket(`${protocol}//${window.location.host}/api/support-ws/chat?token=${token}`);
+        const activeAPI = window.ELITE_API_URL || "https://mygym-p9rd.onrender.com";
+        const wsUrl = activeAPI.replace(/^http/, 'ws') + `/api/support-ws/chat?token=${token}`;
+        ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
             console.log("Support WebSocket connected");
@@ -178,7 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("image", file);
 
         try {
-            const res = await fetch("/api/support-ws/upload-image", {
+            const activeAPI = window.ELITE_API_URL || "https://mygym-p9rd.onrender.com";
+            const res = await fetch(`${activeAPI}/api/support-ws/upload-image`, {
                 method: "POST",
                 body: formData
             });
