@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 # Ensure .env is loaded from the correct path
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
 
-from app.routes import auth, profile, workout, community, chat, admin, store, public, support
+from app.routes import auth, profile, workout, community, chat, admin, store, public, support, support_ws
 from app.database import init_db
 
 @contextlib.asynccontextmanager
@@ -50,7 +50,7 @@ if REDIS_URL:
 @app.middleware("http")
 async def rate_limiting_shield(request: Request, call_next):
     path = request.url.path
-    if path.startswith("/uploads") or path == "/" or path == "/health" or path.startswith("/api/community/ws"):
+    if path.startswith("/uploads") or path == "/" or path == "/health" or path.startswith("/api/community/ws") or path.startswith("/api/support-ws"):
         return await call_next(request)
         
     client_ip = request.client.host if request.client else "unknown"
@@ -146,6 +146,7 @@ app.include_router(admin.router, prefix="/api")
 app.include_router(store.router, prefix="/api")
 app.include_router(public.router, prefix="/api")
 app.include_router(support.router, prefix="/api")
+app.include_router(support_ws.router, prefix="/api")
 
 @app.get("/")
 def read_root():
