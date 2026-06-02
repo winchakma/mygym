@@ -6,7 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div id="support-widget">
             <div class="support-header">
-                <h3>Elite Support</h3>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button id="supportBackBtn" style="display: none; background:transparent; border:none; color:var(--yellow); font-size:18px; cursor:pointer;"><i class="ri-arrow-left-line"></i></button>
+                    <h3>Elite Support</h3>
+                </div>
                 <button id="supportCloseBtn">&times;</button>
             </div>
             <div class="support-body" id="supportBody">
@@ -31,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const toggleBtn = document.getElementById("supportToggleBtn");
     const widget = document.getElementById("support-widget");
     const closeBtn = document.getElementById("supportCloseBtn");
+    const backBtn = document.getElementById("supportBackBtn");
     const roleSelect = document.getElementById("supportRoleSelect");
     const chatArea = document.getElementById("supportChatArea");
     const footer = document.getElementById("supportFooter");
@@ -56,6 +60,21 @@ document.addEventListener("DOMContentLoaded", () => {
     closeBtn.addEventListener("click", () => {
         widget.classList.remove("open");
         setTimeout(() => toggleBtn.style.display = "flex", 400);
+    });
+
+    backBtn.addEventListener("click", () => {
+        if (ws) {
+            ws.close();
+            ws = null;
+        }
+        currentRole = null;
+        sessionId = null;
+        chatArea.innerHTML = "";
+        
+        backBtn.style.display = "none";
+        chatArea.style.display = "none";
+        footer.style.display = "none";
+        roleSelect.style.display = "flex";
     });
 
     const appendMessage = (msg) => {
@@ -119,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
             roleSelect.style.display = "none";
             chatArea.style.display = "flex";
             footer.style.display = "flex";
+            backBtn.style.display = "block";
             initWebSocket();
         });
     });

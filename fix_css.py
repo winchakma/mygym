@@ -1,19 +1,17 @@
 import re
 
-with open('frontend/js/script.js', 'r', encoding='utf-8') as f:
-    script_content = f.read()
+filepath = r"c:\Users\user\Desktop\mygym\frontend\css\style.css"
 
-style_match = re.search(r'<style>(.*?)</style>', script_content, re.DOTALL)
-if style_match:
-    style_css = style_match.group(0)
-    
-    for filename in ['frontend/admin.html', 'frontend/trainer.html']:
-        with open(filename, 'r', encoding='utf-8') as f:
-            html = f.read()
-            
-        if '/* ai-support-fab styles */' not in html:
-            html = html.replace('<!-- Admin Support Floating Widget -->', style_css + '\n    <!-- Admin Support Floating Widget -->\n    <style>/* ai-support-fab styles */</style>')
-            
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write(html)
-            print(f'Updated {filename}')
+with open(filepath, "r", encoding="utf-8") as f:
+    content = f.read()
+
+# Fix support widget position
+content = re.sub(r'#support-widget\s*{\s*position:\s*fixed;\s*bottom:\s*20px;\s*right:\s*20px;', r'#support-widget {\n  position: fixed;\n  bottom: 20px;\n  left: 20px;', content)
+
+# Fix support toggle btn position
+content = re.sub(r'\.support-toggle-btn\s*{\s*position:\s*fixed;\s*bottom:\s*20px;\s*right:\s*20px;', r'.support-toggle-btn {\n  position: fixed;\n  bottom: 20px;\n  left: 20px;', content)
+
+with open(filepath, "w", encoding="utf-8") as f:
+    f.write(content)
+
+print("Done fixing CSS.")

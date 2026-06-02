@@ -1,32 +1,33 @@
-import re
+import os
 
-with open('frontend/js/script.js', 'r', encoding='utf-8') as f:
-    script_content = f.read()
+html_files = [
+    "about.html", "admission.html", "checkout.html", "community.html",
+    "contact.html", "dashboard.html", "index.html", "membership.html",
+    "profile.html", "shop.html", "studio.html", "support.html",
+    "vault.html", "workouts.html"
+]
 
-# Replace document.addEventListener("DOMContentLoaded", () => {
-# with function initSupportWidget() {
-pattern = r'document\.addEventListener\("DOMContentLoaded", \(\) => \{'
-replacement = '''function initSupportWidget() {'''
+base_dir = r"c:\Users\user\Desktop\mygym\frontend"
 
-script_content = re.sub(pattern, replacement, script_content, count=1)
+for f in html_files:
+    filepath = os.path.join(base_dir, f)
+    if os.path.exists(filepath):
+        with open(filepath, "r", encoding="utf-8") as file:
+            content = file.read()
+            
+        # Add remixicon in head if not present
+        if "remixicon.css" not in content:
+            head_idx = content.find("</head>")
+            if head_idx != -1:
+                content = content[:head_idx] + '  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">\n' + content[head_idx:]
 
-# At the bottom, replace the closing '});' with:
-# if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initSupportWidget); } else { initSupportWidget(); }
+        # Add support_widget.js in body if not present
+        if "support_widget.js" not in content:
+            body_idx = content.find("</body>")
+            if body_idx != -1:
+                content = content[:body_idx] + '  <script src="js/support_widget.js"></script>\n' + content[body_idx:]
 
-pattern_end = r'\}\);\s*\n*window\.loadSupportHistory'
-replacement_end = '''}
-
-if (document.readyState === 'loading') {
-    document.addEventListener("DOMContentLoaded", initSupportWidget);
-} else {
-    initSupportWidget();
-}
-
-window.loadSupportHistory'''
-
-script_content = re.sub(pattern_end, replacement_end, script_content)
-
-with open('frontend/js/script.js', 'w', encoding='utf-8') as f:
-    f.write(script_content)
-
-print("Updated script.js successfully!")
+        with open(filepath, "w", encoding="utf-8") as file:
+            file.write(content)
+            
+print("Done fixing HTML files.")
