@@ -2385,6 +2385,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Only load for logged in users
     const token = localStorage.getItem("token");
     if(!token) return;
+    
+    // Do not load the user widget on Admin or Trainer panels
+    if (window.location.pathname.includes('admin.html') || window.location.pathname.includes('trainer.html')) return;
 
     const widgetHTML = `
     <style>
