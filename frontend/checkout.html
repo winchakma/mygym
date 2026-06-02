@@ -183,9 +183,9 @@
                 <span class="text-sm font-bold tracking-wide">Credit / Debit Card</span>
               </div>
               <div class="flex gap-2">
-                <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="Visa">
-                <img src="https://cdn-icons-png.flaticon.com/512/196/196561.png" alt="Mastercard">
-                <img src="https://cdn-icons-png.flaticon.com/512/196/196539.png" alt="Amex">
+                <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" class="h-6" alt="Visa">
+                <img src="https://cdn-icons-png.flaticon.com/512/196/196561.png" class="h-6" alt="Mastercard">
+                <img src="https://cdn-icons-png.flaticon.com/512/196/196539.png" class="h-6" alt="Amex">
               </div>
             </div>
             
@@ -194,7 +194,15 @@
                 <div class="radio-dot"></div>
                 <span class="text-sm font-bold tracking-wide">PayPal</span>
               </div>
-              <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" alt="PayPal">
+              <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" class="h-6" alt="PayPal">
+            </div>
+
+            <div class="payment-row" onclick="setPayment('cod', this)">
+              <div class="flex items-center gap-4">
+                <div class="radio-dot"></div>
+                <span class="text-sm font-bold tracking-wide">Cash on Delivery</span>
+              </div>
+              <img src="https://cdn-icons-png.flaticon.com/512/2800/2800160.png" class="h-6 invert" alt="COD">
             </div>
 
             <div class="payment-row" onclick="setPayment('bkash', this)">
@@ -202,7 +210,9 @@
                 <div class="radio-dot"></div>
                 <span class="text-sm font-bold tracking-wide">bKash</span>
               </div>
-              <img src="https://raw.githubusercontent.com/shurjopay-plugins/sp-plugin-woocommerce/master/assets/images/bkash.png" style="height: 20px" alt="bKash">
+              <div class="bg-white px-2 py-1 rounded">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Bkash_Logo.svg" class="h-4" alt="bKash">
+              </div>
             </div>
 
             <div class="payment-row" onclick="setPayment('nagad', this)">
@@ -210,7 +220,9 @@
                 <div class="radio-dot"></div>
                 <span class="text-sm font-bold tracking-wide">Nagad</span>
               </div>
-              <img src="https://raw.githubusercontent.com/shurjopay-plugins/sp-plugin-woocommerce/master/assets/images/nagad.png" style="height: 16px" alt="Nagad">
+              <div class="bg-white px-2 py-1 rounded">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Nagad_Logo_2019.svg/512px-Nagad_Logo_2019.svg.png" class="h-4" alt="Nagad">
+              </div>
             </div>
           </div>
           <div id="payment-details-box" class="mt-4 hidden">
@@ -396,6 +408,8 @@
         `;
       } else if (method === 'bkash' || method === 'nagad') {
         box.innerHTML = `<div class="form-group"><label class="form-label">${method.toUpperCase()} Mobile Number</label><input type="text" class="form-input w-full" placeholder="01XXXXXXXXX" required></div>`;
+      } else if (method === 'cod') {
+        box.innerHTML = `<div class="form-group"><p class="text-[10px] text-gray-400 font-bold mb-2 tracking-widest">Pay securely with cash upon delivery.</p></div>`;
       } else {
         box.innerHTML = `<div class="form-group"><label class="form-label">PayPal Email</label><input type="email" class="form-input w-full" placeholder="you@paypal.com" required></div>`;
       }
