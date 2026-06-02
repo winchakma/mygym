@@ -393,10 +393,20 @@
     }
 
     window.setPayment = function(method, el) {
+      const box = document.getElementById('payment-details-box');
+      
+      if (selectedPayment === method) {
+        // Deselect
+        el.classList.remove('active');
+        selectedPayment = '';
+        box.classList.add('hidden');
+        box.innerHTML = '';
+        return;
+      }
+      
       document.querySelectorAll('.payment-row').forEach(b => b.classList.remove('active'));
       el.classList.add('active');
       selectedPayment = method;
-      const box = document.getElementById('payment-details-box');
       box.classList.remove('hidden');
       
       if (method === 'card') {
