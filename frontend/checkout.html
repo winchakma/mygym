@@ -152,24 +152,25 @@
             Payment Selection
           </h3>
           <div class="payment-grid">
-            <div class="payment-btn" onclick="setPayment('bkash', this)">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Bkash_Logo.svg/1200px-Bkash_Logo.svg.png" alt="Bkash">
-              <span>Bkash</span>
-            </div>
-            <div class="payment-btn" onclick="setPayment('nagad', this)">
-              <img src="https://download.logo.wine/logo/Nagad/Nagad-Logo.wine.png" alt="Nagad">
-              <span>Nagad</span>
-            </div>
             <div class="payment-btn" onclick="setPayment('card', this)">
-              <div class="flex gap-2 mb-2">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" class="h-3 invert">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-3">
+              <div class="flex gap-2 mb-2 items-center justify-center">
+                <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" class="h-5" alt="Visa">
+                <img src="https://cdn-icons-png.flaticon.com/512/196/196561.png" class="h-5" alt="Mastercard">
+                <img src="https://cdn-icons-png.flaticon.com/512/196/196539.png" class="h-5" alt="Amex">
               </div>
-              <span>Bank Card</span>
+              <span>Credit / Debit Card</span>
             </div>
             <div class="payment-btn" onclick="setPayment('paypal', this)">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal">
+              <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" class="h-5 mb-2" alt="PayPal">
               <span>PayPal</span>
+            </div>
+            <div class="payment-btn" onclick="setPayment('bkash', this)">
+              <div class="bg-[#E2136E] text-white px-3 py-1 rounded text-[10px] font-black mb-2 tracking-wider">bKash</div>
+              <span>bKash Transfer</span>
+            </div>
+            <div class="payment-btn" onclick="setPayment('nagad', this)">
+              <div class="bg-[#F05C2B] text-white px-3 py-1 rounded text-[10px] font-black mb-2 tracking-wider">Nagad</div>
+              <span>Nagad Transfer</span>
             </div>
           </div>
           <div id="payment-details-box" class="mt-8 pt-8 border-t border-[#1a1a1a] hidden">
