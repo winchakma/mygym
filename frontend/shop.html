@@ -149,6 +149,15 @@
         </div>
       </div>
     </div>
+    <div class="flex items-center lg:hidden mr-4">
+      <div id="cartTriggerMobile" class="relative cursor-pointer" style="display: flex; align-items: center;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white hover:text-yellow-400 transition-colors">
+          <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span id="cartCountMobile" class="cart-badge">0</span>
+      </div>
+    </div>
     <button class="hamburger" onclick="toggleMobileMenu(event)" type="button" aria-label="Open menu" aria-controls="mobile-menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -516,13 +525,17 @@
     let cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const cartDrawer = document.getElementById('cartDrawer');
     const cartTrigger = document.getElementById('cartTrigger');
+    const cartTriggerMobile = document.getElementById('cartTriggerMobile');
     const closeCart = document.getElementById('closeCart');
     const cartItemsContainer = document.getElementById('cartItems');
     const cartCount = document.getElementById('cartCount');
+    const cartCountMobile = document.getElementById('cartCountMobile');
     const cartTotal = document.getElementById('cartTotal');
 
     function updateCartUI() {
-      cartCount.textContent = cart.reduce((acc, item) => acc + item.quantity, 0);
+      const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+      if(cartCount) cartCount.textContent = count;
+      if(cartCountMobile) cartCountMobile.textContent = count;
       cartItemsContainer.innerHTML = '';
       
       if (cart.length === 0) {
@@ -599,7 +612,8 @@
       window.location.href = 'checkout.html';
     };
 
-    cartTrigger.addEventListener('click', () => cartDrawer.classList.add('active'));
+    if(cartTrigger) cartTrigger.addEventListener('click', () => cartDrawer.classList.add('active'));
+    if(cartTriggerMobile) cartTriggerMobile.addEventListener('click', () => cartDrawer.classList.add('active'));
     closeCart.addEventListener('click', () => cartDrawer.classList.remove('active'));
     
     updateCartUI();
