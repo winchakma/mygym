@@ -1641,11 +1641,16 @@
       };
 
       // Attach floating widget click
-      document.getElementById("adminSupportFab").addEventListener("click", () => {
-          const panel = document.getElementById("adminSupportPanel");
-          panel.classList.toggle("active");
-          if(panel.classList.contains("active")) {
-              fetchSupportMessages();
+      document.addEventListener("DOMContentLoaded", () => {
+          const fab = document.getElementById("adminSupportFab");
+          if (fab) {
+              fab.addEventListener("click", () => {
+                  const panel = document.getElementById("adminSupportPanel");
+                  panel.classList.toggle("active");
+                  if(panel.classList.contains("active")) {
+                      fetchSupportMessages();
+                  }
+              });
           }
       });
       
