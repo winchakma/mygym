@@ -232,25 +232,64 @@
         <h2 class="section-title">Fitness is for<br /><span>Everybody</span></h2>
         <div class="divider"></div>
         <p class="section-subtitle">Born in passion, built on science. East Blue merges leading-edge fitness training styles into one elite experience: boxing, cardio, full body, and recovery — proven to deliver real results fast.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-9">
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;">
-            <div style="font-family:var(--font-head);font-size:32px;color:var(--yellow);margin-bottom:6px;">BOXING</div>
-            <p style="font-size:13px;color:var(--muted);">High-intensity boxing and striking for speed, agility, and elite conditioning.</p>
-          </div>
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;">
-            <div style="font-family:var(--font-head);font-size:32px;color:var(--yellow);margin-bottom:6px;">CARDIO</div>
-            <p style="font-size:13px;color:var(--muted);">Intense cardiovascular conditioning to maximize calorie burn and endurance.</p>
-          </div>
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;">
-            <div style="font-family:var(--font-head);font-size:32px;color:var(--yellow);margin-bottom:6px;">FULL BODY</div>
-            <p style="font-size:13px;color:var(--muted);">Comprehensive strength and mobility movements to build full-body power.</p>
-          </div>
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;">
-            <div style="font-family:var(--font-head);font-size:32px;color:var(--yellow);margin-bottom:6px;">RECOVERY</div>
-            <p style="font-size:13px;color:var(--muted);">Dedicated recovery sessions to restore and rebuild.</p>
+        <div class="modality-grid mt-9">
+        <!-- Cardio -->
+        <div class="modality-card" onclick="window.location.href='workouts.html'">
+          <img src="img/cardio-bg.jpg" alt="Cardio & HIIT" class="modality-bg" onerror="this.src='https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80'">
+          <div class="modality-overlay"></div>
+          <div class="modality-content">
+            <div class="modality-icon" style="color: var(--orange)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+            </div>
+            <h3 class="modality-title">Cardio</h3>
+            <p class="modality-desc">Intense cardiovascular conditioning to maximize calorie burn and endurance.</p>
+            <span class="modality-btn" style="color: var(--orange)">Explore</span>
           </div>
         </div>
-        <div class="mt-40">
+
+        <!-- Strength -->
+        <div class="modality-card" onclick="window.location.href='workouts.html'">
+          <img src="img/strength-bg.jpg" alt="Strength & Power" class="modality-bg" onerror="this.src='https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80'">
+          <div class="modality-overlay"></div>
+          <div class="modality-content">
+            <div class="modality-icon" style="color: var(--teal)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.65 21.35a2 2 0 0 1-2.83 0l-5.66-5.66a2 2 0 0 1 0-2.83l.06-.06a2 2 0 0 1 2.83 0l5.66 5.66a2 2 0 0 1 0 2.83Z"/><path d="m2 2 2.83 2.83"/><path d="m22 22-2.83-2.83"/><path d="M5.35 2.65a2 2 0 0 1 2.83 0l5.66 5.66a2 2 0 0 1 0 2.83l-.06.06a2 2 0 0 1-2.83 0L5.35 5.48a2 2 0 0 1 0-2.83Z"/></svg>
+            </div>
+            <h3 class="modality-title">Full Body</h3>
+            <p class="modality-desc">Comprehensive strength and mobility movements to build full-body power.</p>
+            <span class="modality-btn" style="color: var(--teal)">Explore</span>
+          </div>
+        </div>
+
+        <!-- Combat -->
+        <div class="modality-card" onclick="window.location.href='workouts.html'">
+          <img src="img/combat-bg.jpg" alt="Combat" class="modality-bg" onerror="this.src='https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=800&q=80'">
+          <div class="modality-overlay"></div>
+          <div class="modality-content">
+            <div class="modality-icon" style="color: var(--red)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </div>
+            <h3 class="modality-title">Boxing</h3>
+            <p class="modality-desc">High-intensity boxing and striking for speed, agility, and elite conditioning.</p>
+            <span class="modality-btn" style="color: var(--red)">Explore</span>
+          </div>
+        </div>
+
+        <!-- Recovery -->
+        <div class="modality-card" onclick="window.location.href='workouts.html'">
+          <img src="img/recovery-bg.jpg" alt="Recovery" class="modality-bg" onerror="this.src='https://images.unsplash.com/photo-1552286450-4a669f80e0ae?w=800&q=80'">
+          <div class="modality-overlay"></div>
+          <div class="modality-content">
+            <div class="modality-icon" style="color: var(--purple)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <h3 class="modality-title">Recovery</h3>
+            <p class="modality-desc">Dedicated recovery sessions to restore and rebuild.</p>
+            <span class="modality-btn" style="color: var(--purple)">Explore</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-40">
           <a href="workouts.html" class="btn btn-yellow btn-arrow">Explore Classes</a>
         </div>
       </div>
@@ -268,7 +307,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="card">
+        <div class="card glass-premium">
           <div class="card-img" style="height:240px;">
             <img src="https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=400&h=300&fit=crop" alt="Boxing" onerror="this.src='https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&h=300&fit=crop'"/>
             <span class="card-tag card-tag-red">Boxing</span>
@@ -280,7 +319,7 @@
           </div>
         </div>
 
-        <div class="card card-delay-1">
+        <div class="card card-delay-1 glass-premium">
           <div class="card-img" style="height:240px;">
             <img src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&h=300&fit=crop" alt="Cycling"/>
             <span class="card-tag card-tag-yellow">Cycling</span>
@@ -292,7 +331,7 @@
           </div>
         </div>
 
-        <div class="card card-delay-2">
+        <div class="card card-delay-2 glass-premium">
           <div class="card-img" style="height:240px;">
             <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=300&fit=crop" alt="Yoga"/>
             <span class="card-tag card-tag-white">Yoga</span>

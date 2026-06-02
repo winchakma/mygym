@@ -312,7 +312,7 @@
                 </div> 
                 <div class="stat-card">
                     <h3 class="text-sm font-bold tracking-widest mb-6 uppercase">Current Spotlight</h3>
-                    <div id="current-spotlight-display" class="p-6 bg-[#111] rounded-xl border border-[#222]">
+                    <div id="current-spotlight-display" class="p-6 bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl rounded-xl border border-[#222]">
                         <p class="text-[#444] text-xs italic">Loading...</p>
                     </div>
                 </div> 
@@ -357,7 +357,7 @@
             <h2 class="text-4xl font-bold italic">Support <span class="text-yellow-400">Chat</span></h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10" style="height: 600px;">
                 <div class="stat-card p-0 flex flex-col h-full col-span-1 border border-white/10 rounded-xl overflow-hidden bg-[#0d0d0d]">
-                    <div class="p-4 border-b border-white/10 bg-[#111]">
+                    <div class="p-4 border-b border-white/10 bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl">
                         <h3 class="text-sm font-bold tracking-widest uppercase">Active Threads</h3>
                     </div>
                     <div id="admin-support-sessions" class="flex-1 overflow-y-auto">
@@ -366,11 +366,11 @@
                 </div>
                 
                 <div class="stat-card p-0 flex flex-col h-full col-span-2 border border-white/10 rounded-xl overflow-hidden bg-[#0d0d0d]">
-                    <div class="p-4 border-b border-white/10 bg-[#111] flex justify-between items-center">
+                    <div class="p-4 border-b border-white/10 bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl flex justify-between items-center">
                         <h3 id="admin-support-chat-title" class="text-sm font-bold tracking-widest uppercase">Select a session</h3>
                         <span id="admin-support-status" class="text-[10px] text-green-500 font-bold uppercase tracking-widest"></span>
                     </div>
-                    <div id="admin-support-chat-history" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#111]">
+                    <div id="admin-support-chat-history" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl">
                         <!-- Messages load here -->
                     </div>
                     <div class="p-4 border-t border-white/10 bg-[#0d0d0d] flex gap-4 hidden" id="admin-support-chat-form">
@@ -556,7 +556,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="relative h-[120px] w-full flex items-center justify-center border border-white/5 rounded-xl bg-[#111]">
+                            <div class="relative h-[120px] w-full flex items-center justify-center border border-white/5 rounded-xl bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl">
                                 <canvas id="weightJourneyChart"></canvas>
                             </div>
                         </div>
@@ -831,10 +831,10 @@
               <span class="text-[8px] bg-white/10 px-1.5 py-0.5 rounded font-bold">${t.category}</span>
             </div>
             <div class="grid grid-cols-4 gap-2">
-              <button onclick="quickDeploy('${t.name}', '${t.category}', '${t.trainer}', '09:00 AM')" class="text-[9px] font-bold bg-[#111] hover:bg-yellow-400 hover:text-black py-1 rounded transition-colors">09:00 AM</button>
-              <button onclick="quickDeploy('${t.name}', '${t.category}', '${t.trainer}', '11:00 AM')" class="text-[9px] font-bold bg-[#111] hover:bg-yellow-400 hover:text-black py-1 rounded transition-colors">11:00 AM</button>
-              <button onclick="quickDeploy('${t.name}', '${t.category}', '${t.trainer}', '05:00 PM')" class="text-[9px] font-bold bg-[#111] hover:bg-yellow-400 hover:text-black py-1 rounded transition-colors">05:00 PM</button>
-              <button onclick="quickDeploy('${t.name}', '${t.category}', '${t.trainer}', '08:00 PM')" class="text-[9px] font-bold bg-[#111] hover:bg-yellow-400 hover:text-black py-1 rounded transition-colors">08:00 PM</button>
+              <button onclick="quickDeploy('${t.name}', '${t.category}', '${t.trainer}', '09:00 AM')" class="text-[9px] font-bold bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl hover:bg-yellow-400 hover:text-black py-1 rounded transition-colors">09:00 AM</button>
+              <button onclick="quickDeploy('${t.name}', '${t.category}', '${t.trainer}', '11:00 AM')" class="text-[9px] font-bold bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl hover:bg-yellow-400 hover:text-black py-1 rounded transition-colors">11:00 AM</button>
+              <button onclick="quickDeploy('${t.name}', '${t.category}', '${t.trainer}', '05:00 PM')" class="text-[9px] font-bold bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl hover:bg-yellow-400 hover:text-black py-1 rounded transition-colors">05:00 PM</button>
+              <button onclick="quickDeploy('${t.name}', '${t.category}', '${t.trainer}', '08:00 PM')" class="text-[9px] font-bold bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl hover:bg-yellow-400 hover:text-black py-1 rounded transition-colors">08:00 PM</button>
             </div>
           </div>
         </div>
@@ -900,7 +900,7 @@
           </tr>
           ${e.rsvps && e.rsvps.length > 0 ? `
           <tr>
-            <td colspan="5" class="bg-[#111] p-3 text-[10px] text-[#888] border-t-0 border-b border-[#222]">
+            <td colspan="5" class="bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl p-3 text-[10px] text-[#888] border-t-0 border-b border-[#222]">
               <span class="text-yellow-400 font-bold uppercase tracking-widest block mb-1">Attending (${e.rsvps.length}):</span>
               ${e.rsvps.join(', ')}
             </td>
@@ -1517,7 +1517,7 @@
                     ${w.videoUrl ? (
                         w.videoUrl.match(/\\.(jpeg|jpg|gif|png|webp|heic)$/i) || w.videoUrl.includes('image/upload') 
                         ? `<img src="${w.videoUrl}" onclick="openMediaModal('${w.videoUrl}', 'image')" class="w-full mt-2 rounded-xl border border-white/10 object-cover cursor-pointer hover:border-yellow-400 transition-colors" style="max-height: 150px;" title="Click to expand">` 
-                        : `<div onclick="openMediaModal('${w.videoUrl}', 'video')" class="w-full mt-2 rounded-xl border border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-yellow-400 transition-colors bg-black/50 group" style="height: 150px;" title="Click to play video">
+                        : `<div onclick="openMediaModal('${w.videoUrl}', 'video')" class="w-full mt-2 rounded-xl border border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-yellow-400 transition-colors bg-[#050505]/50 group" style="height: 150px;" title="Click to play video">
                              <div class="w-12 h-12 rounded-full bg-yellow-400/20 text-yellow-400 flex items-center justify-center text-xl group-hover:scale-110 group-hover:bg-yellow-400 group-hover:text-black transition-all">▶</div>
                              <span class="text-[10px] font-bold uppercase tracking-widest mt-2 text-[#888] group-hover:text-white transition-colors">Play Video</span>
                            </div>`

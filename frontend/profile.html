@@ -283,7 +283,7 @@
   </main>
 
   <!-- ELITE CONTROL CENTER (MODAL) -->
-  <div id="profileModal" class="fixed inset-0 z-[5000] hidden bg-black/95 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4">
+  <div id="profileModal" class="fixed inset-0 z-[5000] hidden bg-[#050505]/95 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4">
     <div class="bg-[#0a0a0a] border border-[#222] rounded-2xl sm:rounded-3xl w-full max-w-2xl overflow-y-auto max-h-[95vh] shadow-[0_0_100px_rgba(0,0,0,0.9)] relative">
       <div class="p-6 border-b border-[#1a1a1a] flex justify-between items-center bg-[#0d0d0d] sticky top-0 z-[110]">
         <h3 class="text-xl font-bold tracking-widest italic ">Update <span class="text-yellow-400">Profile</span></h3>
@@ -297,7 +297,7 @@
             <div class="flex items-center gap-4">
               <div class="relative group cursor-pointer" onclick="document.getElementById('edit-avatar-file').click()">
                 <img id="modal-avatar-preview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-16 h-16 rounded-xl border border-[#222] object-cover">
-                <div class="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-[10px] font-bold text-white uppercase">Change Photo</span></div>
+                <div class="absolute inset-0 bg-[#050505]/60 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-[10px] font-bold text-white uppercase">Change Photo</span></div>
               </div>
               <input type="file" name="profilePictureFile" id="edit-avatar-file" class="hidden" accept="image/*" onchange="window.previewProfilePicture(this)">
               <div><p class="text-xs font-bold">Profile Photo</p><p class="text-[9px] text-[#555] uppercase">Cloud-sync enabled</p></div>
@@ -391,7 +391,7 @@
             }
 
             return `
-            <tr class="border-b border-[#1a1a1a] hover:bg-[#111] transition-colors">
+            <tr class="border-b border-[#1a1a1a] hover:bg-white/5 backdrop-blur-md border border-white/5 shadow-2xl transition-colors">
               <td class="py-4 text-[#888]">${item.date}</td>
               <td class="py-4 font-bold italic text-yellow-400 uppercase">${item.activity}</td>
               <td class="py-4 text-[#888]">${item.location}</td>

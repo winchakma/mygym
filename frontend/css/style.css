@@ -30,7 +30,11 @@
   --muted2: #3f3f4a;
 
   /* Accents */
-  --red:   #e8392a;
+  --red:   #e63946;
+  --teal:  #2a9d8f;
+  --purple: #9b5de5;
+  --blue:  #457b9d;
+  --orange: #f4a261;
 
   /* Typography — elevated */
   --font-head:    'Bebas Neue', 'Montserrat', sans-serif;
@@ -1107,6 +1111,12 @@ select.form-input option {
   background: var(--yellow);
   color: var(--black);
 }
+
+
+.card-tag-teal { background: rgba(42, 157, 143, 0.15); color: var(--teal); border: 1px solid rgba(42, 157, 143, 0.3); }
+.card-tag-purple { background: rgba(155, 93, 229, 0.15); color: var(--purple); border: 1px solid rgba(155, 93, 229, 0.3); }
+.card-tag-orange { background: rgba(244, 162, 97, 0.15); color: var(--orange); border: 1px solid rgba(244, 162, 97, 0.3); }
+.card-tag-blue { background: rgba(69, 123, 157, 0.15); color: var(--blue); border: 1px solid rgba(69, 123, 157, 0.3); }
 
 .card-tag-red {
   background: var(--red);
