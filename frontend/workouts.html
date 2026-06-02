@@ -172,7 +172,7 @@
         </div>
 
         <!-- Day Selector Pills -->
-        <div class="flex items-center justify-center gap-3 overflow-x-auto pb-4 hide-scrollbar w-full" id="daySelectorWrap">
+        <div class="flex items-center justify-start md:justify-center gap-3 overflow-x-auto pb-4 hide-scrollbar w-full" id="daySelectorWrap">
             <span class="text-[10px] text-[#888] font-black uppercase tracking-[4px] flex-shrink-0 mr-4">Select Day:</span>
             <button class="day-btn active flex-shrink-0 px-8 py-3 rounded-full border border-white/20 bg-white/10 text-white font-bold text-xs uppercase tracking-wider hover:bg-white/20 transition-all shadow-lg" data-day="Mon">Mon</button>
             <button class="day-btn flex-shrink-0 px-8 py-3 rounded-full border border-white/5 bg-transparent text-[#666] font-bold text-xs uppercase tracking-wider hover:text-white transition-all" data-day="Tue">Tue</button>
@@ -389,6 +389,27 @@
         } catch (err) { console.error('Class sync failed:', err); }
       }
 
+      
+      // Intersection Observer for mobile scroll highlighting
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (window.innerWidth < 1024) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-active');
+            } else {
+              entry.target.classList.remove('is-active');
+            }
+          }
+        });
+      }, { threshold: 0.6 });
+
+      // After rendering schedule, observe cards
+      const originalRender = renderSchedule;
+      renderSchedule = function() {
+        originalRender();
+        document.querySelectorAll('.group.relative.overflow-hidden').forEach(card => observer.observe(card));
+      };
+
       fetchClasses();
 
       function renderSchedule() {
@@ -450,11 +471,11 @@
           const card = document.createElement('div');
           card.className = `w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] max-w-[380px] group relative overflow-hidden rounded-[24px] cursor-pointer bg-[#0a0a0a] border border-white/5 aspect-[3/4] flex flex-col reveal visible shadow-2xl`;
           card.style.transitionDelay = `${index * 50}ms`;
-          card.onclick = () => bookClass(c.id, c.name, c.time, c.trainer);
+          
           
           card.innerHTML = `
-            <img src="${bgImage}" loading="lazy" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-1000 group-hover:scale-110 filter grayscale brightness-50 group-hover:grayscale-0 group-hover:brightness-75 transform-gpu" style="will-change: transform, filter;" />
-            <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/90 via-[#050505]/40 to-[#050505] z-10 transition-opacity duration-500 group-hover:opacity-80"></div>
+            <img src="${bgImage}" loading="lazy" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-1000 group-hover:scale-110 group-[.is-active]:scale-110 filter grayscale brightness-50 group-hover:grayscale-0 group-[.is-active]:grayscale-0 group-hover:brightness-75 group-[.is-active]:brightness-75 transform-gpu" style="will-change: transform, filter;" />
+            <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/90 via-[#050505]/40 to-[#050505] z-10 transition-opacity duration-500 group-hover:opacity-80 group-[.is-active]:opacity-80"></div>
             
             <div class="relative z-20 p-8 flex flex-col h-full justify-between">
               <!-- Top Section -->
@@ -463,18 +484,18 @@
                   <div class="text-${accentColor} font-black text-3xl tracking-tighter drop-shadow-lg">${c.time || 'TBA'}</div>
                   <div class="text-[9px] text-white/50 uppercase font-black tracking-[3px] mt-1">${c.intensity} Intensity</div>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-sm group-hover:bg-${accentColor} transition-colors duration-300">
+                <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-sm group-hover:bg-${accentColor} group-[.is-active]:bg-${accentColor} transition-colors duration-300">
                   ${catIcon}
                 </div>
               </div>
               
               <!-- Bottom Section -->
-              <div class="mt-auto transform transition-transform duration-500 group-hover:-translate-y-2">
+              <div class="mt-auto transform transition-transform duration-500 group-hover:-translate-y-2 group-[.is-active]:-translate-y-2">
                 <div class="text-[10px] text-${accentColor} font-bold uppercase tracking-[4px] mb-2">${c.type || 'Session'}</div>
                 <h3 class="text-4xl font-black italic text-white leading-[1] uppercase mb-2 drop-shadow-md">${c.name || 'Untitled Class'}</h3>
                 <p class="text-[12px] text-white/60 font-medium mb-8">Led by <span class="text-white">${c.trainer || 'TBA'}</span></p>
                 
-                <button class="w-full py-4 px-4 bg-white/10 backdrop-blur-md rounded-xl text-[10px] text-white font-black uppercase tracking-[3px] group-hover:bg-${accentColor} group-hover:text-black transition-all duration-300 border border-white/10 group-hover:border-transparent shadow-lg">
+                <button class="w-full py-4 px-4 bg-white/10 backdrop-blur-md rounded-xl text-[10px] text-white font-black uppercase tracking-[3px] group-hover:bg-${accentColor} group-[.is-active]:bg-${accentColor} group-hover:text-black transition-all duration-300 border border-white/10 group-hover:border-transparent shadow-lg">
                   Book Session
                 </button>
               </div>
