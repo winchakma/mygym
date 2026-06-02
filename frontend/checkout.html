@@ -138,19 +138,35 @@
             Delivery Details
           </h3>
           <form id="checkoutForm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="form-group">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div class="form-group md:col-span-2">
                 <label class="form-label">Full Name</label>
-                <input type="text" id="ship-name" class="form-input" placeholder="Enter recipient name" required>
+                <input type="text" id="ship-name" class="form-input" placeholder="First and last name" required>
+              </div>
+              <div class="form-group md:col-span-2">
+                <label class="form-label">Phone Number</label>
+                <input type="text" id="ship-phone" class="form-input" placeholder="Mobile number" required>
+              </div>
+              <div class="form-group md:col-span-2">
+                <label class="form-label">Street Address</label>
+                <input type="text" id="ship-address1" class="form-input" placeholder="Street and number, P.O. box, c/o." required>
+              </div>
+              <div class="form-group md:col-span-2">
+                <label class="form-label">Apartment, suite, etc. (Optional)</label>
+                <input type="text" id="ship-address2" class="form-input" placeholder="Apartment, suite, unit, building, floor, etc.">
               </div>
               <div class="form-group">
-                <label class="form-label">Phone Number</label>
-                <input type="text" id="ship-phone" class="form-input" placeholder="01XXXXXXXXX" required>
+                <label class="form-label">City</label>
+                <input type="text" id="ship-city" class="form-input" placeholder="City" required>
               </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Shipping Address</label>
-              <textarea id="ship-address" class="form-input" style="min-height: 80px;" placeholder="House #, Road #, Area, City" required></textarea>
+              <div class="form-group">
+                <label class="form-label">State / Province</label>
+                <input type="text" id="ship-state" class="form-input" placeholder="State / Province / Region" required>
+              </div>
+              <div class="form-group md:col-span-2">
+                <label class="form-label">ZIP Code</label>
+                <input type="text" id="ship-zip" class="form-input" placeholder="ZIP or postal code" required>
+              </div>
             </div>
           </form>
         </section>
@@ -388,11 +404,22 @@
     window.sealTheDeal = async function() {
       const name = document.getElementById('ship-name').value;
       const phone = document.getElementById('ship-phone').value;
-      const address = document.getElementById('ship-address').value;
+      const address1 = document.getElementById('ship-address1').value;
+      const address2 = document.getElementById('ship-address2').value;
+      const city = document.getElementById('ship-city').value;
+      const state = document.getElementById('ship-state').value;
+      const zip = document.getElementById('ship-zip').value;
+      
       const token = localStorage.getItem('token');
-      if (!name || !phone || !address) { window.showToast('Please complete delivery details', 'error'); return; }
+      
+      if (!name || !phone || !address1 || !city || !state || !zip) { 
+        window.showToast('Please complete all required delivery details', 'error'); 
+        return; 
+      }
       if (!selectedPayment) { window.showToast('Please select a payment method', 'error'); return; }
       if (!token) { window.showToast('Login required to checkout', 'error'); return; }
+      
+      const fullAddress = `${address1}${address2 ? ', ' + address2 : ''}, ${city}, ${state} ${zip}`;
       
       const btn = event.target;
       const originalText = btn.textContent;
