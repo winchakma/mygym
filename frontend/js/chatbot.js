@@ -84,32 +84,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!API_URL) {
                     reply = 'Backend URL not configured. Check js/config.js on this deployment.';
                 } else {
-                    const token = localStorage.getItem('token') || localStorage.getItem('elite_token');
-                    const brainUrl = token
-                        ? `${API_URL}/api/user/chat-brain?token=${encodeURIComponent(token)}`
-                        : `${API_URL}/api/user/chat-brain`;
-                    let response = await fetch(brainUrl, {
+                    let response = await fetch(`${API_URL}/api/chat`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message })
+                        body: JSON.stringify({ message, history: chatHistory })
                     });
-                    if (!response.ok && token) {
-                        response = await fetch(`${API_URL}/api/user/chat-brain`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ message })
-                        });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        reply = data.reply || data.response || data.detail || reply;
+                    } else {
+                        console.error("Backend returned error:", response.status);
+                        reply = 'Neural connection interrupted. Try again in a moment.';
                     }
-                    if (!response.ok) {
-                        response = await fetch(`${API_URL}/api/chat`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ message, history: chatHistory })
-                        });
-                    }
-                    const data = await response.json();
-                    reply = data.reply || data.response || data.detail || reply;
-                    if (typeof reply !== 'string') reply = JSON.stringify(reply);
                 }
             } catch (err) {
                 console.error("Brain connection failed:", err);
