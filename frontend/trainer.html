@@ -1084,7 +1084,6 @@
     }
 
     window.deleteUser = async function(email) {
-      if (!confirm(`Are you sure you want to permanently delete member ${email}? This action will purge all their activity and bookings.`)) return;
       const res = await fetch(`${activeAPI}/api/admin/users/${email}?token=${encodeURIComponent(token)}`, { method: 'DELETE' });
       if (res.ok) { 
         showToast('Member Purged Successfully');
