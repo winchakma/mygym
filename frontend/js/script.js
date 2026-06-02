@@ -2525,13 +2525,8 @@ function initSupportWidget() {
     const pathName = window.location.pathname;
     if (pathName.includes('admin') || pathName.includes('trainer')) return;
     
-    const payload = window.parseJwt(token);
-    const role = payload ? payload.role : 'user';
-    
-    // Only inject user widget for normal users
-    if (role === 'user') {
-        initUserSupportWidget();
-    }
+    // Inject user widget for everyone on the normal frontend pages
+    initUserSupportWidget();
 }
 
 window.initSupportInbox = function() {
