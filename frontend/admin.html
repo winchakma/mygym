@@ -651,7 +651,7 @@
         </div>
     
 
-    <section id="support" class="content-section" style="display: none;">
+    <section id="section-support" class="admin-section hidden">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-3xl font-black italic tracking-tight uppercase">Support Inbox</h2>
         </div>
@@ -816,7 +816,7 @@
     </div>
   
 
-    <section id="support" class="content-section" style="display: none;">
+    <section id="section-support" class="admin-section hidden">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-3xl font-black italic tracking-tight uppercase">Support Inbox</h2>
         </div>
@@ -896,7 +896,7 @@
 
   <script src="js/config.js"></script>
   <script src="js/scientific_metabolics.js"></script>
-  <script src="js/script.js?v=2037"></script>
+  <script src="js/script.js?v=2038"></script>
   <script src="js/chatbot.js"></script>
   <script>
     const token = localStorage.getItem('token');
@@ -1501,6 +1501,7 @@
     };
 
     function showSection(section) {
+      if(window.stopSupportInbox) window.stopSupportInbox();
       document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
       document.getElementById(`section-${section}`).classList.remove('hidden');
       document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
