@@ -69,12 +69,20 @@ function initAdminSupport() {
 
     adminSupportWs.onclose = () => {
         console.log("Admin Support WebSocket disconnected");
+        clearInterval(adminSupportWs.pingInterval);
         document.getElementById('admin-support-status').textContent = 'Disconnected';
         document.getElementById('admin-support-status').className = 'text-[10px] text-red-500 font-bold uppercase tracking-widest';
         
         // Reconnect after 5 seconds
         setTimeout(initAdminSupport, 5000);
     };
+
+    // Keepalive to prevent Render timeout
+    adminSupportWs.pingInterval = setInterval(() => {
+        if (adminSupportWs && adminSupportWs.readyState === WebSocket.OPEN) {
+            adminSupportWs.send(JSON.stringify({ action: "ping" }));
+        }
+    }, 20000);
 
     // Handle Send
     document.getElementById('admin-support-send').addEventListener('click', sendAdminReply);

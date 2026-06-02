@@ -126,8 +126,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         ws.onclose = () => {
             console.log("Support WebSocket disconnected");
+            clearInterval(ws.pingInterval);
             ws = null;
         };
+
+        // Keepalive to prevent Render timeout
+        ws.pingInterval = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ action: "ping" }));
+            }
+        }, 20000);
     };
 
     roleBtns.forEach(btn => {

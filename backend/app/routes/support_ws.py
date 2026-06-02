@@ -91,6 +91,9 @@ async def support_chat_endpoint(websocket: WebSocket, token: str):
             message_data = json.loads(data)
             action = message_data.get("action")
 
+            if action == "ping":
+                continue
+
             if action == "send_message":
                 target_role = message_data.get("targetRole", "Normal Admin")
                 content = message_data.get("content")
