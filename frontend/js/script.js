@@ -2447,12 +2447,7 @@ window.renderSupportUsersList = function() {
     
     container.innerHTML = userListHTML;
     
-    // Update badge on FAB
-    const fabBadge = document.getElementById('adminSupportBadge');
-    if(fabBadge) {
-        const hasAnyOpen = Object.values(users).some(u => u.hasOpen);
-        fabBadge.style.display = hasAnyOpen ? 'block' : 'none';
-    }
+    
 };
 
 window.selectSupportUser = function(email) {
@@ -2487,15 +2482,9 @@ window.selectSupportUser = function(email) {
         replyArea.setAttribute('data-reply-id', replyMsgId);
     }
     
-    document.getElementById('adminSupportListView').style.display = 'none';
-    document.getElementById('adminSupportChatView').style.display = 'flex';
-    
-    setTimeout(() => {
-        const replyInput = document.getElementById('support-reply-input');
-        if(replyInput) replyInput.focus();
-    }, 100);
+    const replyInput = document.getElementById('support-reply-input');
+    if(replyInput) replyInput.focus();
 };
-
 window.backToSupportList = function() {
     window.activeSupportEmail = null;
     document.getElementById('adminSupportListView').style.display = 'flex';
@@ -2528,332 +2517,30 @@ window.sendActiveSupportReply = async function() {
     } catch (err) { console.error(err); }
 };
 
-function initAdminSupportWidget(role) {
-    const widgetHTML = `
-    <style>
-        .ai-support-fab {
-            position: fixed; bottom: 110px; right: 30px; width: 50px; height: 50px;
-            background: linear-gradient(135deg, #111, #222); border: 2px solid #f5e642; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 15px rgba(245, 230, 66, 0.4); cursor: pointer; z-index: 9999; transition: transform 0.3s ease;
-        }
-        .ai-support-fab:hover { transform: scale(1.1); }
-        .ai-support-fab svg { width: 24px; height: 24px; fill: #f5e642; }
-        .ai-support-badge {
-            position: absolute; top: -5px; right: -5px; width: 14px; height: 14px;
-            background: #ff4d4d; border-radius: 50%; display: none; border: 2px solid #111;
-        }
-        .ai-support-panel {
-            position: fixed; bottom: 170px; right: 30px; width: 350px; background: #fff;
-            border: 1px solid #eaeaea; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            display: none; flex-direction: column; z-index: 9998; overflow: hidden; font-family: 'Inter', sans-serif;
-        }
-        .ai-support-panel.active { display: flex; }
-        .ai-support-header { background: #fff; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; }
-        .ai-support-header-title { flex: 1; font-size: 14px; font-weight: 600; color: #333; line-height: 1.3; }
-        .ai-support-close { cursor: pointer; color: #999; font-size: 20px; margin-left: 10px; }
-        .ai-support-body { padding: 15px; height: 320px; background: #f9f9f9; overflow-y: auto; display: flex; flex-direction: column; }
-        .ai-support-footer { padding: 15px; background: #fff; border-top: 1px solid #f0f0f0; display: flex; flex-direction: column; }
-        .ai-support-input-row { display: flex; align-items: center; gap: 10px; width: 100%; }
-        .ai-support-input-wrap { flex: 1; display: flex; align-items: center; background: #f1f1f1; border-radius: 20px; padding: 10px 14px; }
-        .ai-support-input-wrap input { border: none; background: transparent; outline: none; flex: 1; font-size: 14px; color: #333; }
-        .ai-support-send-btn { background: #e0e0e0; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: all 0.2s ease; }
-        .ai-support-send-btn.active { background: #f5e642; color: #000; }
-        
-        .admin-support-item { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; }
-        .admin-support-item:hover { background: #f9f9f9; }
-        .admin-support-item.unread .admin-support-name { font-weight: bold; color: #000; }
-        .admin-support-name { font-size: 13px; color: #444; }
-        .admin-support-email { font-size: 11px; color: #888; margin-top: 2px; }
-        .unread-dot { width: 8px; height: 8px; background: #ff4d4d; border-radius: 50%; }
-        
-        .msg-bubble { max-width: 85%; padding: 10px 14px; border-radius: 16px; margin-bottom: 10px; font-size: 13px; line-height: 1.4; clear: both; }
-        .msg-user { background: #fff; color: #333; border: 1px solid #eaeaea; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .msg-admin { background: #f5e642; color: #000; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 1px 3px rgba(245,230,66,0.2); }
-    </style>
-    
-    <div class="ai-support-fab" id="adminSupportFab" title="Support Chat">
-        <div class="ai-support-badge" id="adminSupportBadge"></div>
-        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
-    </div>
-    
-    <div class="ai-support-panel" id="adminSupportPanel">
-        <!-- List View -->
-        <div id="adminSupportListView" class="admin-list-view" style="display: flex; flex-direction: column; height: 100%;">
-            <div class="ai-support-header">
-                <div class="ai-support-header-title">${role === 'trainer' ? 'Trainer Messages' : 'Incoming Messages'}</div>
-                <div class="ai-support-close" onclick="document.getElementById('adminSupportPanel').classList.remove('active'); clearInterval(window.adminSupportChatInterval);">&times;</div>
-            </div>
-            <div class="ai-support-body" id="support-users-list" style="padding: 0; background: #fff;">
-                <!-- Users here -->
-            </div>
-        </div>
-        
-        <!-- Chat View -->
-        <div id="adminSupportChatView" class="admin-chat-view" style="display: none; flex-direction: column; height: 100%;">
-            <div class="ai-support-header" style="background: #f1f1f1; cursor: pointer;" onclick="window.backToSupportList()">
-                <div style="font-size: 16px; margin-right: 10px; color: #555;">←</div>
-                <div class="ai-support-header-title" id="support-active-header-title">User Name</div>
-            </div>
-            <div class="ai-support-body" id="support-active-messages" style="background: #f9f9f9;">
-                <!-- Messages here -->
-            </div>
-            <div class="ai-support-footer" id="support-reply-area">
-                <div class="ai-support-input-row">
-                    <div class="ai-support-input-wrap">
-                        <input type="text" id="support-reply-input" placeholder="Reply..." onkeypress="if(event.key === 'Enter') window.sendActiveSupportReply()">
-                    </div>
-                    <button class="ai-support-send-btn active" onclick="window.sendActiveSupportReply()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', widgetHTML);
-    
-    const fab = document.getElementById("adminSupportFab");
-    if (fab) {
-        fab.addEventListener("click", () => {
-            const panel = document.getElementById("adminSupportPanel");
-            panel.classList.toggle("active");
-            if(panel.classList.contains("active")) {
-                window.fetchSupportMessages();
-                window.adminSupportChatInterval = setInterval(window.fetchSupportMessages, 5000);
-            } else {
-                clearInterval(window.adminSupportChatInterval);
-            }
-        });
-        
-        // Initial fetch to check for unread badge
-        window.fetchSupportMessages();
-    }
-}
-
 function initSupportWidget() {
     const token = localStorage.getItem("token");
     if(!token) return;
     
+    // Do not inject any floating widget on admin or trainer panels
+    const pathName = window.location.pathname;
+    if (pathName.includes('admin') || pathName.includes('trainer')) return;
+    
     const payload = window.parseJwt(token);
     const role = payload ? payload.role : 'user';
     
-    if (role === 'superadmin' || role === 'trainer') {
-        initAdminSupportWidget(role);
-    } else {
+    // Only inject user widget for normal users
+    if (role === 'user') {
         initUserSupportWidget();
     }
 }
 
-function initUserSupportWidget() {
-    const token = localStorage.getItem("token");
-    if(!token) return;
-    const widgetHTML = `
-    <style>
-        .ai-support-fab {
-            position: fixed; bottom: 110px; right: 30px; width: 50px; height: 50px;
-            background: linear-gradient(135deg, #111, #222); border: 2px solid #f5e642; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 15px rgba(245, 230, 66, 0.4); cursor: pointer; z-index: 9999; transition: transform 0.3s ease;
-        }
-        .ai-support-fab:hover { transform: scale(1.1); }
-        .ai-support-fab svg { width: 24px; height: 24px; fill: #f5e642; }
-        .ai-support-panel {
-            position: fixed; bottom: 170px; right: 30px; width: 350px; background: #fff;
-            border: 1px solid #eaeaea; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            display: none; flex-direction: column; z-index: 9998; overflow: hidden; font-family: 'Inter', sans-serif;
-        }
-        .ai-support-panel.active { display: flex; }
-        .ai-support-header { background: #fff; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; }
-        .ai-support-header-title { flex: 1; font-size: 14px; font-weight: 600; color: #333; line-height: 1.3; }
-        .ai-support-close { cursor: pointer; color: #999; font-size: 20px; margin-left: 10px; }
-        .ai-support-body { padding: 15px; height: 320px; background: #f9f9f9; overflow-y: auto; display: flex; flex-direction: column; }
-        .ai-support-footer { padding: 15px; background: #fff; border-top: 1px solid #f0f0f0; display: flex; flex-direction: column; }
-        .ai-support-input-row { display: flex; align-items: center; gap: 10px; width: 100%; }
-        .ai-support-input-wrap { flex: 1; display: flex; align-items: center; background: #f1f1f1; border-radius: 20px; padding: 10px 14px; }
-        .ai-support-input-wrap input { border: none; background: transparent; outline: none; flex: 1; font-size: 14px; color: #333; }
-        .ai-support-icons { display: flex; gap: 10px; color: #888; margin-left: 10px; }
-        .ai-support-send-btn { background: #e0e0e0; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: all 0.2s ease; }
-        .ai-support-send-btn.active { background: #f5e642; color: #000; }
-        .support-msg-bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; margin-bottom: 12px; font-size: 13px; line-height: 1.4; clear: both; }
-        .support-msg-user { background: #f5e642; color: #000; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 2px 5px rgba(245, 230, 66, 0.2); }
-        .support-msg-admin { background: #fff; color: #333; border: 1px solid #eaeaea; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
-        .ai-support-list-view, .ai-support-chat-view { display: flex; flex-direction: column; height: 100%; width: 100%; }
-        .ai-support-chat-view { display: none; }
-        .user-support-item { padding: 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; align-items: center; transition: background 0.2s; }
-        .user-support-item:hover { background: #f9f9f9; }
-        .user-support-avatar { width: 36px; height: 36px; border-radius: 50%; margin-right: 12px; border: 1px solid #eee; }
-        .user-support-name { font-weight: 600; font-size: 14px; color: #333; }
-        .user-support-desc { font-size: 12px; color: #777; margin-top: 2px; }
-        .ai-support-back { cursor: pointer; margin-right: 10px; font-weight: bold; font-size: 16px; color: #555; display: flex; align-items: center; }
-    </style>
-    <div class="ai-support-fab" id="aiSupportFab" title="Support Chat">
-        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1c0-3.87 3.13-7 7-7s7 3.13 7 7v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
-    </div>
-    <div class="ai-support-panel" id="aiSupportPanel">
-        <!-- List View -->
-        <div class="ai-support-list-view" id="aiSupportListView">
-            <div class="ai-support-header">
-                <div class="ai-support-header-title">Messages</div>
-                <div class="ai-support-close" onclick="document.getElementById('aiSupportPanel').classList.remove('active')">&times;</div>
-            </div>
-            <div class="ai-support-body" style="padding: 0; background: #fff;">
-                <div class="user-support-item" onclick="openUserSupportChat('Owner', 'Super Admin')">
-                    <img src="https://ui-avatars.com/api/?name=AD&background=111&color=fff" class="user-support-avatar">
-                    <div>
-                        <div class="user-support-name">Super Admin</div>
-                        <div class="user-support-desc">Account & Billing Support</div>
-                    </div>
-                </div>
-                <div class="user-support-item" onclick="openUserSupportChat('Trainer', 'Elite Trainer')">
-                    <img src="https://ui-avatars.com/api/?name=TR&background=f5e642&color=000" class="user-support-avatar">
-                    <div>
-                        <div class="user-support-name">Elite Trainer</div>
-                        <div class="user-support-desc">Fitness & Nutrition Guidance</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chat View -->
-        <div class="ai-support-chat-view" id="aiSupportChatView">
-            <div class="ai-support-header">
-                <div class="ai-support-back" onclick="backToUserSupportList()">←</div>
-                <div class="ai-support-header-title" id="aiSupportChatTitle">Support</div>
-                <div class="ai-support-close" onclick="document.getElementById('aiSupportPanel').classList.remove('active')">&times;</div>
-            </div>
-            <div class="ai-support-body" id="aiSupportHistory">
-                <!-- Messages go here -->
-            </div>
-            <div class="ai-support-footer">
-                <div class="ai-support-input-row">
-                    <div class="ai-support-input-wrap">
-                        <input type="text" id="aiSupportInput" placeholder="Message..." oninput="document.getElementById('aiSupportBtn').classList.toggle('active', this.value.trim().length > 0)" onkeypress="if(event.key === 'Enter') sendSupportMessage()">
-                        <div class="ai-support-icons">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                        </div>
-                    </div>
-                    <button class="ai-support-send-btn" id="aiSupportBtn" onclick="sendSupportMessage()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', widgetHTML);
-    
-    let supportChatInterval;
-    
-    document.getElementById("aiSupportFab").addEventListener("click", () => {
-        const panel = document.getElementById("aiSupportPanel");
-        panel.classList.toggle("active");
-        if(panel.classList.contains("active")) {
-            loadSupportHistory();
-            supportChatInterval = setInterval(loadSupportHistory, 5000);
-        } else {
-            clearInterval(supportChatInterval);
-        }
-    });
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener("DOMContentLoaded", initSupportWidget);
-} else {
-    initSupportWidget();
-}
-
-window.loadSupportHistory = async function() {
-    if (!window.activeUserSupportRecipient) return;
-    const token = localStorage.getItem("token");
-    const baseApi = window.ELITE_API_URL || "https://mygym-p9rd.onrender.com";
-    try {
-        const res = await fetch(`${baseApi}/api/support/history?token=${encodeURIComponent(token)}`);
-        if(res.ok) {
-            const messages = await res.json();
-            const filteredMessages = messages.filter(m => m.recipientType === window.activeUserSupportRecipient);
-            const container = document.getElementById("aiSupportHistory");
-            if(filteredMessages.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:#888; font-size:13px; margin-top:20px;">No previous messages.</div>';
-                return;
-            }
-            // Reverse to show oldest first, newest at the bottom
-            const chronologicalMessages = [...filteredMessages].reverse();
-            
-            container.innerHTML = chronologicalMessages.map(msg => `
-                <div class="support-msg-bubble support-msg-user">
-                    ${msg.message}
-                </div>
-                ${msg.reply ? `<div class="support-msg-bubble support-msg-admin">${msg.reply}</div>` : ''}
-            `).join('');
-            
-            // Auto scroll to bottom
-            container.scrollTop = container.scrollHeight;
-        }
-    } catch(err) {
-        console.error(err);
-    }
-}
-
-window.sendSupportMessage = async function() {
-    if (!window.activeUserSupportRecipient) return;
-    const token = localStorage.getItem("token");
-    const recipientType = window.activeUserSupportRecipient;
-    const message = document.getElementById("aiSupportInput").value;
-    const baseApi = window.ELITE_API_URL || "https://mygym-p9rd.onrender.com";
-    
-    if(!message.trim()) return;
-    
-    const btn = document.getElementById("aiSupportBtn");
-    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 12 12 12 8"></polyline></svg>';
-    btn.disabled = true;
-    
-    try {
-        const res = await fetch(`${baseApi}/api/support/send?token=${encodeURIComponent(token)}`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({recipientType, message})
-        });
-        
-        if(res.ok) {
-            document.getElementById("aiSupportInput").value = '';
-            document.getElementById("aiSupportBtn").classList.remove('active');
-            window.loadSupportHistory();
-        } else {
-            const data = await res.json();
-            window.showToast(data.detail || "Failed to send message", "error");
-        }
-    } catch(err) {
-        window.showToast("Connection error", "error");
-    } finally {
-        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>';
-        btn.disabled = false;
-    }
-}
-
-window.activeUserSupportRecipient = null;
-
-window.openUserSupportChat = function(recipientType, name) {
-    window.activeUserSupportRecipient = recipientType;
-    document.getElementById("aiSupportChatTitle").textContent = name;
-    document.getElementById("aiSupportListView").style.display = "none";
-    document.getElementById("aiSupportChatView").style.display = "flex";
-    window.loadSupportHistory();
+window.initSupportInbox = function() {
+    window.fetchSupportMessages();
+    if (window.adminSupportChatInterval) clearInterval(window.adminSupportChatInterval);
+    window.adminSupportChatInterval = setInterval(window.fetchSupportMessages, 5000);
 };
 
-window.backToUserSupportList = function() {
-    window.activeUserSupportRecipient = null;
-    document.getElementById("aiSupportListView").style.display = "flex";
-    document.getElementById("aiSupportChatView").style.display = "none";
+window.stopSupportInbox = function() {
+    if (window.adminSupportChatInterval) clearInterval(window.adminSupportChatInterval);
 };
-;
 
-
-if (document.readyState === 'loading') {
-    document.addEventListener("DOMContentLoaded", initSupportWidget);
-} else {
-    initSupportWidget();
-}
