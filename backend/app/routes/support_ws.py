@@ -43,7 +43,7 @@ class ConnectionManager:
 
     async def broadcast_to_admins(self, message: dict, target_role: str):
         # target_role is "Normal Admin" (trainer) or "Super Admin" (superadmin)
-        mapped_role = "superadmin" if target_role == "Super Admin" else "trainer"
+        mapped_role = "super_admin" if target_role == "Super Admin" else "admin"
         for email, role in self.admin_roles.items():
             if role == mapped_role:
                 for connection in self.active_connections.get(email, []):
@@ -71,7 +71,7 @@ async def support_chat_endpoint(websocket: WebSocket, token: str):
         await websocket.close(code=1008)
         return
     
-    role = user.role if user.role in ["superadmin", "trainer"] else "user"
+    role = user.role if user.role in ["super_admin", "admin"] else "user"
     await manager.connect(websocket, email, role)
 
     try:
@@ -164,7 +164,7 @@ async def support_chat_endpoint(websocket: WebSocket, token: str):
                 if role == "user":
                     continue
                 
-                target_role = "Super Admin" if role == "superadmin" else "Normal Admin"
+                target_role = "Super Admin" if role == "super_admin" else "Normal Admin"
                 sessions = await SupportSession.find(SupportSession.targetRole == target_role, SupportSession.status == "open").to_list()
                 
                 session_list = []
