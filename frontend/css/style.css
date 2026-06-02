@@ -3123,7 +3123,7 @@ TRANSFORMATION SECTION
   right: 30px;
   width: 65px;
   height: 65px;
-  border-radius: 50%;
+  border-radius: 20px;
   background: var(--yellow);
   color: var(--black);
   display: flex;
@@ -3145,4 +3145,11 @@ body.chatbot-is-open #support-widget {
   opacity: 0 !important;
   pointer-events: none !important;
   visibility: hidden !important;
+}
+
+@media (max-width: 500px) {
+  .support-toggle-btn {
+    bottom: 100px;
+    right: 20px;
+  }
 }

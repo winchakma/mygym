@@ -635,14 +635,18 @@
       .sidebar {
         width: 100%; height: auto;
         flex-direction: row;
+        flex-wrap: nowrap;
         padding: 10px 16px;
         border-right: none;
         border-bottom: 1px solid var(--border);
         overflow-x: auto;
-        gap: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 8px;
       }
+      .sidebar::-webkit-scrollbar { display: none; }
       .sidebar-logo, .sidebar-section-label, .sidebar-back { display: none; }
-      .nav-item { padding: 10px 14px; margin-bottom: 0; flex-direction: column; gap: 4px; font-size: 10px; white-space: nowrap; }
+      .nav-item { padding: 10px 14px; margin-bottom: 0; flex-direction: column; gap: 4px; font-size: 10px; white-space: nowrap; flex-shrink: 0; }
       .spotlight-hero { grid-template-columns: 1fr; }
       .spotlight-image-side { height: 220px; }
       .leaderboard-podium { grid-template-columns: 1fr; }
