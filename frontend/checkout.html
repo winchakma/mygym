@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout | Elite Store</title>
+  <link rel="stylesheet" href="css/style.css?v=2026"/>
+  <link rel="stylesheet" href="css/chatbot.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind = { config: { corePlugins: { preflight: false } } };
+  </script>
+  <style>
+    :root { --bg-dark: #050505; --card-bg: #0d0d0d; --border-color: #1a1a1a; --text-muted: #666; }
+    body { background-color: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; min-height: 100vh; }
+    .checkout-container { max-width: 1100px; margin: 100px auto 60px; padding: 0 20px; }
+    
+    .checkout-card { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border-color); 
+      border-radius: 24px; 
+      padding: 32px; 
+      height: 100%;
+    }
+    
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .form-label { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; font-weight: 800; }
+    .form-input { 
+      background: #111; border: 1px solid var(--border-color); border-radius: 12px; 
+      padding: 14px 18px; color: white; font-size: 14px; transition: all 0.3s;
+    }
+    .form-input:focus { border-color: var(--yellow); outline: none; box-shadow: 0 0 15px rgba(245, 230, 66, 0.05); }
+
+    .payment-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+    .payment-btn {
+      background: #080808; border: 1px solid var(--border-color); border-radius: 16px;
+      padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s;
+    }
+    .payment-btn:hover { border-color: var(--yellow); background: #111; }
+    .payment-btn.active { border-color: var(--yellow); background: rgba(245, 230, 66, 0.05); }
+    .payment-btn img { height: 20px; object-fit: contain; margin-bottom: 8px; }
+    .payment-btn span { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); }
+    .payment-btn.active span { color: var(--yellow); }
+
+    .order-item { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid #111; }
+    .order-item:last-child { border-bottom: none; }
+    
+    #toast {
+      position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+      background: var(--yellow); color: black; font-weight: bold;
+      padding: 12px 24px; border-radius: 12px; transform: translateY(100px);
+      transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    #toast.show { transform: translateY(0); }
+  </style>
+  <link rel="icon" type="image/png" href="img/favicon.png"/>
+</head>
+<body>
+<!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">EAST <span>BLUE</span></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="workouts.html">Workouts</a>
+      <a href="community.html" class="nav-dashboard-link hidden">Community</a>
+      <a href="studio.html">Studio</a>
+      <a href="shop.html">Shop</a>
+      <a href="dashboard.html" class="nav-dashboard-link hidden">Dashboard</a>
+      <a href="admin.html" class="nav-admin-only hidden text-yellow-400 font-bold border border-yellow-400/30 px-3 py-1 rounded">Manage Elite</a>
+      <a href="trainer.html" class="nav-trainer-only hidden text-yellow-400 font-bold border border-yellow-400/30 px-3 py-1 rounded">Trainer HUD</a>
+      <a href="membership.html">Membership</a>
+      <a href="about.html">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="membership.html" class="btn-nav btn-nav-outline nav-auth-only">Sign In</a>
+      <a href="membership.html" class="btn-nav btn-nav-fill nav-auth-only">Start Free Trial</a>
+      <div id="navProfileBtn" class="nav-profile-link nav-dashboard-link hidden" style="display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative;">
+        <span id="nav-greeting" class="text-xs font-bold text-yellow-400 hidden lg:inline">Elite Member</span>
+        <img id="nav-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--yellow); object-fit: cover;">
+        <div id="navDropdown" class="nav-dropdown">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="community.html" class="nav-dashboard-link hidden">Community</a>
+            <a href="admin.html" class="nav-admin-only hidden text-yellow-400 font-bold">Manage Elite</a>
+            <a href="trainer.html" class="nav-trainer-only hidden text-yellow-400 font-bold">Trainer HUD</a>
+            <a href="profile.html">Settings</a>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+      </div>
+    </div>
+    <button class="hamburger" onclick="toggleMobileMenu(event)" type="button" aria-label="Open menu" aria-controls="mobile-menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="community.html" class="nav-dashboard-link hidden">Community</a>
+    <a href="studio.html">Studio</a>
+    <a href="shop.html">Shop</a>
+    <a href="dashboard.html" class="nav-dashboard-link hidden">Dashboard</a>
+    <a href="profile.html" class="nav-dashboard-link hidden">Settings</a>
+    <a href="admin.html" class="nav-admin-only hidden text-yellow-400 font-bold">Manage Elite</a>
+    <a href="trainer.html" class="nav-trainer-only hidden text-yellow-400 font-bold">Trainer HUD</a>
+    <hr class="nav-dashboard-link hidden" style="border: 0; border-top: 1px solid var(--border); margin: 8px 0; opacity: 0.2;">
+    <a href="#" onclick="logout()" class="nav-dashboard-link hidden text-red-500">Logout</a>
+    <a href="membership.html">Membership</a>
+    <a href="about.html">About</a>
+  </div>
+
+  <main class="checkout-container">
+    <div class="flex justify-between items-end mb-12">
+      <div>
+        <span class="section-label">Elite Store</span>
+        <h1 class="text-4xl font-black  italic">Seal The <span class="text-yellow-400">Deal</span></h1>
+      </div>
+      <div class="text-[10px] text-[#444] font-bold tracking-[4px]">Secured Checkout Sync</div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- FORM SIDE -->
+      <div class="lg:col-span-2 flex flex-col gap-8">
+        <section class="checkout-card">
+          <h3 class="text-sm font-bold  tracking-widest mb-8 flex items-center gap-3">
+            <span class="w-6 h-6 bg-yellow-400 text-black flex items-center justify-center rounded-full text-[10px]">1</span>
+            Delivery Details
+          </h3>
+          <form id="checkoutForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="ship-name" class="form-input" placeholder="Enter recipient name" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="text" id="ship-phone" class="form-input" placeholder="01XXXXXXXXX" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Shipping Address</label>
+              <textarea id="ship-address" class="form-input" style="min-height: 80px;" placeholder="House #, Road #, Area, City" required></textarea>
+            </div>
+          </form>
+        </section>
+
+        <section class="checkout-card">
+          <h3 class="text-sm font-bold  tracking-widest mb-8 flex items-center gap-3">
+            <span class="w-6 h-6 bg-yellow-400 text-black flex items-center justify-center rounded-full text-[10px]">2</span>
+            Payment Selection
+          </h3>
+          <div class="payment-grid">
+            <div class="payment-btn" onclick="setPayment('bkash', this)">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Bkash_Logo.svg/1200px-Bkash_Logo.svg.png" alt="Bkash">
+              <span>Bkash</span>
+            </div>
+            <div class="payment-btn" onclick="setPayment('nagad', this)">
+              <img src="https://download.logo.wine/logo/Nagad/Nagad-Logo.wine.png" alt="Nagad">
+              <span>Nagad</span>
+            </div>
+            <div class="payment-btn" onclick="setPayment('card', this)">
+              <div class="flex gap-2 mb-2">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" class="h-3 invert">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-3">
+              </div>
+              <span>Bank Card</span>
+            </div>
+            <div class="payment-btn" onclick="setPayment('paypal', this)">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal">
+              <span>PayPal</span>
+            </div>
+          </div>
+          <div id="payment-details-box" class="mt-8 pt-8 border-t border-[#1a1a1a] hidden">
+            <!-- Dynamic payment fields -->
+          </div>
+        </section>
+      </div>
+
+      <!-- SUMMARY SIDE -->
+      <div class="lg:col-span-1">
+        <div class="checkout-card sticky top-[100px]">
+          <h3 class="text-sm font-bold  tracking-widest mb-8">Order Summary</h3>
+          <div id="order-items-list" class="flex flex-col mb-8">
+            <!-- Items inject here -->
+          </div>
+          
+          <div class="space-y-4 pt-6 border-t border-[#1a1a1a]">
+            <div class="flex justify-between text-xs font-bold text-[#444] tracking-widest">
+              <span>Subtotal</span>
+              <span id="summary-subtotal">$0.00</span>
+            </div>
+            <div class="flex justify-between text-xs font-bold text-[#444] tracking-widest">
+              <span>Shipping</span>
+              <span class="text-green-500">FREE</span>
+            </div>
+            <div class="flex justify-between text-xl font-black italic pt-4 border-t border-[#1a1a1a]">
+              <span>Total</span>
+              <span id="summary-total" class="text-yellow-400">$0.00</span>
+            </div>
+          </div>
+
+          <button onclick="sealTheDeal()" class="btn btn-yellow w-full justify-center py-5 mt-8 text-lg font-black italic tracking-wider">
+            Seal The Deal
+          </button>
+          
+          <div class="mt-6 flex items-center justify-center gap-2">
+             <svg width="14" height="14" fill="#444" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+             <span class="text-[9px] text-[#444] font-bold uppercase tracking-widest">Encrypted Cloud Checkout</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+    <!-- GLOBAL AUTH MODAL -->
+  <div id="authModal" class="modal-overlay hidden">
+    <div class="modal-content glass auth-modal-inner">
+      <button class="modal-close" id="closeAuthModal">&times;</button>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginFormModal" class="auth-form active ajax-form" action="/api/auth/login" method="POST">
+        <h2 class="modal-title">Welcome <span>Back</span></h2>
+        <p class="modal-subtitle">Enter your elite credentials to continue.</p>
+        
+        <div class="form-group">
+          <label class="form-label">Email or Phone Number</label>
+          <input type="text" name="email" class="form-input" placeholder="you@example.com or +880..." required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="relative">
+            <input type="password" name="password" class="form-input pr-10" placeholder="••••••••" required>
+            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#444] hover:text-yellow-400">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-yellow w-full justify-center mt-4">Sign In</button>
+        <p class="auth-switch-text">Don't have an account? <a href="#" onclick="switchTab('register')">Join the Elite</a></p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerFormModal" class="auth-form ajax-form" action="/api/auth/register" method="POST">
+        <input type="hidden" name="membershipType" value="FREE GUEST">
+        <h2 class="modal-title">Start <span>A Trial</span></h2>
+        <p class="modal-subtitle">Join the East Blue community today.</p>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" name="firstName" class="form-input" placeholder="John" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="lastName" class="form-input" placeholder="Doe" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" name="phoneNumber" class="form-input" placeholder="+880 1XXX-XXXXXX" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-input" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="relative">
+            <input type="password" name="password" class="form-input pr-10" placeholder="••••••••" required>
+            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#444] hover:text-yellow-400">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-yellow w-full justify-center mt-4">Create Account</button>
+        <p class="auth-switch-text">Already a member? <a href="#" onclick="switchTab('login')">Sign In</a></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="contactModal" class="modal-overlay hidden">
+    <div class="modal-content glass auth-modal-inner" style="max-width: 600px;">
+      <button class="modal-close" id="closeContactModal">&times;</button>
+      <div class="text-center mb-8">
+        <span class="section-label">Get In Touch</span>
+        <h2 class="modal-title">Contact <span>Elite</span></h2>
+      </div>
+      <form id="contactFormModal" class="ajax-form flex flex-col gap-5" action="/api/user/contact" method="POST">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <input type="text" name="name" class="form-input" placeholder="Name" required>
+          <input type="email" name="email" class="form-input" placeholder="Email" required>
+        </div>
+        <input type="text" name="subject" class="form-input" placeholder="Subject" required>
+        <textarea name="message" class="form-input" style="min-height: 100px;" placeholder="Message" required></textarea>
+        <button type="submit" class="btn btn-yellow w-full justify-center">Send Message</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    let selectedPayment = '';
+
+    function renderOrder() {
+      const list = document.getElementById('order-items-list');
+      const subtotalEl = document.getElementById('summary-subtotal');
+      const totalEl = document.getElementById('summary-total');
+      if (!list) return;
+      list.innerHTML = '';
+      let total = 0;
+      cart.forEach(item => {
+        total += item.price * item.quantity;
+        const div = document.createElement('div');
+        div.className = 'order-item';
+        div.innerHTML = `
+          <img src="${item.img}" class="w-12 h-12 rounded-lg bg-[#111] object-cover">
+          <div class="flex-grow">
+            <h4 class="text-[10px] font-bold italic">${item.name}</h4>
+            <p class="text-[9px] text-[#555] font-bold">Qty: ${item.quantity}</p>
+          </div>
+          <span class="text-xs font-black italic">$${(item.price * item.quantity).toFixed(2)}</span>
+        `;
+        list.appendChild(div);
+      });
+      if (subtotalEl) subtotalEl.textContent = `$${total.toFixed(2)}`;
+      if (totalEl) totalEl.textContent = `$${total.toFixed(2)}`;
+    }
+
+    window.setPayment = function(method, el) {
+      document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      selectedPayment = method;
+      const box = document.getElementById('payment-details-box');
+      box.classList.remove('hidden');
+      if (method === 'bkash' || method === 'nagad') {
+        box.innerHTML = `<div class="form-group"><label class="form-label">${method} Wallet Number</label><input type="text" class="form-input w-full" placeholder="01XXXXXXXXX" required></div>`;
+      } else if (method === 'card') {
+        box.innerHTML = `<div class="form-group"><label class="form-label">Card Number</label><input type="text" class="form-input w-full" placeholder="XXXX XXXX XXXX XXXX" required></div>`;
+      } else {
+        box.innerHTML = `<div class="form-group"><label class="form-label">PayPal Email</label><input type="email" class="form-input w-full" placeholder="you@paypal.com" required></div>`;
+      }
+    };
+
+    window.sealTheDeal = async function() {
+      const name = document.getElementById('ship-name').value;
+      const phone = document.getElementById('ship-phone').value;
+      const address = document.getElementById('ship-address').value;
+      const token = localStorage.getItem('token');
+      if (!name || !phone || !address) { window.showToast('Please complete delivery details', 'error'); return; }
+      if (!selectedPayment) { window.showToast('Please select a payment method', 'error'); return; }
+      if (!token) { window.showToast('Login required to checkout', 'error'); return; }
+      
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = 'Sealing Deal...';
+      btn.disabled = true;
+      
+      try {
+        let itemsStr = cart.map(i => `${i.name} (x${i.quantity})`).join(', ');
+        let total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+        const res = await fetch(`${API_URL}/api/store/checkout?token=${encodeURIComponent(token)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ items_summary: itemsStr, total: total, payment_method: selectedPayment })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          if (data.user) localStorage.setItem('elite_profile', JSON.stringify(data.user));
+          window.showToast('Order Placed Successfully!', 'success');
+          localStorage.setItem('cart', '[]');
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+        } else {
+          window.showToast(data.detail || 'Order failed', 'error');
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }
+      } catch (err) {
+        window.showToast('Server connection failed', 'error');
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (cart.length === 0) window.location.href = 'shop.html';
+      renderOrder();
+    });
+  </script>
+  <script src="js/config.js"></script>
+  <script src="js/script.js?v=2028"></script>
+  <script src="js/chatbot.js"></script>
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="build-version" content="2026.05.12.22.05"/>
+  <title>East Blue Gym | Elite Fitness HUD</title>
+  <meta name="description" content="East Blue – elite group fitness training. Join a community that pushes limits."/>
+  <link rel="stylesheet" href="css/style.css?v=2026"/>
+  <link rel="stylesheet" href="css/chatbot.css"/>
+  <link rel="icon" type="image/png" href="img/favicon.png"/>
+  <script>
+    // Tailwind (utilities only) — keep existing CSS intact
+    tailwind = { config: { corePlugins: { preflight: false } } };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+
+  <!-- GLOBAL VIDEO BACKGROUND -->
+  <div class="global-video-container">
+    <video class="global-video-bg" autoplay muted loop playsinline>
+      <source src="videos/home.mp4" type="video/mp4">
+    </video>
+    <div class="global-video-overlay"></div>
+  </div>
+
+    <nav class="navbar">
+    <a href="index.html" class="nav-logo">EAST <span>BLUE</span></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="workouts.html">Workouts</a>
+      <a href="community.html" class="nav-dashboard-link hidden">Community</a>
+      <a href="studio.html">Studio</a>
+      <a href="shop.html">Shop</a>
+      <a href="dashboard.html" class="nav-dashboard-link hidden">Dashboard</a>
+      <a href="admin.html" class="nav-admin-only hidden text-yellow-400 font-bold border border-yellow-400/30 px-3 py-1 rounded">Manage Elite</a>
+      <a href="trainer.html" class="nav-trainer-only hidden text-yellow-400 font-bold border border-yellow-400/30 px-3 py-1 rounded">Trainer HUD</a>
+      <a href="membership.html">Membership</a>
+      <a href="about.html">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="#" onclick="openAuthModal('login'); return false;" class="btn-nav btn-nav-outline nav-auth-only">Sign In</a>
+      <a href="#" onclick="openAuthModal('register'); return false;" class="btn-nav btn-nav-fill nav-auth-only">Start Free Trial</a>
+      <div id="navProfileBtn" class="nav-profile-link nav-dashboard-link hidden" style="display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative;">
+        <span id="nav-greeting" class="text-xs font-bold text-yellow-400 hidden lg:inline">Elite Member</span>
+        <img id="nav-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--yellow); object-fit: cover;">
+        <div id="navDropdown" class="nav-dropdown">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="community.html" class="nav-dashboard-link hidden">Community</a>
+            <a href="admin.html" class="nav-admin-only hidden text-yellow-400 font-bold">Manage Elite</a>
+            <a href="trainer.html" class="nav-trainer-only hidden text-yellow-400 font-bold">Trainer HUD</a>
+            <a href="profile.html">Settings</a>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+      </div>
+    </div>
+    <button class="hamburger" onclick="toggleMobileMenu(event)" type="button" aria-label="Open menu" aria-controls="mobile-menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="community.html" class="nav-dashboard-link hidden">Community</a>
+    <a href="studio.html">Studio</a>
+    <a href="shop.html">Shop</a>
+    <a href="dashboard.html" class="nav-dashboard-link hidden">Dashboard</a>
+    <a href="profile.html" class="nav-dashboard-link hidden">Settings</a>
+    <a href="admin.html" class="nav-admin-only hidden text-yellow-400 font-bold">Manage Elite</a>
+    <a href="trainer.html" class="nav-trainer-only hidden text-yellow-400 font-bold">Trainer HUD</a>
+    <hr class="nav-dashboard-link hidden" style="border: 0; border-top: 1px solid var(--border); margin: 8px 0; opacity: 0.2;">
+    <a href="#" onclick="logout()" class="nav-dashboard-link hidden text-red-500">Logout</a>
+    <a href="membership.html">Membership</a>
+    <a href="about.html">About</a>
+  </div>
+
+  
+
+  <!-- GLOBAL AUTH MODAL -->
+  <div id="authModal" class="modal-overlay hidden">
+    <div class="modal-content glass auth-modal-inner">
+      <button class="modal-close" id="closeAuthModal">&times;</button>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginFormModal" class="auth-form active ajax-form" action="/api/auth/login" method="POST">
+        <h2 class="modal-title">Welcome <span>Back</span></h2>
+        <p class="modal-subtitle">Enter your elite credentials to continue.</p>
+        
+        <div class="form-group">
+          <label class="form-label">Email or Phone Number</label>
+          <input type="text" name="email" class="form-input" placeholder="you@example.com or +880..." required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="relative">
+            <input type="password" name="password" class="form-input pr-10" placeholder="••••••••" required>
+            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#444] hover:text-yellow-400">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-yellow w-full justify-center mt-4">Sign In</button>
+        <p class="auth-switch-text">Don't have an account? <a href="#" onclick="switchTab('register')">Join the Elite</a></p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerFormModal" class="auth-form ajax-form" action="/api/auth/register" method="POST">
+        <input type="hidden" name="membershipType" value="FREE GUEST">
+        <h2 class="modal-title">Start <span>A Trial</span></h2>
+        <p class="modal-subtitle">Join the East Blue community today.</p>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" name="firstName" class="form-input" placeholder="John" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="lastName" class="form-input" placeholder="Doe" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" name="phoneNumber" class="form-input" placeholder="+880 1XXX-XXXXXX" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-input" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="relative">
+            <input type="password" name="password" class="form-input pr-10" placeholder="••••••••" required>
+            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#444] hover:text-yellow-400">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-yellow w-full justify-center mt-4">Create Account</button>
+        <p class="auth-switch-text">Already a member? <a href="#" onclick="switchTab('login')">Sign In</a></p>
+      </form>
+    </div>
+  </div>
+
+  
+
+  
+
+  <section class="hero">
+
+    <div class="hero-content">
+      <span class="hero-tag">🔥 Group Training. Real Results.</span>
+      <h1 class="hero-title">Train Hard.<br/><span>Live Harder.</span></h1>
+      <p class="hero-subtitle">East Blue delivers life-changing group fitness with the effectiveness of personal training. 45 minutes. Maximum results. Global community.</p>
+      <div class="hero-actions">
+        <a href="membership.html" class="btn btn-yellow btn-arrow nav-auth-only">Start Free Trial</a>
+        <a href="workouts.html" class="btn btn-outline-white">Explore Classes</a>
+      </div>
+    </div>
+
+    <div class="hero-scroll">Scroll</div>
+  </section>
+
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <span>Team Training</span><span class="dot">✦</span>
+      <span>Life Changing</span><span class="dot">✦</span>
+      <span>East Blue</span><span class="dot">✦</span>
+      <span>Push Limits</span><span class="dot">✦</span>
+      <span>Group Fitness</span><span class="dot">✦</span>
+      <span>Real Results</span><span class="dot">✦</span>
+      <span>45 Minutes</span><span class="dot">✦</span>
+      <span>Global Community</span><span class="dot">✦</span>
+      <span>Team Training</span><span class="dot">✦</span>
+      <span>Life Changing</span><span class="dot">✦</span>
+      <span>East Blue</span><span class="dot">✦</span>
+      <span>Push Limits</span><span class="dot">✦</span>
+      <span>Group Fitness</span><span class="dot">✦</span>
+      <span>Real Results</span><span class="dot">✦</span>
+      <span>45 Minutes</span><span class="dot">✦</span>
+      <span>Global Community</span><span class="dot">✦</span>
+    </div>
+  </div>
+
+  <div class="section-full section-glass" style="border-bottom: 1px solid var(--border);">
+    <div class="px-4 sm:px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center" style="max-width:1400px; margin:0 auto;">
+      <div>
+        <span class="section-label">A Global Gym</span>
+        <h2 class="section-title">Unlimited Access<br /><span>Anywhere, Anytime</span></h2>
+        <div class="divider"></div>
+        <p class="section-subtitle">At East Blue, community is at the heart of everything we do. More than just a workout — we're a global family driven by connection, support, and shared goals. Our members inspire each other to push limits.</p>
+        <div class="mt-40">
+          <a href="about.html" class="btn btn-outline-yellow btn-arrow">Our Story</a>
+        </div>
+      </div>
+      <div>
+        <div style="border-radius:10px; overflow:hidden; height:480px; position:relative;">
+          <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=700&h=900&fit=crop" alt="Community" style="height:100%;"/>
+          <div style="position:absolute;top:24px;right:24px;background:var(--yellow);color:var(--black);font-family:var(--font-head);font-size:18px;letter-spacing:3px;padding:10px 18px;border-radius:4px;">#1 GYM 2024</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-bar" style="justify-content: center; gap: 100px;">
+    <div class="stat-item">
+      <div class="stat-num" id="statActiveMembers">...</div>
+      <div class="stat-label">Active Members</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">45<span style="font-size: 24px;"> Min</span></div>
+      <div class="stat-label">Per Session</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">300<span style="font-size: 24px;">+</span></div>
+      <div class="stat-label">Exercises</div>
+    </div>
+  </div>
+
+  <div class="section-full section-glass-alt" style="border-bottom:1px solid var(--border);">
+    <div class="px-4 sm:px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center" style="max-width:1400px; margin:0 auto;">
+      <div class=" " style="border-radius:10px; overflow:hidden; height:500px;">
+        <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=700&h=900&fit=crop" alt="Training" style="height:100%;"/>
+      </div>
+      <div>
+        <span class="section-label">Backed By Science</span>
+        <h2 class="section-title">Fitness is for<br /><span>Everybody</span></h2>
+        <div class="divider"></div>
+        <p class="section-subtitle">Born in passion, built on science. East Blue merges leading-edge fitness training styles into one elite experience: boxing, cardio, full body, and recovery — proven to deliver real results fast.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-9">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;">
+            <div style="font-family:var(--font-head);font-size:32px;color:var(--yellow);margin-bottom:6px;">BOXING</div>
+            <p style="font-size:13px;color:var(--muted);">High-intensity boxing and striking for speed, agility, and elite conditioning.</p>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;">
+            <div style="font-family:var(--font-head);font-size:32px;color:var(--yellow);margin-bottom:6px;">CARDIO</div>
+            <p style="font-size:13px;color:var(--muted);">Intense cardiovascular conditioning to maximize calorie burn and endurance.</p>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;">
+            <div style="font-family:var(--font-head);font-size:32px;color:var(--yellow);margin-bottom:6px;">FULL BODY</div>
+            <p style="font-size:13px;color:var(--muted);">Comprehensive strength and mobility movements to build full-body power.</p>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;">
+            <div style="font-family:var(--font-head);font-size:32px;color:var(--yellow);margin-bottom:6px;">RECOVERY</div>
+            <p style="font-size:13px;color:var(--muted);">Dedicated recovery sessions to restore and rebuild.</p>
+          </div>
+        </div>
+        <div class="mt-40">
+          <a href="workouts.html" class="btn btn-yellow btn-arrow">Explore Classes</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-full section-glass" style="border-bottom:1px solid var(--border);">
+    <div class="px-4 sm:px-6 lg:px-10" style="max-width:1400px; margin:0 auto;">
+      <div class="section-header">
+        <div>
+          <span class="section-label">Our Workouts</span>
+          <h2 class="section-title">Popular <span>Classes</span></h2>
+        </div>
+        <a href="workouts.html" class="btn btn-outline-yellow">View All Classes</a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="card">
+          <div class="card-img" style="height:240px;">
+            <img src="https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=400&h=300&fit=crop" alt="Boxing" onerror="this.src='https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&h=300&fit=crop'"/>
+            <span class="card-tag card-tag-red">Boxing</span>
+          </div>
+          <div class="card-body">
+            <h3>Boxing Combat</h3>
+            <p>High-intensity boxing and striking for speed, agility, and elite conditioning.</p>
+            <a href="workouts.html" class="btn btn-outline-yellow" style="padding:10px 20px;font-size:12px;">Book Class</a>
+          </div>
+        </div>
+
+        <div class="card-delay-1">
+          <div class="card-img" style="height:240px;">
+            <img src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&h=300&fit=crop" alt="Cardio"/>
+            <span class="card-tag card-tag-yellow">Cardio</span>
+          </div>
+          <div class="card-body">
+            <h3>Cardio Burst</h3>
+            <p>Intense cardiovascular conditioning to maximize calorie burn and endurance.</p>
+            <a href="workouts.html" class="btn btn-outline-yellow" style="padding:10px 20px;font-size:12px;">Book Class</a>
+          </div>
+        </div>
+
+        <div class="card-delay-2">
+          <div class="card-img" style="height:240px;">
+            <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=300&fit=crop" alt="Full Body"/>
+            <span class="card-tag card-tag-white">Full Body</span>
+          </div>
+          <div class="card-body">
+            <h3>Full Body Power</h3>
+            <p>Comprehensive strength and mobility movements to build full-body power.</p>
+            <a href="workouts.html" class="btn btn-outline-yellow" style="padding:10px 20px;font-size:12px;">Book Class</a>
+          </div>
+        </div>
+
+        <div class="card-delay-3">
+          <div class="card-img" style="height:240px;">
+            <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop" alt="Recovery"/>
+            <span class="card-tag card-tag-yellow">Recovery</span>
+          </div>
+          <div class="card-body">
+            <h3>Active Recovery</h3>
+            <p>Guided recovery sessions combining yoga, mobility, and deep stretching to restore your body.</p>
+            <a href="workouts.html" class="btn btn-outline-yellow" style="padding:10px 20px;font-size:12px;">Book Class</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="section-full bmi-section section-glass-alt" id="bmi-calculator" style="border-bottom:1px solid var(--border);">
+    <div class="px-4 sm:px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center" style="max-width:1400px; margin:0 auto;">
+      <div>
+        <span class="section-label">Health Metrics</span>
+        <h2 class="section-title">Check Your<br/><span>BMI Score</span></h2>
+        <div class="divider"></div>
+        <p class="section-subtitle">Understanding your Body Mass Index is a great first step towards a healthier lifestyle. Use our elite calculator to track your progress.</p>
+        
+        <div class="bmi-calculator-box glass mt-40">
+          <form id="bmiForm" class="bmi-form">
+            <div class="grid grid-cols-2 gap-6">
+              <div class="form-group">
+                <label class="form-label">Gender</label>
+                <div class="gender-toggle">
+                  <input type="radio" name="gender" value="male" id="male" checked>
+                  <label for="male">Male</label>
+                  <input type="radio" name="gender" value="female" id="female">
+                  <label for="female">Female</label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Age</label>
+                <input type="number" id="bmiAge" class="form-input" placeholder="25" required>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6">
+              <div class="form-group">
+                <label class="form-label">Height (cm)</label>
+                <input type="number" id="bmiHeight" class="form-input" placeholder="175" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Weight (kg)</label>
+                <input type="number" id="bmiWeight" class="form-input" placeholder="70" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-yellow w-full justify-center mt-6">Calculate Now</button>
+          </form>
+        </div>
+      </div>
+      
+      <div>
+        <div id="bmiResultBox" class="bmi-result-card glass hidden">
+          <div class="bmi-score-wrap">
+            <svg class="bmi-gauge" viewBox="0 0 100 100">
+              <circle class="bmi-gauge-bg" cx="50" cy="50" r="45"></circle>
+              <circle class="bmi-gauge-fill" cx="50" cy="50" r="45" id="bmiCircle"></circle>
+            </svg>
+            <div class="bmi-score-text">
+              <span id="bmiValue">0.0</span>
+              <small>Your BMI</small>
+            </div>
+          </div>
+          <div class="bmi-status-wrap">
+            <h3 id="bmiStatus">Ready</h3>
+            <p id="bmiAdvice">Enter your details to calculate your health status.</p>
+          </div>
+          <div class="bmi-scale">
+            <div class="scale-item" data-status="underweight"><span>Under</span></div>
+            <div class="scale-item" data-status="healthy"><span>Normal</span></div>
+            <div class="scale-item" data-status="overweight"><span>Over</span></div>
+            <div class="scale-item" data-status="obese"><span>Obese</span></div>
+          </div>
+          <button onclick="resetBmi()" class="btn btn-outline-white mt-10" style="padding: 10px 20px; font-size: 11px;">Recalculate</button>
+        </div>
+        
+        <div id="bmiPlaceholder" class="bmi-illustration" style="background-image: url('img/bmi_hero.png');">
+          <div class="glass-overlay" style="position:absolute; inset:0; background: rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; text-align:center; padding:40px;">
+             <h1 class="text-6xl md:text-8xl font-black italic  leading-[0.9] mb-6">Redefine <span class="text-yellow-400">Your</span> Limits</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="section-full section-glass" id="testimonialsSection" style="border-bottom:1px solid var(--border);">
+    <div class="px-4 sm:px-6 lg:px-10" style="max-width:1400px; margin:0 auto;">
+      <div class="text-center" style="margin-bottom:60px;">
+        <span class="section-label">Feel The Love</span>
+        <h2 class="section-title">What Members<br /><span>Say</span></h2>
+        <div class="divider" style="margin:18px auto;"></div>
+        <div style="display:flex;gap:40px;justify-content:center;margin-top:28px;">
+          <div>
+            <div id="liveTotalMembers" style="font-family:var(--font-head);font-size:46px;color:var(--yellow);">...</div>
+            <div style="font-family:var(--font-sub);font-size:12px;letter-spacing:3px;color:var(--muted);">Happy Members</div>
+          </div>
+          <div style="width:1px;background:var(--border);"></div>
+          <div>
+            <div id="liveOverallRating" style="font-family:var(--font-head);font-size:46px;color:var(--yellow);">...</div>
+            <div style="font-family:var(--font-sub);font-size:12px;letter-spacing:3px;color:var(--muted);">Overall Rating</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-slider-wrap">
+        <div class="testi-track" id="testiTrack">
+          <div class="testi-card">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">I have NEVER liked working out, especially in a gym! I LOVE East Blue! All of the trainers are so encouraging and helpful. I feel better than I have felt in years. I am 58 years old — if I can do it, so can you!</p>
+            <div class="testi-author">
+              <img class="testi-avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=90&h=90&fit=crop" alt="Marcus"/>
+              <div>
+                <div class="testi-name">Marcus Johnson</div>
+                <div class="testi-loc">New York, USA</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="testi-card testi-card-delay-1">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">I've seen more results in 6 months with East Blue than in 5 years at my old gym. The coaches are knowledgeable and make the workouts genuinely enjoyable. Best fitness decision I ever made.</p>
+            <div class="testi-author">
+              <img class="testi-avatar" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=90&h=90&fit=crop" alt="Aisha"/>
+              <div>
+                <div class="testi-name">Aisha Rahman</div>
+                <div class="testi-loc">London, UK</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="testi-card testi-card-delay-2">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">East Blue is not just a place to work out — it's a family. The community is incredible, non-judgmental, and will celebrate every victory with you. It completely changed my relationship with fitness.</p>
+            <div class="testi-author">
+              <img class="testi-avatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=90&h=90&fit=crop" alt="Carlos"/>
+              <div>
+                <div class="testi-name">Carlos Mendez</div>
+                <div class="testi-loc">Sydney, Australia</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="section-full section-glass-alt">
+    <div class="offer-cta">
+      <span class="section-label">Exclusive Elite Offer</span>
+      <h2 class="section-title">Join before <span>May 31</span></h2>
+      <p class="section-subtitle" style="margin: 20px auto;">Get 50% OFF your first 3 months plus a free elite starter pack. Limited to the next 50 members.</p>
+      <div class="flex-center gap-6 mt-24">
+        <a href="#" onclick="claimOffer(event)" id="btnClaimOffer" class="btn btn-yellow">Claim My 50% Off</a>
+        <div class="text-left">
+          <div class="progress-label"><span>Claimed: 42/50</span></div>
+          <div class="progress-container" style="width: 200px;"><div class="progress-bar" style="width: 84%;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="newsletter-section">
+    <span class="section-label">Join Our Community</span>
+    <h2>Unlock <span>Exclusive</span> Access</h2>
+    <p>Be the first to know about special offers, new workouts and upcoming events.</p>
+    <form class="newsletter-form ajax-form" id="newsletter-form" action="/api/user/newsletter" method="POST">
+      <input type="email" id="newsletter-email" name="email" placeholder="Enter your email address" required/>
+      <button type="submit">Sign Up</button>
+    </form>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" style="text-decoration:none; color:inherit;"><h3>EAST <span>BLUE</span></h3></a>
+        <p>Redefining fitness through high-performance training and elite community experiences. Join the movement today.</p>
+        <div class="footer-socials">
+          <a href="https://instagram.com/eastbluegym" target="_blank" class="footer-social-btn" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+          <a href="https://facebook.com/eastbluegym" target="_blank" class="footer-social-btn" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+          <a href="https://twitter.com/eastbluegym" target="_blank" class="footer-social-btn" aria-label="Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a>
+        </div>
+      </div>
+      <div class="footer-col-delay-2">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="workouts.html">Workouts</a></li>
+          <li><a href="studio.html">Studio</a></li>
+          <li><a href="shop.html">Shop</a></li>
+          <li><a href="dashboard.html" class="nav-dashboard-link hidden">Dashboard</a></li>
+          <li><a href="membership.html">Membership</a></li>
+<a href="about.html">About</a></li>
+        </ul>
+      </div>
+      <div class="footer-col-delay-3">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="support.html#faq">Help Center</a></li>
+          <li><a href="#" class="btn-contact-trigger">Contact Us</a></li>
+          <li><a href="support.html#privacy">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 East Blue Gym. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- PROMO MODAL -->
+  <div id="promoModal" class="modal-overlay hidden">
+    <div class="modal-content glass auth-modal-inner" style="max-width: 600px;">
+      <button class="modal-close" id="closePromoModal">&times;</button>
+      <div class="text-center mb-8">
+        <span class="section-label">Limited Time Offer</span>
+        <h2 class="modal-title">Claim <span>50% Off</span></h2>
+        <p class="modal-subtitle">Follow these steps to lock in your elite discount.</p>
+      </div>
+      <div class="flex flex-col gap-6">
+        <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+          <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-black font-bold shrink-0">1</div>
+          <div><h4 class="text-sm font-bold mb-1">Join the Elite</h4><p class="text-xs text-[#888]">Create your account to activate the promotion.</p></div>
+        </div>
+        <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+          <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-black font-bold shrink-0">2</div>
+          <div><h4 class="text-sm font-bold mb-1">Select Monthly Plan</h4><p class="text-xs text-[#888]">Pick any Pro or Elite monthly subscription.</p></div>
+        </div>
+        <div class="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+          <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-black font-bold shrink-0">3</div>
+          <div><h4 class="text-sm font-bold mb-1">Apply Code Elite50</h4><p class="text-xs text-[#888]">Discount applied automatically at checkout.</p></div>
+        </div>
+      </div>
+      <div class="mt-10">
+        <button id="btnStartPromoJourney" class="btn btn-yellow w-full justify-center">Start My 50% Off Journey</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT MODAL -->
+  <div id="contactModal" class="modal-overlay hidden">
+    <div class="modal-content glass auth-modal-inner" style="max-width: 600px;">
+      <button class="modal-close" id="closeContactModal">&times;</button>
+      <div class="text-center mb-8">
+        <span class="section-label">Get In Touch</span>
+        <h2 class="modal-title">Join the <span>Elite</span></h2>
+      </div>
+      <form id="contactFormModal" class="ajax-form flex flex-col gap-5" action="/api/user/contact" method="POST">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <input type="text" name="name" class="form-input" placeholder="Name" required>
+          <input type="email" name="email" class="form-input" placeholder="Email" required>
+        </div>
+        <input type="text" name="subject" class="form-input" placeholder="Subject" required>
+        <textarea name="message" class="form-input" style="min-height: 100px;" placeholder="Message" required></textarea>
+        <button type="submit" class="btn btn-yellow w-full justify-center">Send Message</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/script.js?v=2028"></script>
+  <script src="js/chatbot.js"></script>
+  <script>
+    window.togglePassword = function(btn) {
+      const input = btn.previousElementSibling;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🔒';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+      }
+    };
+    const promoM = document.getElementById('promoModal');
+    const contactM = document.getElementById('contactModal');
+
+    // Contact
+    document.querySelectorAll('.btn-contact-trigger').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (contactM) contactM.classList.remove('hidden');
+      });
+    });
+    const closeContact = document.getElementById('closeContactModal');
+    if (closeContact) {
+      closeContact.addEventListener('click', () => {
+        if (contactM) contactM.classList.add('hidden');
+      });
+    }
+
+    window.addEventListener('click', (e) => {
+      if (e.target === promoM) promoM.classList.add('hidden');
+      if (e.target === contactM) contactM.classList.add('hidden');
+    });
+
+    function claimOffer(e) {
+      e.preventDefault();
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const offerName = 'Elite Membership - 50% OFF + Starter Pack';
+      if (!cart.some(item => item.name === offerName)) {
+        cart.push({
+          name: offerName,
+          price: 49.99,
+          img: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=200&h=200&fit=crop',
+          quantity: 1
+        });
+        localStorage.setItem('cart', JSON.stringify(cart));
+      }
+      window.location.href = 'checkout.html';
+    }
+
+    setTimeout(() => { document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible')); }, 500);
+  </script>
+  <script src="js/homepage.js"></script>
+</body>
+</html>

@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elite Dashboard | East Blue Gym</title>
+  <link rel="stylesheet" href="css/style.css?v=2026" />
+  <link rel="stylesheet" href="css/chatbot.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind = { config: { corePlugins: { preflight: false } } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* BENTO GRID BASE */
+    .bento-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto;
+      gap: 20px;
+      grid-template-areas:
+        "hero hero stats activity"
+        "sessions neural neural activity"
+        "sessions challenges challenges nutrition"
+        "passport passport verify store";
+      margin-bottom: 60px;
+    }
+
+    @media (max-width: 1200px) {
+      .bento-container {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-areas:
+          "hero hero"
+          "stats activity"
+          "neural neural"
+          "sessions challenges"
+          "nutrition store"
+          "passport passport";
+      }
+    }
+
+    @media (max-width: 768px) {
+      .bento-container {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "hero"
+          "stats"
+          "activity"
+          "neural"
+          "sessions"
+          "challenges"
+          "nutrition"
+          "passport"
+          "store";
+      }
+    }
+
+    /* BENTO CARDS */
+    .bento-card {
+      background: rgba(18, 18, 18, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .bento-card:hover {
+      border-color: var(--yellow);
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    /* SPECIFIC AREAS */
+    .area-hero {
+      grid-area: hero;
+      background: linear-gradient(135deg, #1a1a1a 0%, #080808 100%);
+    }
+
+    .area-stats {
+      grid-area: stats;
+    }
+
+    .area-activity {
+      grid-area: activity;
+    }
+
+    .area-sessions {
+      grid-area: sessions;
+    }
+
+    .area-challenges {
+      grid-area: challenges;
+    }
+
+    .area-store {
+      grid-area: store;
+    }
+
+    .area-nutrition {
+      grid-area: nutrition;
+      background: linear-gradient(135deg, #0d1a0d 0%, #080808 100%);
+    }
+
+    .area-neural {
+      grid-area: neural;
+      background: radial-gradient(circle at center, #1a1a1a, #080808);
+    }
+
+    .area-passport {
+      grid-area: passport;
+      background: #0c0c0c url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+    }
+
+    .area-verify {
+      grid-area: verify;
+      background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+      border-color: rgba(245, 230, 66, 0.2);
+    }
+
+    /* CARD DECOR */
+    .card-glow {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(245, 230, 66, 0.03) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* PROGRESS CIRCLE */
+    .performance-ring {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: conic-gradient(var(--yellow) var(--p, 0%), #222 0);
+      mask: radial-gradient(transparent 58%, #000 60%);
+      -webkit-mask: radial-gradient(transparent 58%, #000 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: --p 1s ease-in-out;
+    }
+
+    /* VIBRANT WIDGETS */
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+      box-shadow: 0 0 10px #4caf50;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    .stat-label {
+      font-family: var(--font-sub);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #555;
+    }
+
+    .stat-value {
+      font-family: var(--font-head);
+      font-size: 32px;
+      color: var(--white);
+    }
+
+    /* LEADERBOARD */
+    .leader-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      margin-bottom: 10px;
+      border: 1px solid transparent;
+    }
+
+    .leader-item:hover {
+      border-color: rgba(245, 230, 66, 0.3);
+      background: rgba(245, 230, 66, 0.05);
+    }
+
+    .rank-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .rank-1 {
+      background: var(--yellow);
+      color: var(--black);
+    }
+
+
+    /* SCANLINE ANIMATION */
+    .scanline {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(245, 230, 66, 0.5);
+      box-shadow: 0 0 15px var(--yellow);
+      z-index: 20;
+      pointer-events: none;
+      animation: scan 4s linear infinite;
+    }
+
+    @keyframes scan {
+      0% {
+        top: 0%;
+      }
+
+      100% {
+        top: 100%;
+      }
+    }
+
+    .pulse-glow {
+      animation: pulseGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+
+      0%,
+      100% {
+        filter: drop-shadow(0 0 2px var(--yellow));
+      }
+
+      50% {
+        filter: drop-shadow(0 0 8px var(--yellow));
+      }
+    }
+  </style>
+  <link rel="icon" type="image/png" href="img/favicon.png"/>
+</head>
+
+<body class="text-white">
+<!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">EAST <span>BLUE</span></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="workouts.html">Workouts</a>
+      <a href="community.html" class="nav-dashboard-link hidden">Community</a>
+      <a href="studio.html">Studio</a>
+      <a href="shop.html">Shop</a>
+      <a href="dashboard.html" class="nav-dashboard-link hidden">Dashboard</a>
+      <a href="admin.html" class="nav-admin-only hidden text-yellow-400 font-bold border border-yellow-400/30 px-3 py-1 rounded">Manage Elite</a>
+      <a href="trainer.html" class="nav-trainer-only hidden text-yellow-400 font-bold border border-yellow-400/30 px-3 py-1 rounded">Trainer HUD</a>
+      <a href="membership.html">Membership</a>
+      <a href="about.html">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="membership.html" class="btn-nav btn-nav-outline nav-auth-only">Sign In</a>
+      <a href="membership.html" class="btn-nav btn-nav-fill nav-auth-only">Start Free Trial</a>
+      <div id="navProfileBtn" class="nav-profile-link nav-dashboard-link hidden"
+        style="display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative;">
+        <span id="nav-greeting" class="text-xs font-bold text-yellow-400 hidden lg:inline">Elite Member</span>
+        <img id="nav-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile"
+          style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--yellow); object-fit: cover;">
+        <div id="navDropdown" class="nav-dropdown">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="community.html" class="nav-dashboard-link hidden">Community</a>
+            <a href="admin.html" class="nav-admin-only hidden text-yellow-400 font-bold">Manage Elite</a>
+            <a href="trainer.html" class="nav-trainer-only hidden text-yellow-400 font-bold">Trainer HUD</a>
+            <a href="profile.html">Settings</a>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+      </div>
+    </div>
+    <button class="hamburger" onclick="toggleMobileMenu(event)" type="button" aria-label="Open menu"
+      aria-controls="mobile-menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="index.html">Home</a>
+    <a href="workouts.html">Workouts</a>
+    <a href="community.html" class="nav-dashboard-link hidden">Community</a>
+    <a href="studio.html">Studio</a>
+    <a href="shop.html">Shop</a>
+    <a href="dashboard.html" class="nav-dashboard-link hidden">Dashboard</a>
+    <a href="profile.html" class="nav-dashboard-link hidden">Settings</a>
+    <a href="admin.html" class="nav-admin-only hidden text-yellow-400 font-bold">Manage Elite</a>
+    <a href="trainer.html" class="nav-trainer-only hidden text-yellow-400 font-bold">Trainer HUD</a>
+    <hr class="nav-dashboard-link hidden" style="border: 0; border-top: 1px solid var(--border); margin: 8px 0; opacity: 0.2;">
+    <a href="#" onclick="logout()" class="nav-dashboard-link hidden text-red-500">Logout</a>
+    <a href="membership.html">Membership</a>
+    <a href="about.html">About</a>
+  </div>
+
+
+
+  <div class="pt-32 pb-12">
+    <div class="px-4 sm:px-6 lg:px-10 max-w-[1400px] mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
+        <div>
+          <span class="section-label">Elite Access</span>
+          <h1 class="text-5xl md:text-7xl font-bold italic  leading-none">Member <span
+              class="text-yellow-400">HUD</span></h1>
+        </div>
+        <div class="flex gap-4">
+          <button class="btn btn-outline-white uppercase" id="btnOpenSettings">Update Profile</button>
+          <button class="btn btn-yellow uppercase" onclick="window.location.href='workouts.html'">Book Class</button>
+        </div>
+      </div>
+
+      <!-- BENTO GRID -->
+      <div class="bento-container">
+
+        <!-- HERO CARD: PROFILE & GREETING -->
+        <div class="bento-card area-hero">
+          <div class="card-glow"></div>
+          <div class="flex items-start justify-between mb-8">
+            <img id="dashboard-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User"
+              class="w-20 h-20 rounded-full border-2 border-yellow-400 p-1">
+            <div class="text-right">
+              <div class="flex items-center justify-end">
+                <span class="status-dot"></span>
+                <span class="text-[10px] uppercase tracking-widest text-[#555] font-bold">System Online</span>
+              </div>
+              <div id="display-membership-tier" class="text-xs font-bold text-yellow-400 mt-2">PRO ANNUAL MEMBER</div>
+              <div id="display-admission-status" class="mt-1"></div>
+            </div>
+          </div>
+          <h2 id="user-greeting" class="text-4xl font-bold mb-2">Hello, Elite!</h2>
+          <p id="member-bio" class="text-[#888] text-sm leading-relaxed max-w-[300px]">Your performance is trending up.
+            You've completed 85% of your weekly volume.</p>
+          <div id="user-goal"
+            class="mt-4 px-3 py-1 bg-yellow-400/10 border border-yellow-400/20 rounded-full inline-block text-[10px] font-bold text-yellow-400 uppercase tracking-widest">
+            Goal: Gain Muscle</div>
+        </div>
+
+        <!-- STATS CARD: CALORIE TARGET -->
+        <div class="bento-card area-stats flex flex-col justify-center items-center text-center">
+          <div>
+            <h3 class="stat-label">Daily burn target</h3>
+            <div id="dashboard-daily-burn" class="stat-value mt-3 text-5xl text-yellow-400">600 <span class="text-sm font-normal text-[#555]">KCAL</span></div>
+            <p class="text-[10px] text-[#555] mt-4 font-bold tracking-widest uppercase">Active Calories</p>
+          </div>
+        </div>
+
+        <!-- ACTIVITY CARD: ATTENDANCE / CHECK-IN -->
+        <div class="bento-card area-activity flex flex-col justify-center items-center text-center">
+          <span class="section-label">Facility Access</span>
+          <h3 class="text-xl font-bold mt-2 italic">Neural <span class="text-yellow-400">Check-In</span></h3>
+          <p class="text-[10px] text-[#888] mt-2 tracking-widest font-bold">Log your physical presence at the Elite Studio.</p>
+          
+          <div class="mt-8 flex flex-col items-center w-full">
+            <button id="btnCheckIn" onclick="document.getElementById('checkInForm').classList.remove('hidden'); this.style.display='none';" class="relative group w-32 h-32 flex items-center justify-center rounded-full bg-black/40 border-2 border-yellow-400/20 hover:border-yellow-400 transition-all shadow-[0_0_15px_rgba(245,230,66,0.1)] hover:shadow-[0_0_30px_rgba(245,230,66,0.3)]">
+              <div class="absolute inset-2 rounded-full border border-yellow-400/10 group-hover:animate-ping"></div>
+              <div class="absolute inset-4 rounded-full border border-dashed border-yellow-400/30 group-hover:rotate-180 transition-all duration-1000"></div>
+              <div class="text-center z-10">
+                <svg class="w-8 h-8 mx-auto text-yellow-400 mb-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+                <span class="text-[10px] font-black tracking-widest uppercase text-yellow-400 block mt-1">Scan IN</span>
+              </div>
+            </button>
+            <div id="checkInStatus" class="mt-6 text-[10px] uppercase font-bold tracking-widest text-[#555] text-center h-4">
+              Awaiting biometric sync...
+            </div>
+            
+            <div id="checkInForm" class="hidden w-full mt-4 flex flex-col gap-3">
+              <select id="attendanceTime" class="form-input text-xs bg-black/40 border-white/10 w-full text-center py-2 rounded-lg">
+                <option value="">-- Select Arrival Time --</option>
+                <option value="6:00 AM">6:00 AM</option>
+                <option value="9:00 AM">9:00 AM</option>
+                <option value="12:00 PM">12:00 PM</option>
+                <option value="4:00 PM">4:00 PM</option>
+                <option value="6:00 PM">6:00 PM</option>
+                <option value="9:00 PM">9:00 PM</option>
+                <option value="11:00 PM">11:00 PM</option>
+              </select>
+              <button onclick="submitAttendance()" class="btn btn-yellow w-full justify-center py-2 text-[10px] font-black italic tracking-widest uppercase">Confirm Entry</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEURAL PERFORMANCE SCAN -->
+        <div class="bento-card area-neural-delay-2">
+          <div class="card-glow"></div>
+          <div class="flex justify-between items-start relative z-10">
+            <div>
+              <span class="section-label">Neural scan</span>
+              <h3 class="text-xl font-bold mt-2 italic">Physique <span class="text-yellow-400">Analysis</span>
+              </h3>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] uppercase text-[#555] font-bold tracking-widest">Accuracy</div>
+              <div class="text-lg font-bold text-green-400">99.8%</div>
+            </div>
+          </div>
+
+          <div class="flex justify-center my-8 relative h-56">
+            <div class="scanline"></div>
+            <svg viewBox="0 0 100 200" class="h-full opacity-40 pulse-glow">
+              <path d="M50,15 Q60,15 60,30 Q60,45 50,50 Q40,45 40,30 Q40,15 50,15 Z" fill="none" stroke="#888"
+                stroke-width="1.5" />
+              <path d="M40,50 L20,70 L15,110 M60,50 L80,70 L85,110" fill="none" stroke="#888" stroke-width="1.5" />
+              <path d="M40,50 L40,110 L35,185 M60,50 L60,110 L65,185" fill="none" stroke="#888" stroke-width="1.5" />
+              <circle cx="50" cy="90" r="18" fill="rgba(245,230,66,0.15)" stroke="var(--yellow)" stroke-width="0.5"
+                stroke-dasharray="2 2" />
+              <circle cx="37" cy="150" r="12" fill="rgba(245,230,66,0.25)" />
+            </svg>
+            <div class="absolute top-1/2 left-0 w-full flex flex-col justify-center gap-24 px-2">
+              <div class="flex justify-between">
+              </div>
+              <div
+                class="text-[9px] bg-yellow-400 text-black font-bold p-1 rounded self-center shadow-lg animate-bounce">
+                Scanning live...</div>
+            </div>
+          </div>
+          <div class="text-center">
+            <span id="dashboard-target-focus" class="text-[10px] text-[#555] font-bold tracking-widest uppercase">Target focus: Hypertrophy phase
+              2</span>
+          </div>
+        </div>
+
+        <!-- AI NUTRITION HUD -->
+        <div class="bento-card area-nutrition-delay-3">
+          <div class="card-glow"></div>
+          <span class="section-label">Ai nutrition</span>
+          <h3 class="text-xl font-bold mt-2 italic">Fueling <span class="text-yellow-400">Status</span></h3>
+          <div class="mt-8 flex flex-col gap-4">
+            <div>
+              <div class="flex justify-between text-[10px] uppercase font-bold mb-2 tracking-widest text-yellow-400">
+                <span>Calorie intake</span> <span id="calorie-label">1.2k/2.5k kcal</span>
+              </div>
+              <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <div id="calorie-bar"
+                  class="h-full bg-yellow-400 shadow-[0_0_10px_rgba(245,230,66,0.5)] transition-all duration-1000"
+                  style="width: 45%;"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] uppercase font-bold mb-2 tracking-widest">
+                <span>Protein</span> <span id="protein-label">85/180g</span>
+              </div>
+              <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                <div id="protein-bar"
+                  class="h-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)] transition-all duration-1000"
+                  style="width: 47%;"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] uppercase font-bold mb-2 tracking-widest">
+                <span>Carbs</span> <span id="carbs-label">120/250g</span>
+              </div>
+              <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                <div id="carbs-bar"
+                  class="h-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)] transition-all duration-1000"
+                  style="width: 48%;"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] uppercase font-bold mb-2 tracking-widest">
+                <span>Fats</span> <span id="fats-label">30/70g</span>
+              </div>
+              <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                <div id="fats-bar"
+                  class="h-full bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.5)] transition-all duration-1000"
+                  style="width: 42%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8 p-4 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
+            <div class="text-[10px] uppercase tracking-widest text-yellow-400 font-bold mb-2">Neural recommendation
+            </div>
+            <div class="text-sm font-bold leading-tight">Post-workout: Grilled salmon & quinoa bowl</div>
+            <div class="text-[10px] text-[#555] mt-1 italic">+ Magnesium & omega-3 pack</div>
+          </div>
+        </div>
+
+        <!-- NEWS FLASH: BROADCASTS -->
+        <div class="bento-card area-passport-delay-4 bg-red-950/20 border-red-500/20" id="broadcast-container"
+          style="display: none; grid-column: span 2;">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-2xl animate-pulse">📢
+            </div>
+            <div class="flex-1">
+              <span class="text-[9px] font-black uppercase text-red-400 tracking-widest">Admin broadcast</span>
+              <h3 id="broadcast-title-display" class="text-lg font-bold italic  leading-none mt-1">---</h3>
+              <p id="broadcast-msg-display" class="text-xs text-[#888] mt-2 italic">---</p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()"
+              class="text-[#444] hover:text-white">&times;</button>
+          </div>
+        </div>
+
+        <!-- GLOBAL ELITE PASSPORT -->
+        <div class="bento-card area-passport-delay-4">
+          <div class="card-glow"></div>
+          <div class="flex justify-between items-end mb-6">
+            <div>
+              <span class="section-label">Global access</span>
+              <h3 class="text-2xl font-bold mt-2 italic ">Studio <span class="text-yellow-400">Passport</span>
+              </h3>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] text-green-400 font-bold tracking-tighter">All locations unlocked</div>
+            </div>
+          </div>
+
+          <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+            <div
+              class="shrink-0 w-44 h-52 rounded-2xl bg-cover bg-center border border-white/10 flex flex-col justify-end p-4 relative group cursor-pointer"
+              onclick="window.location.href='studio.html'"
+              style="background-image: linear-gradient(to bottom, transparent, #000), url('https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400')">
+              <div
+                class="text-[10px] uppercase tracking-widest text-yellow-400 font-bold mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                Japan</div>
+              <div class="text-sm font-bold">Suho elite studio</div>
+              <div class="mt-2 h-1 w-0 group-hover:w-full bg-yellow-400 transition-all duration-500"></div>
+            </div>
+            <div
+              class="shrink-0 w-44 h-52 rounded-2xl bg-cover bg-center border border-white/10 flex flex-col justify-end p-4 relative group cursor-pointer"
+              onclick="window.location.href='vault.html'"
+              style="background-image: linear-gradient(to bottom, transparent, #000), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400')">
+              <div
+                class="text-[10px] uppercase tracking-widest text-yellow-400 font-bold mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                Global</div>
+              <div class="text-sm font-bold">My performance</div>
+              <div class="mt-2 h-1 w-0 group-hover:w-full bg-yellow-400 transition-all duration-500"></div>
+            </div>
+            <div
+              class="shrink-0 w-44 h-52 rounded-2xl bg-cover bg-center border border-white/10 flex flex-col justify-end p-4 relative group cursor-pointer"
+              onclick="window.location.href='about.html'"
+              style="background-image: linear-gradient(to bottom, transparent, #000), url('https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=400')">
+              <div
+                class="text-[10px] uppercase tracking-widest text-yellow-400 font-bold mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                Elite club</div>
+              <div class="text-sm font-bold">Sabu elite club</div>
+              <div class="mt-2 h-1 w-0 group-hover:w-full bg-yellow-400 transition-all duration-500"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SESSIONS CARD: UPCOMING CLASSES -->
+        <div class="bento-card area-sessions">
+          <h3 class="stat-label mb-6">Upcoming sessions</h3>
+          <div id="upcoming-sessions-list" class="flex flex-col gap-4">
+            <div class="p-4 bg-white/5 rounded-2xl border border-white/5 opacity-60 text-center text-[10px] text-[#888]">
+              Loading sessions...
+            </div>
+          </div>
+          <button class="btn btn-outline-white w-full justify-center mt-6 text-[10px]"
+            onclick="window.location.href='workouts.html'">View schedule</button>
+        </div>
+
+        <!-- CHALLENGES CARD: LEADERBOARD & LIVE FEED -->
+        <div class="bento-card area-challenges">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="stat-label">Elite rank</h3>
+            <span class="text-[10px] text-yellow-400 font-bold px-2 py-1 bg-yellow-400/10 rounded">Live hud</span>
+          </div>
+          
+          <div class="flex flex-col gap-6">
+            <!-- Top Performers -->
+            <div id="leaderboard-list" class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+              <!-- Dynamically populated by script.js -->
+            </div>
+
+            <!-- LIVE ACTIVITY FEED (The Missing "Broken" Part) -->
+            <div class="border-t border-white/5 pt-4">
+              <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] text-[#555] font-bold uppercase tracking-widest">Live Activity</span>
+                <div class="flex items-center gap-1">
+                   <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                   <span class="text-[8px] text-green-500 font-bold">SYNCED</span>
+                </div>
+              </div>
+              <div id="live-activity-feed" class="flex flex-col gap-2 max-h-[120px] overflow-y-auto no-scrollbar">
+                <!-- Dynamically populated by script.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- VERIFICATION CARD: PROOF OF PERFORMANCE -->
+      <div class="bento-card area-verify">
+        <div class="card-glow"></div>
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <span class="section-label">Elite Sync</span>
+            <h3 class="text-xl font-bold mt-2 italic">Proof of <span class="text-yellow-400">Work</span></h3>
+          </div>
+        </div>
+        <div class="flex flex-col gap-4">
+          <!-- Multi-modal Proof UI -->
+          <div class="p-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
+            <div class="text-[10px] text-[#888] font-bold uppercase tracking-widest mb-3 text-center">Select Proof Method</div>
+            <div class="grid grid-cols-2 gap-4 mb-3">
+              <div class="flex flex-col items-center justify-center py-6 px-4 bg-black/40 hover:bg-yellow-400/20 border border-white/5 hover:border-yellow-400/50 rounded-xl cursor-pointer transition-all group" onclick="document.getElementById('videoUpload').click()">
+                <svg class="w-8 h-8 mb-2 text-white group-hover:scale-110 group-hover:text-yellow-400 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <div class="text-[10px] font-bold uppercase tracking-widest text-[#ccc] group-hover:text-yellow-400">Video</div>
+              </div>
+              <div class="flex flex-col items-center justify-center py-6 px-4 bg-black/40 hover:bg-yellow-400/20 border border-white/5 hover:border-yellow-400/50 rounded-xl cursor-pointer transition-all group" onclick="document.getElementById('photoUpload').click()">
+                <svg class="w-8 h-8 mb-2 text-white group-hover:scale-110 group-hover:text-yellow-400 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <div class="text-[10px] font-bold uppercase tracking-widest text-[#ccc] group-hover:text-yellow-400">Photo</div>
+              </div>
+            </div>
+            
+            <!-- Hidden inputs -->
+            <input type="file" id="videoUpload" class="hidden" accept="video/*">
+            <input type="file" id="photoUpload" class="hidden" accept="image/*">
+            
+
+
+            <div id="mediaProofContainer" class="hidden flex flex-col gap-2 mt-2 pt-3 border-t border-white/10">
+              <div class="text-[10px] text-yellow-400 font-bold mb-1" id="mediaProofLabel">Media Selected</div>
+              <input type="text" id="mediaProofCaption" class="form-input text-xs bg-black/50 border-white/10 py-2 rounded-lg" placeholder="Add a caption (optional)...">
+              <button onclick="submitMediaProof()" class="btn btn-yellow w-full justify-center py-2 text-[10px] font-black italic tracking-widest">Upload Media</button>
+            </div>
+          </div>
+
+          <!-- DYNAMIC LATEST VERIFICATION -->
+          <div id="latest-verification-box" class="flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-white/5 hidden">
+            <div id="latest-verification-media" class="w-10 h-10 rounded-lg bg-cover bg-center flex items-center justify-center bg-[#111]"></div>
+            <div class="flex-1">
+              <div id="latest-verification-time" class="text-[9px] font-bold uppercase text-yellow-400">Latest Verification</div>
+              <div id="latest-verification-title" class="text-[11px] font-bold">...</div>
+            </div>
+            <div class="text-green-400 text-[10px] font-bold">✓ SYNCED</div>
+          </div>
+
+          <button onclick="window.location.href='vault.html'" class="btn btn-outline-white w-full justify-center py-3 text-[10px] font-black uppercase tracking-widest border-yellow-400/30 text-yellow-400 hover:bg-yellow-400 hover:text-black transition-all shadow-[0_0_15px_rgba(245,230,66,0.1)]">Open My Progress Vault</button>
+
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-white/5">
+          <div class="flex justify-between items-center">
+            <span class="text-[9px] text-[#555] font-bold tracking-widest">Wearable Status</span>
+            <span class="text-[9px] text-green-400 font-bold">Connected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEEDBACK CARD: ELITE SUGGESTIONS -->
+      <div class="bento-card area-passport-delay-4 border-yellow-400/20 bg-yellow-400/5">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <span class="section-label">User Feedback</span>
+            <h3 class="text-xl font-bold mt-2 italic">Feedback <span class="text-yellow-400">Support</span></h3>
+          </div>
+          <div class="text-yellow-400/80">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          </div>
+        </div>
+        <p class="text-[10px] text-[#888] mb-4 tracking-widest font-bold">Improve the platform with your suggestions.</p>
+        <div id="feedbackFormContainer">
+          <form id="eliteFeedbackForm" class="flex flex-col gap-4">
+            <textarea id="feedbackMessage" name="comment" class="form-input text-xs bg-black/40 border-white/10" placeholder="Type your feedback..." rows="4" required></textarea>
+            <button type="submit" class="btn btn-yellow w-full justify-center py-3 text-[10px] font-black italic tracking-widest uppercase">Send Feedback</button>
+          </form>
+        </div>
+        <div id="feedbackSuccessState" class="hidden flex flex-col items-center justify-center py-8 text-center">
+          <div class="text-5xl mb-4 text-yellow-400 drop-shadow-[0_0_15px_rgba(245,230,66,0.6)] animate-pulse">⚡</div>
+          <h4 class="text-sm font-black italic text-yellow-400 tracking-wider">NEURAL SYNC SUCCESS</h4>
+          <p class="text-[10px] text-[#888] mt-2 font-bold tracking-widest">Your elite feedback has been prioritized in the system.</p>
+          <button onclick="document.getElementById('feedbackFormContainer').classList.remove('hidden'); document.getElementById('feedbackSuccessState').classList.add('hidden');" class="btn btn-outline-white mt-6 px-8 py-2 text-[10px] font-black uppercase tracking-widest border-yellow-400/30 text-yellow-400 hover:bg-yellow-400 hover:text-black transition-all shadow-[0_0_15px_rgba(245,230,66,0.1)]">Send Another</button>
+        </div>
+      </div>
+
+      <!-- STORE CARD: ELITE SHOP -->
+      <div class="bento-card area-store">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-2xl font-bold italic  mb-2">Elite <span class="text-yellow-400">Perks</span></h3>
+            <p class="text-xs text-[#888] max-w-[200px]">Unlock member-only discounts on premium gear.</p>
+            <button class="btn btn-yellow mt-6" style="padding: 10px 20px; font-size: 10px;"
+              onclick="window.location.href='shop.html'">Enter Elite Store</button>
+          </div>
+          <div class="hidden md:block w-24 h-24 opacity-10">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" />
+              <path d="M3 6h18" />
+              <path d="M16 10a4 4 0 01-8 0" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+    <!-- ELITE DATA HUD -->
+    <div class="px-4 sm:px-6 lg:px-10 max-w-[1400px] mx-auto py-20">
+      <div class="flex justify-between items-end mb-12">
+        <div>
+          <span class="section-label">Performance Analytics</span>
+          <h2 class="text-4xl font-bold italic ">Elite <span class="text-yellow-400">Data HUD</span></h2>
+        </div>
+        <div class="text-[#555] text-[10px] font-bold uppercase tracking-widest hidden md:block">Biological
+          Synchronization Active</div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Intensity Pulse -->
+        <div class="bento-card bg-[#0f0f0f] border-white/5">
+          <h3 class="stat-label mb-6">Intensity Pulse</h3>
+          <div class="relative h-[250px]">
+            <canvas id="intensityChart"></canvas>
+          </div>
+        </div>
+        <!-- Fuel Consumption -->
+        <div class="bento-card bg-[#0f0f0f] border-white/5-delay-1">
+          <h3 class="stat-label mb-6">Fuel Burned (kcal)</h3>
+          <div class="relative h-[250px]">
+            <canvas id="fuelChart"></canvas>
+          </div>
+        </div>
+        <!-- Training Synergy -->
+        <div class="bento-card bg-[#0f0f0f] border-white/5-delay-2">
+          <h3 class="stat-label mb-6">Training Synergy</h3>
+          <div class="relative h-[250px]">
+            <canvas id="synergyChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" style="text-decoration:none; color:inherit;">
+            <h3>EAST <span>BLUE</span></h3>
+          </a>
+          <p>Redefining fitness through high-performance training and elite community experiences. Join the movement
+            today.</p>
+          <div class="footer-socials">
+            <a href="https://instagram.com/eastbluegym" target="_blank" class="footer-social-btn" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg></a>
+            <a href="https://facebook.com/eastbluegym" target="_blank" class="footer-social-btn" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg></a>
+            <a href="https://twitter.com/eastbluegym" target="_blank" class="footer-social-btn" aria-label="Twitter"><svg width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                </path>
+              </svg></a>
+          </div>
+        </div>
+        <div class="footer-col-delay-2">
+          <h4>Navigate</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="workouts.html">Workouts</a></li>
+            <li><a href="studio.html">Studio</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="dashboard.html" class="nav-dashboard-link hidden">Dashboard</a></li>
+            <li><a href="membership.html">Membership</a></li>
+          </ul>
+        </div>
+        <div class="footer-col-delay-3">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="support.html#faq">Help Center</a></li>
+            <li><a href="#" class="btn-contact-trigger">Contact Us</a></li>
+            <li><a href="support.html#privacy">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 East Blue Gym. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="support.html#terms">Terms & Disclosures</a>
+          <a href="support.html#privacy">Privacy Policy</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- SETTINGS MODAL -->
+    <div id="profileModal" class="modal-overlay hidden">
+      <div class="modal-content glass auth-modal-inner overflow-y-auto max-h-[95vh]">
+        <button class="modal-close" id="btnCloseModal">&times;</button>
+        <div class="px-6 pb-8 sm:px-8 sm:pb-10">
+          <h2 class="modal-title">UPDATE <span>PROFILE</span></h2>
+          <p class="modal-subtitle">Customize your performance profile.</p>
+          <div class="flex flex-col items-center mb-6 sm:mb-8">
+            <div class="relative group cursor-pointer" onclick="document.getElementById('profilePictureInput').click()">
+              <img id="modal-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-24 h-24 rounded-full border-2 border-yellow-400 p-1 object-cover">
+              <div class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span class="text-[10px] font-bold uppercase">Change Photo</span>
+              </div>
+            </div>
+          </div>
+          <form id="profileUpdateForm" class="flex flex-col gap-5">
+            <input type="file" id="profilePictureInput" name="profilePictureFile" class="hidden" accept="image/*" onchange="previewProfilePicture(this)">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="edit-fullname" name="fullName" class="form-input" placeholder="John Doe">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label class="form-label">Nickname</label>
+                <input type="text" id="edit-nickname" name="nickname" class="form-input" placeholder="Elite Runner">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Training Goal</label>
+                <select id="edit-goal" name="goal" class="form-input">
+                  <option value="Fat Loss">Fat Loss</option>
+                  <option value="Bulking">Bulking</option>
+                  <option value="Endurance">Endurance</option>
+                  <option value="Recovery">Recovery</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Hypertrophy">Hypertrophy</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mobile Number</label>
+                <input type="tel" id="edit-phone" name="phoneNumber" class="form-input" placeholder="+880 1XXX-XXXXXX">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label class="form-label">Weight (kg)</label>
+                <input type="number" id="edit-weight" name="weight" class="form-input" placeholder="75">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Target Weight (kg)</label>
+                <input type="number" id="edit-weightGoal" name="weightGoal" class="form-input" placeholder="80">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Height (cm)</label>
+              <input type="number" id="edit-height" name="height" class="form-input" placeholder="180">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Profile Bio</label>
+              <textarea id="edit-bio" name="bio" class="form-input" style="min-height: 80px;" placeholder="Tell us about your fitness journey..."></textarea>
+            </div>
+            <div class="md:col-span-2">
+              <button type="submit" class="btn btn-yellow w-full justify-center py-4">UPDATE ELITE PROFILE</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOBAL AUTH MODAL -->
+    <div id="authModal" class="modal-overlay hidden">
+      <div class="modal-content glass auth-modal-inner" style="max-width: 450px;">
+        <button class="modal-close" id="closeAuthModal">&times;</button>
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+          <button class="auth-tab" onclick="switchTab('register')">Join Us</button>
+        </div>
+        <div id="loginFormModal" class="auth-form active">
+          <form class="ajax-form" action="/api/auth/login" method="POST">
+            <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" placeholder="you@example.com" required></div>
+            <div class="form-group"><label class="form-label">Password</label><input type="password" name="password" class="form-input" placeholder="••••••••" required></div>
+            <button type="submit" class="btn btn-yellow w-full justify-center">Enter HUD</button>
+          </form>
+        </div>
+        <div id="registerFormModal" class="auth-form">
+          <form class="ajax-form" action="/api/auth/register" method="POST">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group"><label class="form-label">First Name</label><input type="text" name="firstName" class="form-input" placeholder="John" required></div>
+              <div class="form-group"><label class="form-label">Last Name</label><input type="text" name="lastName" class="form-input" placeholder="Doe" required></div>
+            </div>
+            <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" placeholder="you@example.com" required></div>
+            <div class="form-group"><label class="form-label">Password</label><input type="password" name="password" class="form-input" placeholder="••••••••" required></div>
+            <button type="submit" class="btn btn-yellow w-full justify-center">Create Account</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT MODAL -->
+    <div id="contactModal" class="modal-overlay hidden">
+      <div class="modal-content glass auth-modal-inner" style="max-width: 600px;">
+        <button class="modal-close" id="closeContactModal">&times;</button>
+        <div class="text-center mb-8">
+          <span class="section-label">Get In Touch</span>
+          <h2 class="modal-title">Contact <span>Elite</span></h2>
+        </div>
+        <form id="contactFormModal" class="ajax-form flex flex-col gap-5" action="/api/user/contact" method="POST">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input type="text" name="name" class="form-input" placeholder="Name" required>
+            <input type="email" name="email" class="form-input" placeholder="Email" required>
+          </div>
+          <input type="text" name="subject" class="form-input" placeholder="Subject" required>
+          <textarea name="message" class="form-input" style="min-height: 100px;" placeholder="Message"
+            required></textarea>
+          <button type="submit" class="btn btn-yellow w-full justify-center">Send Message</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.fetchLatestVerification === 'function') {
+        window.fetchLatestVerification();
+      }
+    });
+  </script>
+    <!-- Core Functional Scripts -->
+    <script src="js/scientific_metabolics.js"></script>
+    <script src="js/script.js?v=2033"></script>
+    <script src="js/chatbot.js"></script>
+    <script>
+      // --- ELITE SECURITY GUARD ---
+      if (!localStorage.getItem('token') && !localStorage.getItem('elite_profile')) {
+        window.location.href = 'index.html';
+      }
+
+      // --- CHART DEFAULTS ---
+      if (typeof window.Chart !== 'undefined') {
+        window.Chart.defaults.color = '#555';
+        window.Chart.defaults.font.family = "'Barlow', sans-serif";
+      }
+
+      // --- HUD INITIALIZATION ---
+      const saved = JSON.parse(localStorage.getItem('elite_profile') || '{}');
+      window.updateEliteUI(saved);
+
+      // --- REAL-TIME BIOMETRICS SIMULATION ---
+      function initLiveHUD() {
+        // 1. Fluctuating Heart Rate
+        setInterval(() => {
+          const hrEl = document.querySelector('.area-stats .stat-value');
+          if (hrEl) {
+            const currentHR = parseInt(hrEl.textContent);
+            const fluctuation = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+            hrEl.textContent = Math.max(65, Math.min(180, currentHR + fluctuation));
+          }
+        }, 2000);
+
+        // 2. Fluctuating Fatigue & Recovery
+        setInterval(() => {
+          const fatigueEl = document.getElementById('live-fatigue');
+          const recoveryEl = document.getElementById('live-recovery');
+          if (fatigueEl) {
+            const current = parseFloat(fatigueEl.textContent.match(/[\d.]+/)[0]);
+            fatigueEl.textContent = `CORE: ${(current + (Math.random() * 0.2 - 0.1)).toFixed(1)}% FATIGUE`;
+          }
+          if (recoveryEl) {
+            const current = parseFloat(recoveryEl.textContent.match(/[\d.]+/)[0]);
+            recoveryEl.textContent = `RECOVERY: ${(current + (Math.random() * 0.2 - 0.1)).toFixed(1)}%`;
+          }
+        }, 3000);
+
+        // 3. Fluctuating Calories (Slow burn)
+        setInterval(() => {
+          const burnEl = document.querySelector('.area-stats div:nth-child(1) .stat-value');
+          if (burnEl) {
+            const current = parseInt(burnEl.textContent.replace(',', ''));
+            if (Math.random() > 0.7) {
+              burnEl.innerHTML = `${(current + 1).toLocaleString()} <span class="text-sm font-normal text-[#555]">KCAL</span>`;
+            }
+          }
+        }, 5000);
+      }
+
+      async function fetchNotifications() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+          const res = await fetch(`${API_URL}/api/user/notifications?token=${encodeURIComponent(token)}`);
+          const notifs = await res.json();
+          if (notifs && notifs.length > 0) {
+            const latest = notifs[0];
+            document.getElementById('broadcast-title-display').textContent = latest.title;
+            document.getElementById('broadcast-msg-display').textContent = latest.message;
+            document.getElementById('broadcast-container').style.display = 'block';
+          }
+        } catch (err) { console.error('Notification sync failed:', err); }
+      }
+
+      function setSentiment(val, btn) {
+        document.getElementById('feedbackSentiment').value = val;
+        document.querySelectorAll('.sentiment-btn').forEach(b => {
+          b.classList.remove('active', 'border-yellow-400/50', 'bg-yellow-400/10');
+        });
+        btn.classList.add('active', 'border-yellow-400/50', 'bg-yellow-400/10');
+      }
+
+      window.setSentiment = setSentiment;
+
+
+
+      fetchNotifications();
+      initLiveHUD();
+
+      // animation fallback
+      setTimeout(() => {
+        document.querySelectorAll('.bento-card').forEach((card, i) => {
+          setTimeout(() => {
+            card.style.opacity = "1";
+            card.style.transform = "translateY(0)";
+          }, i * 100);
+        });
+      }, 100);
+    </script>
+    <script>
+      async function submitAttendance() {
+        const timeStr = document.getElementById('attendanceTime').value;
+        if (!timeStr) {
+          alert('Please select an arrival time.');
+          return;
+        }
+        
+        const form = document.getElementById('checkInForm');
+        const statusBox = document.getElementById('checkInStatus');
+        
+        form.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-4">
+            <div class="w-8 h-8 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin mb-3"></div>
+            <div class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest">Syncing to Mainframe...</div>
+          </div>
+        `;
+        
+        try {
+            const token = localStorage.getItem('token') || localStorage.getItem('elite_token');
+            const apiBase = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+            const res = await fetch(`${apiBase}/api/user/attendance?token=${token}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ timeStr: timeStr })
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                form.innerHTML = `
+                  <div class="text-center p-3 bg-green-500/10 border border-green-500/30 rounded-xl">
+                    <div class="text-green-400 text-2xl mb-1">✓</div>
+                    <div class="text-[10px] font-black uppercase text-green-400 tracking-widest">Attendance Logged</div>
+                    <div class="text-[9px] text-[#888] mt-1 font-bold">Time: ${timeStr}</div>
+                  </div>
+                `;
+                statusBox.innerHTML = '<span class="text-green-400 text-[10px]">SYNC SUCCESSFUL</span>';
+            } else {
+                throw new Error(data.detail || "Failed to log attendance");
+            }
+        } catch (err) {
+            form.innerHTML = `
+                <div class="text-center p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
+                  <div class="text-red-400 text-2xl mb-1">✗</div>
+                  <div class="text-[10px] font-black uppercase text-red-400 tracking-widest">Sync Failed</div>
+                  <div class="text-[9px] text-[#888] mt-1 font-bold">${err.message}</div>
+                </div>
+                <button onclick="location.reload()" class="btn btn-outline-white w-full mt-3 text-[10px]">Retry</button>
+            `;
+            statusBox.innerHTML = '<span class="text-red-400 text-[10px]">SYNC FAILED</span>';
+        }
+      }
+    </script>
+</body>
+
+</html>
+
+
+
+
