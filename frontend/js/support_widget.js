@@ -51,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     toggleBtn.addEventListener("click", () => {
         widget.classList.add("open");
+        document.body.classList.add('support-is-open');
         toggleBtn.style.display = "none";
         if (!ws && currentRole) {
             initWebSocket();
@@ -59,6 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     closeBtn.addEventListener("click", () => {
         widget.classList.remove("open");
+        document.body.classList.remove('support-is-open');
         setTimeout(() => toggleBtn.style.display = "flex", 400);
     });
 

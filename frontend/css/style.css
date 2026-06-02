@@ -3139,3 +3139,10 @@ TRANSFORMATION SECTION
 .support-toggle-btn:hover {
   transform: scale(1.1);
 }
+
+body.chatbot-is-open .support-toggle-btn,
+body.chatbot-is-open #support-widget {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}

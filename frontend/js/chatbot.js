@@ -49,12 +49,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bubble.addEventListener('click', () => {
         chatWindow.classList.toggle('active');
+        document.body.classList.toggle('chatbot-is-open', chatWindow.classList.contains('active'));
         if (chatWindow.classList.contains('active')) {
             input.focus();
         }
     });
 
-    closeBtn.addEventListener('click', () => chatWindow.classList.remove('active'));
+    closeBtn.addEventListener('click', () => {
+        chatWindow.classList.remove('active');
+        document.body.classList.remove('chatbot-is-open');
+    });
 
     window.handleQuickReply = (text) => {
         input.value = text;
