@@ -40,4 +40,9 @@ async def chat_response(request: ChatRequest):
         return {"response": response.text}
     except Exception as e:
         print(f"Gemini API Error: {e}", flush=True)
+        try:
+            models = [m.name for m in genai.list_models()]
+            print(f"AVAILABLE MODELS: {models}", flush=True)
+        except Exception as ex:
+            print(f"Failed to list models: {ex}", flush=True)
         return {"response": "Neural Link offline. Unable to reach the AI core. Try again later."}
