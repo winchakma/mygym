@@ -290,15 +290,24 @@
           <form id="changePasswordForm" class="flex flex-col gap-5 ajax-form" action="/api/user/change-password" method="POST">
             <div class="form-group">
               <label class="form-label">Current Password</label>
-              <input type="password" name="oldPassword" class="form-input" required>
+              <div class="relative">
+                <input type="password" name="oldPassword" class="form-input pr-10" required>
+                <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#444] hover:text-yellow-400">👁️</button>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">New Password</label>
-              <input type="password" name="newPassword" class="form-input" required>
+              <div class="relative">
+                <input type="password" name="newPassword" class="form-input pr-10" required>
+                <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#444] hover:text-yellow-400">👁️</button>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">Confirm New Password</label>
-              <input type="password" name="confirmPassword" class="form-input" required>
+              <div class="relative">
+                <input type="password" name="confirmPassword" class="form-input pr-10" required>
+                <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#444] hover:text-yellow-400">👁️</button>
+              </div>
             </div>
             <button type="submit" class="btn btn-yellow mt-4 w-full justify-center py-3">Update Password</button>
           </form>
