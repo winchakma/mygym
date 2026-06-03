@@ -472,10 +472,15 @@
             payment_method: selectedPayment,
             name: name,
             phone: phone,
-            address: fullAddress
+            address: fullAddress,
+            origin: window.location.origin
           })
         });
         const data = await res.json();
+        if (data.status === 'stripe_redirect') {
+          window.location.href = data.url;
+          return;
+        }
         if (data.status === 'success') {
           if (data.user) localStorage.setItem('elite_profile', JSON.stringify(data.user));
           window.showToast('Order Placed Successfully!', 'success');
