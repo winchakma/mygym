@@ -25,8 +25,8 @@ async def chat_response(request: ChatRequest):
     )
 
     try:
-        # We use the gemini-1.5-flash-latest model which supports system_instruction
-        model = genai.GenerativeModel('gemini-1.5-flash-latest', system_instruction=system_instruction)
+        # We use the gemini-1.5-pro model which supports system_instruction
+        model = genai.GenerativeModel('gemini-1.5-pro', system_instruction=system_instruction)
         
         # Convert history format
         formatted_history = []
