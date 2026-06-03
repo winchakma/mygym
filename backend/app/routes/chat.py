@@ -25,8 +25,8 @@ async def chat_response(request: ChatRequest):
     )
 
     try:
-        # We use the gemini-1.5-pro model which supports system_instruction
-        model = genai.GenerativeModel('gemini-1.5-pro', system_instruction=system_instruction)
+        # We use the gemini-2.5-flash model which supports system_instruction
+        model = genai.GenerativeModel('gemini-2.5-flash', system_instruction=system_instruction)
         
         # Convert history format
         formatted_history = []
@@ -40,9 +40,4 @@ async def chat_response(request: ChatRequest):
         return {"response": response.text}
     except Exception as e:
         print(f"Gemini API Error: {e}", flush=True)
-        try:
-            models = [m.name for m in genai.list_models()]
-            print(f"AVAILABLE MODELS: {models}", flush=True)
-        except Exception as ex:
-            print(f"Failed to list models: {ex}", flush=True)
         return {"response": "Neural Link offline. Unable to reach the AI core. Try again later."}
