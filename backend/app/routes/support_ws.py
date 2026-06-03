@@ -44,11 +44,11 @@ class ConnectionManager:
                 except Exception:
                     pass
 
-    async def broadcast_to_admins(self, message: dict, target_role: str):
+    async def broadcast_to_admins(self, message: dict, target_role: str, exclude_email: str = None):
         # target_role is "Normal Admin" (trainer) or "Super Admin" (superadmin)
         mapped_role = "superadmin" if target_role == "Super Admin" else "trainer"
         for email, role in self.admin_roles.items():
-            if role == mapped_role:
+            if role == mapped_role and email != exclude_email:
                 for connection in self.active_connections.get(email, []):
                     try:
                         await connection.send_text(json.dumps(message))
@@ -133,7 +133,7 @@ async def support_chat_endpoint(websocket: WebSocket, token: str):
                 }
 
                 await manager.send_personal_message(payload, email)
-                await manager.broadcast_to_admins(payload, target_role)
+                await manager.broadcast_to_admins(payload, target_role, exclude_email=email)
 
             elif action == "admin_reply":
                 if role == "user":
@@ -172,7 +172,8 @@ async def support_chat_endpoint(websocket: WebSocket, token: str):
                 }
 
                 await manager.send_personal_message(payload, email)
-                await manager.send_personal_message(payload, session.userEmail)
+                if session.userEmail != email:
+                    await manager.send_personal_message(payload, session.userEmail)
 
             elif action == "fetch_sessions":
                 if role == "user":
