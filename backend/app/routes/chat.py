@@ -25,8 +25,8 @@ async def chat_response(request: ChatRequest):
     )
 
     try:
-        # We use the gemini-2.0-flash model which has a much higher free-tier quota
-        model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=system_instruction)
+        # We use the gemini-flash-lite-latest model for the highest possible free-tier quota
+        model = genai.GenerativeModel('gemini-flash-lite-latest', system_instruction=system_instruction)
         
         # Convert history format
         formatted_history = []
