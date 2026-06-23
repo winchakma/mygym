@@ -125,7 +125,8 @@ else:
         "http://127.0.0.1:10000",
         "https://mygym-winchakma.vercel.app",
         "https://mygym-p9rd.vercel.app",
-        "https://mygym.vercel.app"
+        "https://mygym.vercel.app",
+        "https://p9rd.vercel.app"
     ]
 
 app.add_middleware(
