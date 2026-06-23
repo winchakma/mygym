@@ -225,7 +225,7 @@ window.updateDashboardUI = function (user, isFresh = false) {
   // Fetch Upcoming Sessions
   window.syncUpcomingSessions = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/activities?token=${localStorage.getItem('token')}`);
+      const res = await fetch(`${API_URL}/api/user/activities?token=${localStorage.getItem('token')}`);
       if (!res.ok) return;
       const data = await res.json();
       const bookings = data.filter(item => item.type === 'booking').slice(0, 3); // Get top 3 bookings
@@ -2351,7 +2351,7 @@ window.bookClass = async function (id, name, time, trainer) {
   const classId = id === 'static_class' ? className.toLowerCase().replace(/\s+/g, '_') : id;
 
   try {
-    const res = await fetch(`${API_URL}/api/book?class_id=${encodeURIComponent(classId)}&token=${token}`, {
+    const res = await fetch(`${API_URL}/api/user/book?class_id=${encodeURIComponent(classId)}&token=${token}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });

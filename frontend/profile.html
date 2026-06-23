@@ -411,7 +411,7 @@
     async function fetchActivities() {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`${API_URL}/api/activities?token=${encodeURIComponent(token)}`);
+        const response = await fetch(`${API_URL}/api/user/activities?token=${encodeURIComponent(token)}`);
         const data = await response.json();
         if (data && data.length > 0) {
           activityBody.innerHTML = data.map(item => {
@@ -444,7 +444,7 @@
       const token = localStorage.getItem('token');
       
       try {
-        const response = await fetch(`${API_URL}/api/book/cancel/${id}?token=${encodeURIComponent(token)}`, {
+        const response = await fetch(`${API_URL}/api/user/book/cancel/${id}?token=${encodeURIComponent(token)}`, {
           method: 'POST'
         });
         if (response.ok) {
