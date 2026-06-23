@@ -4,6 +4,7 @@
 
 console.log("EAST BLUE SCRIPT LOADED v2026");
 const API_URL = window.ELITE_API_URL || '';
+window.API_URL = API_URL;
 
 // Force mobile browsers to respect :active pseudo-classes instantly on tap
 if ('ontouchstart' in document.documentElement) {
