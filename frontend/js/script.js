@@ -1442,7 +1442,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!token) return;
 
     try {
-        const apiBase = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+        const apiBase = window.ELITE_API_URL || 'https://east-blue-gym-api.onrender.com';
         const res = await fetch(`${apiBase}/api/workouts/?token=${encodeURIComponent(token)}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1538,7 +1538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (token) {
         try {
-            const apiBase = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+            const apiBase = window.ELITE_API_URL || 'https://east-blue-gym-api.onrender.com';
             const res = await fetch(`${apiBase}/api/workouts/?token=${encodeURIComponent(token)}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -1636,7 +1636,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!token) return;
         
         try {
-            const apiBase = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+            const apiBase = window.ELITE_API_URL || 'https://east-blue-gym-api.onrender.com';
             const res = await fetch(`${apiBase}/api/user/live-feed`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -1696,7 +1696,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('token') || localStorage.getItem('elite_token');
         if (!token) return;
         
-        const apiBase = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+        const apiBase = window.ELITE_API_URL || 'https://east-blue-gym-api.onrender.com';
         const res = await fetch(`${apiBase}/api/user/ai-insights?token=${encodeURIComponent(token)}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -2408,7 +2408,7 @@ window.fetchSupportMessages = async function() {
     const payload = window.parseJwt(token);
     const role = payload ? payload.role : 'user';
     const endpoint = role === 'superadmin' ? 'owner' : 'trainer';
-    const activeAPI = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+    const activeAPI = window.ELITE_API_URL || 'https://east-blue-gym-api.onrender.com';
     
     try {
         const res = await fetch(`${activeAPI}/api/support/${endpoint}?token=${encodeURIComponent(token)}`);
@@ -2501,7 +2501,7 @@ window.sendActiveSupportReply = async function() {
     const id = replyArea.getAttribute('data-reply-id');
     const input = document.getElementById('support-reply-input');
     const reply = input.value;
-    const activeAPI = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+    const activeAPI = window.ELITE_API_URL || 'https://east-blue-gym-api.onrender.com';
     
     if (!reply || !id || !token) return;
     

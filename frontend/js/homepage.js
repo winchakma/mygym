@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const activeAPI = window.ELITE_API_URL || "https://mygym-p9rd.onrender.com";
+    const activeAPI = window.ELITE_API_URL || "https://east-blue-gym-api.onrender.com";
 
     // 1. Fetch Stats
     fetch(`${activeAPI}/api/public/stats`)

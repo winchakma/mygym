@@ -1053,7 +1053,7 @@
         
         try {
             const token = localStorage.getItem('token') || localStorage.getItem('elite_token');
-            const apiBase = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+            const apiBase = window.ELITE_API_URL || 'https://east-blue-gym-api.onrender.com';
             const res = await fetch(`${apiBase}/api/user/attendance?token=${token}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1089,7 +1089,7 @@
       async function fetchUserOrders() {
         const token = localStorage.getItem('token') || localStorage.getItem('elite_token');
         if (!token) return;
-        const apiBase = window.ELITE_API_URL || 'https://mygym-p9rd.onrender.com';
+        const apiBase = window.ELITE_API_URL || 'https://east-blue-gym-api.onrender.com';
         
         try {
             const res = await fetch(`${apiBase}/api/user/orders?token=${token}`);
