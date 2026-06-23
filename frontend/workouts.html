@@ -356,7 +356,7 @@
            return;
         }
         try {
-          const res = await fetch(`${API_URL}/api/user/book?class_id=${id}&token=${encodeURIComponent(token)}`, {
+          const res = await fetch(`${API_URL}/api/book?class_id=${id}&token=${encodeURIComponent(token)}`, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json'

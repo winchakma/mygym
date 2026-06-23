@@ -444,7 +444,7 @@
       const token = localStorage.getItem('token');
       
       try {
-        const response = await fetch(`${API_URL}/api/user/book/cancel/${id}?token=${encodeURIComponent(token)}`, {
+        const response = await fetch(`${API_URL}/api/book/cancel/${id}?token=${encodeURIComponent(token)}`, {
           method: 'POST'
         });
         if (response.ok) {
