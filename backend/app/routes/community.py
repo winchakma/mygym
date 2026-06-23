@@ -435,10 +435,18 @@ async def websocket_endpoint(websocket: WebSocket, token: Optional[str] = None):
             token = websocket.query_params.get("token")
             
         if not token:
+            # Not accepted yet, can reject or accept then immediately close
+            await websocket.accept()
             await websocket.close(code=4003)
             return
             
-        user = await get_current_user(token)
+        try:
+            user = await get_current_user(token)
+        except Exception:
+            await websocket.accept()
+            await websocket.close(code=4003)
+            return
+
         user_email = user.email.strip().lower()
         await manager.connect(websocket, user_email)
         try:

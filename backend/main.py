@@ -9,6 +9,10 @@ from dotenv import load_dotenv
 # Ensure .env is loaded from the correct path
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
 
+secret_key_val = os.getenv("SECRET_KEY", "your-secret-key")
+if secret_key_val == "your-secret-key":
+    raise RuntimeError("CRITICAL ERROR: SECRET_KEY is not configured securely!")
+
 from app.routes import auth, profile, workout, community, chat, admin, store, public, support, support_ws
 from app.database import init_db
 
@@ -106,6 +110,7 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
     return response
 
 # PRO-FIX: Strict Origin CORS for production stability

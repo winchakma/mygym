@@ -68,12 +68,14 @@ def decode_token(token: str):
 async def support_chat_endpoint(websocket: WebSocket, token: str):
     email = decode_token(token)
     if not email:
+        await websocket.accept()
         await websocket.close(code=1008)
         return
 
     # Verify user and get role
     user = await User.find_one(User.email == email)
     if not user:
+        await websocket.accept()
         await websocket.close(code=1008)
         return
     db_role = user.role.lower() if user.role else "user"
@@ -83,6 +85,7 @@ async def support_chat_endpoint(websocket: WebSocket, token: str):
         role = "trainer"
     else:
         role = "user"
+    await websocket.accept()
     await manager.connect(websocket, email, role)
 
     try:

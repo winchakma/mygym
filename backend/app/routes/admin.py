@@ -12,6 +12,8 @@ from datetime import datetime
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
+if SECRET_KEY == "your-secret-key":
+    raise RuntimeError("CRITICAL ERROR: SECRET_KEY is not configured securely!")
 ALGORITHM = "HS256"
 
 async def get_current_admin(token: str):
@@ -369,7 +371,9 @@ async def list_feedback(token: str):
     for f in feedbacks:
         f_dict = f.dict()
         email_clean = f.userEmail.strip()
-        user = await User.find_one({"email": {"$regex": f"^{email_clean}$", "$options": "i"}})
+        import re
+        escaped_email = re.escape(email_clean)
+        user = await User.find_one({"email": {"$regex": f"^{escaped_email}$", "$options": "i"}})
         if user and getattr(user, 'profilePicture', None):
             f_dict['profilePicture'] = user.profilePicture
         else:

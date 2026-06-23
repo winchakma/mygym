@@ -16,6 +16,8 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
+if SECRET_KEY == "your-secret-key":
+    raise RuntimeError("CRITICAL ERROR: SECRET_KEY is not configured securely!")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
