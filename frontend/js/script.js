@@ -1959,8 +1959,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  renderSchedule(scheduleGrid, currentDay, currentFilter);
-  renderSchedule(homeScheduleGrid, currentDay, 'all');
+  if (typeof renderSchedule === 'function') {
+    try { renderSchedule(scheduleGrid, currentDay, currentFilter); } catch(e) {}
+    try { renderSchedule(homeScheduleGrid, currentDay, 'all'); } catch(e) {}
+  }
   initComparisonSlider();
 
   /* ---- NEURAL PAGE ROUTER (BACKEND SYNC) ---- */
