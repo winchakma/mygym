@@ -25,7 +25,7 @@
     } else {
         // PRODUCTION FALLBACK
         // We use the primary Render backend URL
-        window.ELITE_API_URL = 'https://east-blue-gym-api.onrender.com';
+        window.ELITE_API_URL = 'https://mygym-f40m.onrender.com';
     }
 
     console.log(`Elite API Sync: Targeted at ${window.ELITE_API_URL}`);

@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         
-        const activeAPI = window.ELITE_API_URL || "https://east-blue-gym-api.onrender.com";
+        const activeAPI = window.ELITE_API_URL || "https://mygym-f40m.onrender.com";
         const wsUrl = activeAPI.replace(/^http/, 'ws') + `/api/support-ws/chat?token=${token}`;
         ws = new WebSocket(wsUrl);
 
@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("image", file);
 
         try {
-            const activeAPI = window.ELITE_API_URL || "https://east-blue-gym-api.onrender.com";
+            const activeAPI = window.ELITE_API_URL || "https://mygym-f40m.onrender.com";
             const res = await fetch(`${activeAPI}/api/support-ws/upload-image`, {
                 method: "POST",
                 body: formData
