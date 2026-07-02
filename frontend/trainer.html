@@ -1367,7 +1367,6 @@
     };
 
     window.deleteFeedback = async function(id) {
-      if(!confirm("Are you sure you want to permanently delete this feedback?")) return;
       const res = await fetch(`${activeAPI}/api/admin/feedback/${id}?token=${encodeURIComponent(token)}`, { method: 'DELETE' });
       if (res.ok) fetchFeedback();
     };
