@@ -370,6 +370,7 @@ async def list_feedback(token: str):
     result = []
     for f in feedbacks:
         f_dict = f.dict()
+        f_dict['id'] = str(f.id)
         email_clean = f.userEmail.strip()
         import re
         escaped_email = re.escape(email_clean)
