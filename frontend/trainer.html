@@ -1353,6 +1353,7 @@
                      <span class="text-[9px] font-bold tracking-widest">Resolved Sync Complete</span>
                   </div>
                 `}
+                <button onclick="deleteFeedback('${f.id || f._id}')" class="px-6 py-2 bg-red-500/10 text-red-500 border border-red-500/30 font-black italic text-[9px] rounded-xl hover:bg-red-500 hover:text-white transition-all">Delete</button>
               </div>
             </div>
           `;
@@ -1362,6 +1363,12 @@
 
     window.resolveFeedback = async function(id) {
       const res = await fetch(`${activeAPI}/api/admin/feedback/${id}/resolve?token=${encodeURIComponent(token)}`, { method: 'POST' });
+      if (res.ok) fetchFeedback();
+    };
+
+    window.deleteFeedback = async function(id) {
+      if(!confirm("Are you sure you want to permanently delete this feedback?")) return;
+      const res = await fetch(`${activeAPI}/api/admin/feedback/${id}?token=${encodeURIComponent(token)}`, { method: 'DELETE' });
       if (res.ok) fetchFeedback();
     };
 

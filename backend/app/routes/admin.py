@@ -394,6 +394,17 @@ async def resolve_feedback(id: str, token: str):
     await feedback.save()
     return {"message": "Feedback marked as resolved"}
 
+@router.delete("/feedback/{id}")
+async def delete_feedback(id: str, token: str):
+    await get_current_admin_or_trainer(token)
+    from beanie import PydanticObjectId
+    feedback = await UserFeedback.get(PydanticObjectId(id))
+    if not feedback:
+        raise HTTPException(status_code=404, detail="Feedback not found")
+    
+    await feedback.delete()
+    return {"message": "Feedback deleted successfully"}
+
 @router.get("/users/{email}/progress")
 async def get_user_progress(email: str, token: str):
     await get_current_admin_or_trainer(token)
