@@ -26,8 +26,8 @@
   /* Text */
   --white:  #eeeef0;
   --offwhite: #c8c8d0;
-  --muted:  #6b6b7a;
-  --muted2: #3f3f4a;
+  --muted:  #A0A0A0;
+  --muted2: #B3B3B3;
 
   /* Accents */
   --red:   #e63946;
@@ -62,9 +62,9 @@
   --shadow-glow:    0 0 40px rgba(245, 230, 66, 0.12);
 
   /* Spacing scale */
-  --space-xs:  8px;
-  --space-sm:  16px;
-  --space-md:  32px;
+  --space-xs:  12px;
+  --space-sm:  24px;
+  --space-md:  40px;
   --space-lg:  64px;
   --space-xl:  120px;
   --space-2xl: 180px;
@@ -188,9 +188,25 @@ button {
 
 input,
 select,
-textarea {
+textarea,
+.form-input {
   font-family: var(--font-body);
   outline: none;
+  background: #1A1A1A;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--white);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  transition: var(--trans);
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.form-input:focus {
+  border-color: var(--yellow);
+  box-shadow: var(--shadow-glow);
+  background: #1f1f1f;
 }
 
 /* ---------- MODALS ---------- */
